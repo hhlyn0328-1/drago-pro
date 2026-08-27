@@ -322,6 +322,8 @@ tr.win td.res{color:var(--a); font-weight:600}
 .note__v{font-size:13.5px; line-height:1.8; color:var(--ink-2)}
 .note__v b{color:var(--ink); font-weight:600}
 
+.ln{display:block}
+.ln + .ln{margin-top:.4em}
 .foot{border-top:1px solid var(--line); padding-top:16px; font-size:12px; color:var(--muted); line-height:1.8}
 
 #tip{
@@ -1170,6 +1172,45 @@ tr.win td.res{color:var(--a); font-weight:600}
     if (t === "폭투" || t === "타석변경" || t === "대주자" || t.indexOf("투수교체") === 0) return "etc";
     return "out";
   }
+  /* --- 문장 단위 줄바꿈 --- */
+  var PROSE_SEL = ".lede .sub, .threat__how, .plan__d, .hlcard__d, .kpi .d, .h2h__fact span, .note__v, .shead .hint";
+  function tagsBalanced(s){
+    var ok = true;
+    ["b", "strong", "em", "i", "span"].forEach(function(t){
+      var o = (s.match(new RegExp("<" + t + "[ >]", "g")) || []).length;
+      var c = (s.match(new RegExp("</" + t + ">", "g")) || []).length;
+      if (o !== c) ok = false;
+    });
+    return ok;
+  }
+  function splitLines(h){
+    var out = [], cur = "", depth = 0;
+    for (var i = 0; i < h.length; i++){
+      var c = h.charAt(i);
+      if (c === "<") depth++;
+      if (c === ">") depth--;
+      cur += c;
+      var end = (c === "." || c === "!" || c === "?");
+      var nextWs = (i + 1 >= h.length) || /\s/.test(h.charAt(i + 1));
+      if (depth <= 0 && end && nextWs && tagsBalanced(cur) && cur.trim().length > 6){
+        out.push(cur.trim()); cur = ""; i++;
+      }
+    }
+    if (cur.trim()) out.push(cur.trim());
+    return out;
+  }
+  function proseify(scope){
+    var nodes = (scope || document).querySelectorAll(PROSE_SEL);
+    for (var i = 0; i < nodes.length; i++){
+      var n = nodes[i];
+      if (n.getAttribute("data-prosed")) continue;
+      n.setAttribute("data-prosed", "1");
+      var lines = splitLines(n.innerHTML);
+      if (lines.length < 2) continue;
+      n.innerHTML = lines.map(function(s){ return '<span class="ln">' + s + "</span>"; }).join("");
+    }
+  }
+
   function el(tag, cls, txt){
     var e = document.createElement(tag);
     if (cls) e.className = cls;
@@ -1519,6 +1560,7 @@ tr.win td.res{color:var(--a); font-weight:600}
     f.innerHTML = g.tour + " · " + g.date + " " + g.venue +
       " 공식 기록지를 옮긴 것입니다." + (g.foot ? "<br>" + g.foot : "");
     host.appendChild(f);
+    proseify(host);
   }
 
   /* =======================================================================
@@ -1864,6 +1906,8 @@ tr.win td.res{color:var(--a); font-weight:600}
 
   renderH2H();
   renderScout();
+  proseify(document.getElementById("h2h"));
+  proseify(document.getElementById("scout"));
   buildTabs();
   summary();
   var start = 0;
