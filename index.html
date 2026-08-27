@@ -1,0 +1,1877 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="googlebot" content="noindex,nofollow">
+</head>
+<body>
+<title>비밀리에 스카우팅 리포트</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Hahmlet:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap');
+
+:root{
+  --ground:#F0EEEB; --surface:#FBFAF9; --surface-2:#F4F2EF;
+  --ink:#17181B; --ink-2:#484540; --muted:#7C7770;
+  --line:#DEDAD4; --line-strong:#C6C0B8;
+  --a:#B23A1F; --a-soft:rgba(178,58,31,.11); --a-mid:rgba(178,58,31,.22);
+  --b:#1273A8; --b-soft:rgba(18,115,168,.11); --b-mid:rgba(18,115,168,.22);
+  --good:#1E6B50;
+  --chip-out-bg:rgba(23,24,27,.05);
+  --shadow:0 1px 2px rgba(30,24,18,.05), 0 8px 24px -16px rgba(30,24,18,.25);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#121214; --surface:#1A1A1D; --surface-2:#212126;
+    --ink:#ECEAE7; --ink-2:#BEB9B2; --muted:#8C8780;
+    --line:#2C2C32; --line-strong:#3E3E46;
+    --a:#DB5A33; --a-soft:rgba(219,90,51,.15); --a-mid:rgba(219,90,51,.30);
+    --b:#3D9AD1; --b-soft:rgba(61,154,209,.15); --b-mid:rgba(61,154,209,.30);
+    --good:#4FAE87;
+    --chip-out-bg:rgba(236,234,231,.07);
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#121214; --surface:#1A1A1D; --surface-2:#212126;
+  --ink:#ECEAE7; --ink-2:#BEB9B2; --muted:#8C8780;
+  --line:#2C2C32; --line-strong:#3E3E46;
+  --a:#DB5A33; --a-soft:rgba(219,90,51,.15); --a-mid:rgba(219,90,51,.30);
+  --b:#3D9AD1; --b-soft:rgba(61,154,209,.15); --b-mid:rgba(61,154,209,.30);
+  --good:#4FAE87;
+  --chip-out-bg:rgba(236,234,231,.07);
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  font-size:15px; line-height:1.65; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px; margin:0 auto; padding:clamp(20px,4vw,48px) clamp(16px,4vw,40px) 96px; display:flex; flex-direction:column; gap:clamp(28px,4vw,44px)}
+h2,h3{margin:0; font-family:"Hahmlet",serif; text-wrap:balance}
+
+/* ---------- masthead + tabs ---------- */
+.mast{display:flex; flex-direction:column; gap:6px}
+.mast h1{
+  margin:0; font-family:"Hahmlet",serif; font-weight:900; letter-spacing:-.03em;
+  font-size:clamp(24px,4.5vw,34px); line-height:1.15;
+}
+.mast p{margin:0; font-size:13.5px; color:var(--muted)}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:500;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--muted);
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.eyebrow::before{content:""; width:26px; height:2px; background:var(--a); flex:none}
+
+.tabs{display:flex; gap:0; overflow-x:auto; border-bottom:1px solid var(--line-strong); scrollbar-width:thin}
+.tab{
+  appearance:none; background:none; border:0; cursor:pointer; flex:none;
+  display:flex; flex-direction:column; gap:2px; align-items:flex-start;
+  padding:11px 16px 12px; border-bottom:2px solid transparent; margin-bottom:-1px;
+  font-family:inherit; color:var(--muted); text-align:left; transition:color .15s, border-color .15s;
+}
+.tab:hover{color:var(--ink-2)}
+.tab__d{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em}
+.tab__o{font-size:13.5px; font-weight:600; white-space:nowrap}
+.tab__s{font-family:"IBM Plex Mono",monospace; font-size:11px; display:flex; gap:5px; align-items:center}
+.tab__s b{font-weight:600}
+.tab[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--a)}
+.tab[aria-selected="true"] .tab__d{color:var(--a)}
+.tab .w{color:var(--a); font-weight:600}
+.tab .l{color:var(--muted); font-weight:600}
+.tab--us .tab__o{color:var(--b)}
+.tab--us[aria-selected="true"]{border-bottom-color:var(--b)}
+.tab--us[aria-selected="true"] .tab__d{color:var(--b)}
+
+/* ---------- head-to-head ---------- */
+#h2h, #scout{display:flex; flex-direction:column; gap:16px}
+#logsec{gap:16px}
+#logsec .tabs{margin-bottom:8px}
+.h2h{
+  background:var(--surface); border:1px solid var(--line); border-radius:3px;
+  box-shadow:var(--shadow); border-left:3px solid var(--a); overflow:hidden;
+}
+.h2h__top{display:flex; flex-wrap:wrap; gap:clamp(14px,3vw,30px); align-items:center; padding:clamp(18px,3.5vw,28px)}
+.h2h__score{display:flex; align-items:baseline; gap:12px; font-family:"Hahmlet",serif; letter-spacing:-.03em}
+.h2h__score b{font-size:clamp(38px,7vw,58px); font-weight:900; line-height:.9}
+.h2h__score .them{color:var(--a)}
+.h2h__score .us{color:var(--ink-2)}
+.h2h__score span{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--muted); letter-spacing:.1em}
+.h2h__who{display:flex; flex-direction:column; gap:3px; min-width:0}
+.h2h__who .t{font-size:13.5px; font-weight:600}
+.h2h__who .t.them{color:var(--a)}
+.h2h__who .d{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--muted); letter-spacing:.06em}
+.h2h__mini{display:flex; gap:4px; margin-left:auto; flex-wrap:wrap}
+.h2h__inn{display:flex; flex-direction:column; align-items:center; gap:3px; min-width:34px}
+.h2h__inn i{font-family:"IBM Plex Mono",monospace; font-style:normal; font-size:10px; color:var(--muted); letter-spacing:.08em}
+.h2h__inn b{font-family:"IBM Plex Mono",monospace; font-size:14px; font-weight:600; color:var(--a)}
+.h2h__inn u{font-family:"IBM Plex Mono",monospace; font-size:13px; text-decoration:none; color:var(--ink-2)}
+.h2h__facts{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:0; border-top:1px dashed var(--line-strong)}
+.h2h__fact{padding:16px clamp(16px,3vw,26px); border-right:1px solid var(--line); display:flex; flex-direction:column; gap:4px}
+.h2h__fact:last-child{border-right:0}
+.h2h__fact b{font-family:"Hahmlet",serif; font-size:20px; font-weight:700; color:var(--a)}
+.h2h__fact span{font-size:12.5px; color:var(--ink-2); line-height:1.55}
+.h2h__fact em{display:block; font-style:normal; font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.12em; color:var(--muted); text-transform:uppercase}
+
+/* ---------- scouting ---------- */
+.kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px}
+.kpi{padding:18px 20px; display:flex; flex-direction:column; gap:5px; border-top:3px solid var(--a)}
+.kpi b{font-family:"Hahmlet",serif; font-size:30px; font-weight:900; letter-spacing:-.03em; line-height:1}
+.kpi .k{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted)}
+.kpi .d{font-size:12.5px; color:var(--ink-2); line-height:1.55}
+
+.threats{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px}
+.threat{padding:18px 20px; display:flex; flex-direction:column; gap:9px}
+.threat--1{border-left:3px solid var(--a)}
+.threat--2{border-left:3px solid var(--b)}
+.threat--3{border-left:3px solid var(--line-strong)}
+.threat__hd{display:flex; align-items:baseline; gap:9px; flex-wrap:wrap}
+.threat__hd b{font-family:"Hahmlet",serif; font-size:19px; font-weight:700; letter-spacing:-.01em}
+.threat__hd i{font-style:normal; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--muted)}
+.tier{
+  font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.12em; font-weight:600;
+  padding:2px 7px; border-radius:2px; margin-left:auto; white-space:nowrap;
+}
+.tier--1{background:var(--a); color:#fff}
+.tier--2{background:var(--b-soft); color:var(--b)}
+.tier--3{background:var(--chip-out-bg); color:var(--muted)}
+.threat__line{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-2); font-variant-numeric:tabular-nums; line-height:1.7}
+.threat__line b{color:var(--ink); font-weight:600}
+.threat__how{font-size:13.5px; line-height:1.65; color:var(--ink-2)}
+.threat__how strong{color:var(--ink); font-weight:600}
+
+.plan{display:flex; flex-direction:column; gap:0; padding:0}
+.plan__row{display:grid; grid-template-columns:34px 1fr; gap:14px; padding:16px clamp(16px,3vw,24px); border-bottom:1px solid var(--line); align-items:start}
+.plan__row:last-child{border-bottom:0}
+.plan__n{font-family:"Hahmlet",serif; font-weight:900; font-size:22px; color:var(--a); line-height:1; letter-spacing:-.03em}
+.plan__t{font-weight:600; font-size:14.5px; margin-bottom:3px}
+.plan__d{font-size:13.5px; color:var(--ink-2); line-height:1.65}
+.plan__d b{color:var(--ink); font-weight:600}
+
+table.agg{border-collapse:collapse; width:100%; min-width:720px; font-size:13px}
+table.agg th,table.agg td{border-bottom:1px solid var(--line); padding:8px 10px}
+table.agg thead th{
+  background:var(--surface-2); font-family:"IBM Plex Mono",monospace; font-weight:500; font-size:11px;
+  letter-spacing:.06em; color:var(--muted); text-align:center; border-bottom:1px solid var(--line-strong);
+}
+table.agg td{text-align:center; font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+table.agg td.who{text-align:left; font-family:inherit; white-space:nowrap}
+table.agg td.who b{font-weight:600}
+table.agg td.who i{font-style:normal; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--muted); margin-left:5px}
+table.agg td.pos{text-align:left; font-family:inherit; color:var(--muted); font-size:12px; white-space:nowrap}
+table.agg tbody tr:hover{background:var(--surface-2)}
+table.agg tr.hot td{background:var(--a-soft)}
+table.agg tr.hot td.who b{color:var(--a)}
+table.agg td.lead{font-weight:600; color:var(--ink)}
+
+/* ---------- board ---------- */
+#game{display:flex; flex-direction:column; gap:clamp(28px,4.5vw,52px)}
+.gtour{
+  font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:500;
+  letter-spacing:.12em; color:var(--muted); margin-bottom:-16px;
+}
+.board{background:var(--surface); border:1px solid var(--line); border-radius:3px; box-shadow:var(--shadow); overflow:hidden}
+.board__top{
+  display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
+  gap:clamp(8px,3vw,32px); padding:clamp(22px,4vw,34px) clamp(16px,4vw,34px);
+  border-bottom:1px dashed var(--line-strong);
+}
+.side{display:flex; flex-direction:column; gap:6px; min-width:0}
+.side--b{text-align:right; align-items:flex-end}
+.side__name{font-family:"Hahmlet",serif; font-weight:700; font-size:clamp(15px,2.4vw,21px); line-height:1.25; letter-spacing:-.01em}
+.side--a .side__name{color:var(--a)} .side--b .side__name{color:var(--b)}
+.side__score{font-family:"Hahmlet",serif; font-weight:900; font-size:clamp(52px,11vw,92px); line-height:.9; letter-spacing:-.04em}
+.side__note{font-size:12.5px; color:var(--muted)}
+.side__note b{color:var(--ink-2); font-weight:600}
+.result{
+  display:inline-flex; align-items:center; gap:5px; font-family:"IBM Plex Mono",monospace;
+  font-size:11px; letter-spacing:.12em; font-weight:600; padding:2px 8px; border-radius:2px;
+}
+.result--w{background:var(--a-soft); color:var(--a)}
+.result--l{background:var(--chip-out-bg); color:var(--muted)}
+.side--a .result{align-self:flex-start}
+.side--b .result{align-self:flex-end}
+.divider{display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--muted)}
+.divider__rule{width:1px; height:clamp(40px,9vw,68px); background:var(--line-strong)}
+.divider__txt{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.18em}
+
+.linescore{overflow-x:auto}
+.linescore table{border-collapse:collapse; width:100%; min-width:560px}
+.linescore th,.linescore td{padding:9px 6px; text-align:center; font-size:13.5px; border-bottom:1px solid var(--line)}
+.linescore thead th{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; color:var(--muted); font-weight:500; background:var(--surface-2)}
+.linescore tbody tr:last-child td{border-bottom:none}
+.linescore .lteam{text-align:left; padding-left:clamp(14px,3vw,30px); font-weight:600; white-space:nowrap; min-width:150px}
+.linescore .lteam span{display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:8px; vertical-align:2px}
+.linescore .runs{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+.linescore .big{background:var(--a-mid); font-weight:600; border-radius:2px}
+.linescore .big--b{background:var(--b-mid)}
+.linescore .tot{font-family:"IBM Plex Mono",monospace; font-weight:600; background:var(--surface-2)}
+.linescore .tot--r{font-size:16px}
+.sepl{border-left:1px solid var(--line-strong)}
+
+.lede{
+  margin:0; font-family:"Hahmlet",serif; font-size:clamp(19px,3vw,26px); line-height:1.55;
+  font-weight:500; letter-spacing:-.015em; max-width:32ch;
+}
+.lede em{font-style:normal; color:var(--a); font-weight:700}
+.lede .sub{display:block; margin-top:10px; font-family:"IBM Plex Sans KR",sans-serif; font-size:14.5px; font-weight:400; color:var(--ink-2); line-height:1.7; max-width:58ch}
+
+/* ---------- sections ---------- */
+section{display:flex; flex-direction:column; gap:16px}
+.shead{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; border-bottom:1px solid var(--line-strong); padding-bottom:10px}
+.shead h2{font-size:clamp(17px,2.6vw,21px); font-weight:700; letter-spacing:-.01em}
+.shead .hint{font-size:12.5px; color:var(--muted)}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:3px; box-shadow:var(--shadow)}
+
+/* ---------- inning chart ---------- */
+.legend{display:flex; gap:16px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-2)}
+.legend span{display:inline-flex; align-items:center; gap:7px}
+.legend i{width:11px; height:11px; border-radius:2px; display:block}
+.innings{display:grid; gap:clamp(8px,2.5vw,22px); padding:clamp(16px,3vw,26px)}
+.inn{display:flex; flex-direction:column; gap:10px; min-width:0}
+.inn__plot{display:flex; align-items:flex-end; justify-content:center; gap:6px; height:150px; border-bottom:1px solid var(--line-strong)}
+.bar{width:clamp(18px,4vw,34px); border-radius:4px 4px 0 0; position:relative; display:flex; justify-content:center; transition:filter .15s}
+.bar:hover{filter:brightness(1.12)}
+.bar--a{background:var(--a)} .bar--b{background:var(--b)}
+.bar--zero{height:2px !important; border-radius:1px; opacity:.35}
+.bar__val{position:absolute; top:-21px; font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:600; color:var(--ink-2)}
+.inn__foot{display:flex; flex-direction:column; align-items:center; gap:2px; text-align:center}
+.inn__no{font-family:"Hahmlet",serif; font-weight:700; font-size:15px}
+.inn__cum{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--muted)}
+.inn--key-a .inn__no{color:var(--a)}
+.inn--key-b .inn__no{color:var(--b)}
+.inn__badge{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.1em; color:var(--a); background:var(--a-soft); padding:1px 6px; border-radius:2px; margin-top:3px}
+.inn--key-b .inn__badge{color:var(--b); background:var(--b-soft)}
+.bar--none{width:clamp(18px,4vw,34px); height:2px; background:transparent}
+.bar--none .bar__val{color:var(--line-strong)}
+
+/* ---------- compare ---------- */
+.compare{display:flex; flex-direction:column; padding:clamp(14px,3vw,24px)}
+.crow{display:grid; grid-template-columns:40px 1fr 84px 1fr 40px; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid var(--line)}
+.crow:last-child{border-bottom:none}
+.ctrack{display:flex; align-items:center; min-width:0}
+.ctrack--a{justify-content:flex-end}
+.cbar{height:11px; flex:none}
+.cbar--a{background:var(--a); border-radius:2px 0 0 2px}
+.cbar--b{background:var(--b); border-radius:0 2px 2px 0}
+.cbar--zero{width:0 !important}
+.cval{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600; color:var(--ink-2)}
+.cval--a{text-align:right}
+.clabel{text-align:center; font-size:12.5px; color:var(--muted); letter-spacing:.02em}
+.crow--hi .clabel{color:var(--ink); font-weight:600}
+.crow--hi .cval{color:var(--ink)}
+.crow--nobar{border-top:1px solid var(--line); margin-top:2px}
+.crow--nobar .cval{color:var(--muted)}
+.caxis{display:grid; grid-template-columns:40px 1fr 84px 1fr 40px; gap:8px; padding-top:8px; margin-top:4px; border-top:1px solid var(--line)}
+.caxis__side{display:flex; justify-content:space-between; font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--muted)}
+
+/* ---------- highlights ---------- */
+.hl{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px}
+.hlcard{padding:20px 22px; display:flex; flex-direction:column; gap:8px; border-top:3px solid var(--a)}
+.hlcard__k{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; color:var(--muted); text-transform:uppercase}
+.hlcard__n{font-family:"Hahmlet",serif; font-size:22px; font-weight:700; letter-spacing:-.01em; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
+.hlcard__n small{font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:500; color:var(--muted); letter-spacing:0}
+.hlcard__d{font-size:13.5px; color:var(--ink-2); line-height:1.6}
+.hlcard__stat{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--a); font-weight:600}
+
+/* ---------- record tables ---------- */
+.scroller{overflow-x:auto; -webkit-overflow-scrolling:touch}
+table.rec{border-collapse:collapse; width:100%; min-width:880px; font-size:13px}
+table.rec th,table.rec td{border-bottom:1px solid var(--line); padding:8px; vertical-align:top}
+table.rec thead th{
+  background:var(--surface-2);
+  font-family:"IBM Plex Mono",monospace; font-weight:500; font-size:11px; letter-spacing:.06em;
+  color:var(--muted); text-align:center; padding:10px 8px; border-bottom:1px solid var(--line-strong);
+}
+table.rec thead th.tot{color:var(--ink-2); font-weight:600}
+table.rec td.c{text-align:center}
+table.rec td.num{text-align:center; font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+table.rec td.ord{font-family:"Hahmlet",serif; font-weight:700; font-size:14px; text-align:center; color:var(--muted)}
+table.rec td.who{white-space:nowrap}
+table.rec td.who b{font-weight:600}
+table.rec td.who i{font-style:normal; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--muted); margin-left:5px}
+table.rec td.pos{color:var(--muted); font-size:12px; white-space:nowrap}
+table.rec tr.sub td{border-top:0}
+table.rec tr.sub td.who::before{content:"↳"; color:var(--muted); margin-right:5px}
+table.rec tbody tr:hover{background:var(--surface-2)}
+table.rec td.avg{font-family:"IBM Plex Mono",monospace; text-align:center; font-weight:600}
+table.rec .grp{border-left:1px solid var(--line-strong)}
+tr.win td.res{color:var(--a); font-weight:600}
+
+.cell{display:flex; flex-direction:column; gap:3px; align-items:flex-start; min-width:74px}
+.chip{font-size:11.5px; line-height:1.5; padding:1px 6px; border-radius:2px; white-space:nowrap; font-weight:500}
+.chip--hit{background:var(--a); color:#fff}
+.chip--hr{background:var(--a); color:#fff; box-shadow:0 0 0 2px var(--a-mid)}
+.chip--on{background:transparent; color:var(--a); box-shadow:inset 0 0 0 1px var(--a-mid)}
+.chip--out{background:var(--chip-out-bg); color:var(--muted)}
+.chip--run{background:var(--b-soft); color:var(--b); font-family:"IBM Plex Mono",monospace; font-size:11px}
+.chip--sb{background:transparent; color:var(--good); box-shadow:inset 0 0 0 1px currentColor; font-size:10.5px; letter-spacing:.02em}
+.chip--etc{background:transparent; color:var(--muted); font-size:10.5px; padding-left:0}
+.cell--empty{color:var(--line-strong)}
+
+.keyrow{display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--muted); align-items:center}
+.keyrow .chip{pointer-events:none}
+
+.notes{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px}
+.note{padding:18px 20px; display:flex; flex-direction:column; gap:8px}
+.note__k{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.14em; color:var(--muted); text-transform:uppercase}
+.note__v{font-size:13.5px; line-height:1.8; color:var(--ink-2)}
+.note__v b{color:var(--ink); font-weight:600}
+
+.foot{border-top:1px solid var(--line); padding-top:16px; font-size:12px; color:var(--muted); line-height:1.8}
+
+#tip{
+  position:fixed; pointer-events:none; opacity:0; transform:translate(-50%,-130%);
+  background:var(--ink); color:var(--ground); font-family:"IBM Plex Mono",monospace;
+  font-size:11.5px; padding:5px 9px; border-radius:3px; white-space:nowrap; z-index:50;
+  transition:opacity .12s;
+}
+@media (max-width:640px){
+  .board__top{gap:6px; padding:18px 12px}
+  .side__name{font-size:13px}
+  .inn__plot{height:110px}
+  .crow,.caxis{grid-template-columns:30px 1fr 62px 1fr 30px; gap:5px}
+  .cval{font-size:12px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+:focus-visible{outline:2px solid var(--a); outline-offset:2px}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow">제15회 익산시장기 · 준결승 대비</div>
+    <h1>비밀리에 스카우팅 리포트</h1>
+    <p id="record"></p>
+  </header>
+
+  <div id="h2h"></div>
+  <div id="scout"></div>
+
+  <section id="logsec">
+    <div class="shead">
+      <h2>경기별 상세 기록</h2>
+      <span class="hint">탭을 눌러 경기 전환 · 위 분석의 근거 자료</span>
+    </div>
+    <div class="tabs" role="tablist" aria-label="경기 선택" id="tabs"></div>
+    <div id="game"></div>
+  </section>
+</div>
+
+<div id="tip" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var TEAM = "서울송파구비밀리에";
+
+  /* =======================================================================
+     경기 데이터 — 새 경기는 이 배열에 같은 형태로 추가하면 탭이 자동 생성됩니다.
+     ======================================================================= */
+  var GAMES = [
+  {
+    id:"0411", date:"2026-04-11", dow:"토", time:"14:00", venue:"베이스볼파크1구장",
+    tour:"제9회 선덕여왕배 전국여자야구대회 · 퓨처리그",
+    opp:"충남천안시충남스타트업", wp:"김아람", lp:"조정은",
+    line:{a:[3,5,2,7], b:[0,0,0,0]},
+    tot:{a:{r:17,h:13,e:1,bb:5}, b:{r:0,h:3,e:4,bb:0}},
+    keyInnings:[4],
+    lede:{
+      head:'김아람이 <em>4이닝을 0점</em>으로 막았다.',
+      sub:'14타자 상대 3피안타 무사사구 4탈삼진. 타선은 13안타 팀 타율 .481에 도루 20개로 매 이닝 점수를 냈고, 상대 실책 4개가 겹치며 4회에만 7점이 났다.'
+    },
+    compare:[
+      {k:"안타", a:13, b:3, hi:true},
+      {k:"실책", a:1, b:4},
+      {k:"사사구", a:5, b:0},
+      {k:"도루", a:20, b:0, hi:true},
+      {k:"삼진", a:0, b:4},
+      {k:"홈런", a:0, b:0},
+      {k:"타율", a:.481, b:.214, noBar:true}
+    ],
+    highlights:[
+      {k:"4이닝 완봉승", n:"김아람", sub:"#50 투수",
+       stat:"44구 3피안타 무사사구 4탈삼진 · ERA 0.00",
+       d:"14타자를 상대해 볼넷도 사구도 내주지 않았다. 타석에서도 4타석 2안타 2타점 2득점으로 공격에 가담."},
+      {k:"팀 타율 .481", n:"1~4번 14타수 7안타", sub:"노연정·서가림·한지현·김아람",
+       stat:"상위타선 6타점 · 팀 13안타",
+       d:"1회부터 세 명이 연속으로 출루해 선취 3점. 상위 네 타순이 절반씩 안타를 치며 매 이닝 주자를 쌓았다."},
+      {k:"8번타자 3득점", n:"주현나", sub:"#15 좌익수",
+       stat:"3타수 1안타 1타점 3득점 4도루",
+       d:"2·3·4회 세 이닝 연속 홈을 밟았다. 상대 실책 4개가 겹치며 하위타선에서도 계속 주자가 돌았다."}
+    ],
+    lineup:[
+      {ord:1, pos:"중견수", name:"노연정", no:24,
+       ip:[["좌안","득점1"],["좌안","타점1","득점1"],["유실"],["3야선","주자아웃"]],
+       s:["4","4","2","1","2","2",".500"]},
+      {ord:2, pos:"유격수", name:"서가림", no:25,
+       ip:[["중안","타점1","득점1"],["3플"],["유플"],["좌안","타점1","득점1"]],
+       s:["4","4","2","2","2","2",".500"]},
+      {ord:3, pos:"3루수", name:"한지현", no:99,
+       ip:[["볼넷(4구)","득점1"],["2실","타점1","득점1"],["2땅"],["유내안","주자아웃"]],
+       s:["4","3","1","1","2","4",".333"]},
+      {ord:4, pos:"투수", name:"김아람", no:50,
+       ip:[["좌안","타점1","주자아웃"],["볼넷(4구)","득점1"],[],["좌안","득점1","타석변경","유땅출","타점1"]],
+       s:["4","3","2","2","2","5",".667"]},
+      {ord:5, pos:"포수", name:"곽민정", no:17,
+       ip:[["유플"],["중안","타점2"],[],["볼넷(4구)","득점1","타석변경","사구"]],
+       s:["4","2","1","2","1","0",".500"]},
+      {ord:6, pos:"1루수", name:"김영실", no:14,
+       ip:[["좌플"],["중플"],[],[]],
+       s:["2","2","0","0","0","0",".000"]},
+      {sub:true, pos:"2루수", name:"김예소", no:8,
+       ip:[[],[],[],["대타","우안","타점1","득점1","타석변경","3땅"]],
+       s:["2","2","1","1","1","0",".500"]},
+      {ord:7, pos:"우익수", name:"박세연", no:22,
+       ip:[[],["2땅"],["포파플"],["우안","득점1"]],
+       s:["3","3","1","0","1","1",".333"]},
+      {ord:8, pos:"좌익수", name:"주현나", no:15,
+       ip:[[],["좌안","득점1"],["3실","득점1"],["유실","타점1","득점1"]],
+       s:["3","3","1","1","3","4",".333"]},
+      {ord:9, pos:"2루수", name:"허지혜", no:39,
+       ip:[[],["사구","득점1"],["중안","타점1","득점1"],[]],
+       s:["2","1","1","1","2","2","1.000"]},
+      {sub:true, pos:"대타", name:"박소라", no:3,
+       ip:[[],[],[],["대타","좌안","타점1","득점1"]],
+       s:["1","1","1","1","1","0","1.000"]}
+    ],
+    pitchers:[
+      {name:"김아람", res:"승", win:true, p:[44,"4.0",14,14,3,0,0,0,4,0,0,0,"0.00"]}
+    ],
+    notes:[
+      {k:"홈런 · 2루타 · 3루타", v:"기록 없음"},
+      {k:"도루", v:"팀 <b>20개</b> · 김아람 5, 한지현 4, 주현나 4"},
+      {k:"완봉", v:"<b>김아람</b>이 혼자 4이닝을 던져 무실점 · 무사사구"}
+    ]
+  },
+  {
+    id:"0412", date:"2026-04-12", dow:"일", time:"16:00", venue:"베이스볼파크2구장",
+    tour:"제9회 선덕여왕배 전국여자야구대회 · 퓨처리그",
+    opp:"대구수성구대구라이온즈여자팀", wp:"김예소", lp:"김미진",
+    line:{a:[7,0,0,0], b:[0,2,0,1]},
+    tot:{a:{r:7,h:6,e:0,bb:7}, b:{r:3,h:1,e:2,bb:11}},
+    keyInnings:[1],
+    lede:{
+      head:'1회에 <em>7점</em>, 그리고 그대로 끝.',
+      sub:'후공으로 맞은 1회말에 타순이 한 바퀴 반 돌며 7점. 노연정의 선두타자 홈런, 곽민정 2루타, 송희 3루타가 모두 이 이닝에 나왔다. 이후 3이닝은 무득점이었지만 마운드가 3점으로 막았다.'
+    },
+    compare:[
+      {k:"사사구", a:7, b:11},
+      {k:"삼진", a:7, b:4},
+      {k:"안타", a:6, b:1, hi:true},
+      {k:"도루", a:5, b:3},
+      {k:"실책", a:0, b:2, hi:true},
+      {k:"홈런", a:1, b:0},
+      {k:"타율", a:.316, b:.091, noBar:true}
+    ],
+    highlights:[
+      {k:"1회 선두타자 홈런", n:"노연정", sub:"#24 포수",
+       stat:"중월 홈런 · 3타수 1안타 1타점 1득점",
+       d:"1회말 첫 타석에서 중앙 담장을 넘겼다. 그 뒤로 타순이 계속 돌며 같은 이닝에 두 번째 타석까지 들어섰다."},
+      {k:"1회에만 장타 3개", n:"곽민정 · 송희", sub:"2루타 · 3루타",
+       stat:"곽민정 2타수 2안타 · 송희 3타수 2안타",
+       d:"곽민정의 좌월 2루타와 송희의 좌중간 3루타가 홈런에 이어 터지며 7점 이닝을 만들었다. 이 경기 팀 안타 6개 중 4개가 두 사람 몫."},
+      {k:"볼넷 8개를 주고도 3실점", n:"김예소 · 김아람", sub:"승리투수 · 구원",
+       stat:"김예소 1.1이닝 2실점 · 김아람 2.2이닝 1실점",
+       d:"둘이 합쳐 볼넷 8개, 사구 3개를 내줬지만 피안타는 단 1개. 상대 타율을 .091로 묶었다."}
+    ],
+    lineup:[
+      {ord:1, pos:"포수", name:"노연정", no:24,
+       ip:[["중월G홈","타점1","투플"],[],["삼진"],[]],
+       s:["3","3","1","1","1","0",".333"]},
+      {ord:2, pos:"중견수", name:"김아람", no:50,
+       ip:[["유포구실책","득점1","우안","타점2"],[],["유땅"],[]],
+       s:["3","3","1","2","1","0",".333"]},
+      {ord:3, pos:"좌익수", name:"주현나", no:15,
+       ip:[["볼넷(4구)","도루","득점1","사구"],[],["타격방해"],[]],
+       s:["3","0","0","0","1","1",".000"]},
+      {ord:4, pos:"1루수", name:"김영실", no:14,
+       ip:[["3땅","삼진"],[],["삼진"],[]],
+       s:["3","3","0","0","0","0",".000"]},
+      {ord:5, pos:"유격수", name:"곽민정", no:17,
+       ip:[["좌월2","타점1","득점1"],["유내안","도루"],[],["볼넷(4구)","도루"]],
+       s:["3","2","2","1","1","2","1.000"]},
+      {ord:6, pos:"3루수", name:"송희", no:54,
+       ip:[["투수교체2","좌중3","타점1","득점1"],["삼진"],[],["유내안"]],
+       s:["3","3","2","1","1","0",".667"]},
+      {ord:7, pos:"투수", name:"김예소", no:8,
+       ip:[["볼넷(4구)","도루","득점1"],[],[],[]],
+       s:["1","0","0","0","1","1",".000"]},
+      {sub:true, pos:"좌익수", name:"박세연", no:22,
+       ip:[[],["볼넷(4구)","도루"],[],["삼진"]],
+       s:["2","1","0","0","0","1",".000"]},
+      {ord:8, pos:"우익수", name:"박소라", no:3,
+       ip:[["볼넷(4구)","득점1"],["삼진"],[],["1플"]],
+       s:["3","2","0","0","1","0",".000"]},
+      {ord:9, pos:"2루수", name:"허지혜", no:39,
+       ip:[["사구"],["투땅"],[],["삼진"]],
+       s:["3","2","0","0","0","0",".000"]}
+    ],
+    pitchers:[
+      {name:"김예소", res:"승", win:true, p:[42,"1.1",9,3,0,0,6,0,2,0,2,2,"13.50"]},
+      {name:"김아람", res:"", p:[49,"2.2",13,8,1,0,2,3,2,0,1,1,"3.38"]}
+    ],
+    notes:[
+      {k:"홈런", v:"<b>1회 노연정</b> — 중월 홈런 (1타점)"},
+      {k:"3루타 · 2루타", v:"<b>1회 송희</b> 좌중간 3루타 · <b>1회 곽민정</b> 좌월 2루타"},
+      {k:"도루", v:"팀 <b>5개</b> — 곽민정 2, 김예소·박세연·주현나 각 1"}
+    ],
+    foot:"이 경기는 비밀리에가 3루팀(후공)이었습니다."
+  },
+  {
+    id:"0418", date:"2026-04-18", dow:"토", time:"12:30", venue:"베이스볼파크2구장",
+    tour:"제9회 선덕여왕배 전국여자야구대회 · 퓨처리그",
+    opp:"부산북구부산올인여자야구단", wp:"이혜영", lp:"송희",
+    line:{a:[0,0,0,0], b:[1,1,8]},
+    tot:{a:{r:0,h:3,e:4,bb:2}, b:{r:10,h:6,e:0,bb:4}},
+    keyInnings:[3], keySide:"b",
+    lede:{
+      head:'1·2회는 1점씩. 그리고 <em>3회에 8점</em>.',
+      sub:'두 이닝을 잘 버텼지만 3회에 무너졌다. 8실점 중 4점은 실책에서 나온 비자책. 타선은 4이닝 동안 3안타 2사사구에 그치며 이 시즌 첫 영봉패를 당했다.'
+    },
+    compare:[
+      {k:"안타", a:3, b:6},
+      {k:"도루", a:3, b:6},
+      {k:"사사구", a:2, b:4},
+      {k:"실책", a:4, b:0, hi:true},
+      {k:"삼진", a:3, b:3},
+      {k:"홈런", a:0, b:1},
+      {k:"타율", a:.200, b:.353, noBar:true}
+    ],
+    highlights:[
+      {k:"3회 · 경기의 분기점", n:"8실점", sub:"자책 4",
+       stat:"송희 2이닝 8실점 · 팀 실책 4",
+       d:"1·2회를 1점씩만 내주며 버텼는데 3회에 타순이 한 바퀴 넘게 돌았다. 8점 중 절반이 실책에서 시작된 비자책점이었다."},
+      {k:"팀 3안타 중 하나", n:"노연정", sub:"#24 포수",
+       stat:"2타수 1안타 2도루 · 타율 .500",
+       d:"3회 좌전안타 뒤 연속 도루로 3루까지 갔다. 이 경기에서 팀이 득점권에 주자를 보낸 몇 안 되는 장면."},
+      {k:"팀 유일한 장타", n:"곽민정", sub:"#17 유격수",
+       stat:"4회 좌중간 2루타",
+       d:"마지막 공격에서 나온 2루타. 뒤이어 주현나가 볼넷, 김영실이 볼넷으로 출루했지만 득점으로 잇지 못했다."}
+    ],
+    lineup:[
+      {ord:1, pos:"포수", name:"노연정", no:24,
+       ip:[["유땅"],[],["좌안","도루","도루"],[]],
+       s:["2","2","1","0","0","2",".500"]},
+      {ord:2, pos:"중견수", name:"김아람", no:50,
+       ip:[["삼진"],[],["좌플"],[]],
+       s:["2","2","0","0","0","0",".000"]},
+      {ord:3, pos:"3루수", name:"한지현", no:99,
+       ip:[["2플"],[],[],["유땅"]],
+       s:["2","2","0","0","0","0",".000"]},
+      {ord:4, pos:"유격수", name:"곽민정", no:17,
+       ip:[[],["좌플"],[],["좌중2"]],
+       s:["2","2","1","0","0","0",".500"]},
+      {ord:5, pos:"좌익수", name:"주현나", no:15,
+       ip:[[],["유땅"],[],["볼넷(4구)"]],
+       s:["2","1","0","0","0","0",".000"]},
+      {ord:6, pos:"투수", name:"송희", no:54,
+       ip:[[],["중안","도루"],[],[]],
+       s:["1","1","1","0","0","1","1.000"]},
+      {sub:true, pos:"중견수", name:"서가림", no:25,
+       ip:[[],[],[],["삼진"]],
+       s:["1","1","0","0","0","0",".000"]},
+      {ord:7, pos:"1루수", name:"박세연", no:22,
+       ip:[[],["유직선타"],[],[]],
+       s:["1","1","0","0","0","0",".000"]},
+      {sub:true, pos:"대타", name:"김영실", no:14,
+       ip:[[],[],[],["볼넷(4구)"]],
+       s:["1","0","0","0","0","0",".000"]},
+      {ord:8, pos:"2루수", name:"허지혜", no:39,
+       ip:[[],[],["유땅"],["2땅"]],
+       s:["2","2","0","0","0","0",".000"]},
+      {ord:9, pos:"우익수", name:"김예소", no:8,
+       ip:[[],[],["삼진"],[]],
+       s:["1","1","0","0","0","0",".000"]}
+    ],
+    pitchers:[
+      {name:"송희", res:"패", p:[58,"2.0",16,12,4,0,3,1,2,0,8,4,"18.00"]},
+      {name:"김아람", res:"", p:[16,"1.0",5,5,2,1,0,0,1,0,2,2,"18.00"]}
+    ],
+    notes:[
+      {k:"홈런 · 3루타", v:"기록 없음 (상대 홈런 1)"},
+      {k:"2루타", v:"<b>4회 곽민정</b> — 좌중간 2루타"},
+      {k:"도루", v:"팀 <b>3개</b> — 노연정 2 (3회), 송희 1 (2회)"}
+    ],
+    foot:"비밀리에가 1루팀(선공)이었고, 상대가 앞선 채로 경기가 종료되어 4회말 공격은 기록되지 않았습니다."
+  },
+  {
+    id:"0419", date:"2026-04-19", dow:"일", time:"09:00", venue:"베이스볼파크2구장",
+    tour:"제9회 선덕여왕배 전국여자야구대회 · 퓨처리그",
+    opp:"충남천안시천안시주니어여자야구단", wp:"김아람", lp:"김예다",
+    line:{a:[2,0,3,4,5], b:[2,1,2,0,7]},
+    tot:{a:{r:14,h:9,e:5,bb:9}, b:{r:12,h:5,e:2,bb:14}},
+    keyInnings:[5],
+    lede:{
+      head:'마지막 5회에만 <em>12점</em>이 오갔다.',
+      sub:'9-5로 앞선 5회에 노연정의 3점 홈런을 포함해 5점을 더 달아났지만, 곧바로 7점을 내주며 두 점 차까지 쫓겼다. 양 팀 합쳐 사사구 23개가 나온 난타전.'
+    },
+    compare:[
+      {k:"사사구", a:9, b:14},
+      {k:"안타", a:9, b:5, hi:true},
+      {k:"실책", a:5, b:2},
+      {k:"삼진", a:1, b:5},
+      {k:"홈런", a:1, b:0},
+      {k:"도루", a:0, b:0},
+      {k:"타율", a:.360, b:.227, noBar:true}
+    ],
+    highlights:[
+      {k:"4타석 4출루 · 5회 3점 홈런", n:"노연정", sub:"#24 중견수",
+       stat:"3타수 3안타 3타점 4득점 · 타율 1.000",
+       d:"1회 볼넷, 3회 중전안타, 4회 좌중간 2루타로 세 번 다 홈을 밟은 뒤 5회에 중앙 담장을 넘겼다. 타석에 선 네 번이 모두 출루."},
+      {k:"승리투수", n:"김아람", sub:"#50 투수",
+       stat:"99구 4이닝 11실점 (자책 5) · 3탈삼진",
+       d:"볼넷 4개에 사구 7개로 계속 주자를 두고 던졌지만, 팀 실책 5개가 겹쳐 11실점 중 자책은 5점이었다. 타석에서도 4타석 2출루 1타점 2득점."},
+      {k:"5회 쐐기 2타점", n:"한지현", sub:"#99 3루수",
+       stat:"4타수 1안타 3타점",
+       d:"3회 3루 땅볼로 1타점, 5회 중전 적시타로 2타점. 안타는 하나뿐이었지만 팀에서 두 번째로 많은 타점을 올렸다."}
+    ],
+    lineup:[
+      {ord:1, pos:"중견수", name:"노연정", no:24,
+       ip:[["볼넷(4구)","득점1"],[],["중안","득점1"],["투수교체2","좌중2","득점1"],["중월G홈","타점3"]],
+       s:["4","3","3","3","4","0","1.000"]},
+      {ord:2, pos:"유격수", name:"서가림", no:25,
+       ip:[["볼넷(4구)","득점1"],[],["중안"],["중안","득점1"],["투플"]],
+       s:["4","3","2","0","2","0",".667"]},
+      {ord:3, pos:"투수", name:"김아람", no:50,
+       ip:[["볼넷(4구)"],[],["유땅출","득점1"],["유내안","타점1"],["볼넷(4구)","득점1"]],
+       s:["4","2","1","1","2","0",".500"]},
+      {ord:4, pos:"포수", name:"곽민정", no:17,
+       ip:[["유땅출","타점1"],[],["중안","득점1"],["유땅출","득점1"],["투수교체3","볼넷(4구)","득점1"]],
+       s:["4","3","1","1","3","0",".333"]},
+      {ord:5, pos:"3루수", name:"한지현", no:99,
+       ip:[["투플"],[],["3땅","타점1"],["유실"],["중안","타점2"]],
+       s:["4","4","1","3","0","0",".250"]},
+      {ord:6, pos:"좌익수", name:"주현나", no:15,
+       ip:[["2땅"],[],["1내안"],["투플"],["유실"]],
+       s:["4","4","1","0","0","0",".250"]},
+      {ord:7, pos:"2루수", name:"송희", no:54,
+       ip:[[],["삼진"],["3플"],[],["2땅","타석변경","좌플"]],
+       s:["4","4","0","0","0","0",".000"]},
+      {ord:8, pos:"1루수", name:"김영실", no:14,
+       ip:[[],["유직선타"],[],["볼넷(4구)"],["볼넷(4구)","득점1"]],
+       s:["3","1","0","0","1","0",".000"]},
+      {ord:9, pos:"우익수", name:"박세연", no:22,
+       ip:[[],["포파플"],[],["볼넷(4구)","득점1"],["볼넷(4구)","득점1"]],
+       s:["3","1","0","0","2","0",".000"]},
+      {sub:true, pos:"2루수", name:"김예소", no:8,
+       ip:[[],[],[],[],[]],
+       s:["0","0","0","0","0","0",".000"]}
+    ],
+    pitchers:[
+      {name:"김아람", res:"승", win:true, p:[99,"4.0",30,18,3,0,4,7,3,0,11,5,"11.25"]},
+      {name:"박세연", res:"", p:[2,"0.0",1,0,0,0,0,1,0,0,1,1,"99.99"]},
+      {name:"송희", res:"", p:[15,"1.0",5,4,1,0,0,0,2,0,0,0,"0.00"]}
+    ],
+    notes:[
+      {k:"홈런", v:"<b>5회 노연정</b> — 중월 3점 홈런"},
+      {k:"2루타", v:"<b>4회 노연정</b> — 좌중간 2루타"},
+      {k:"팀 타율", v:"<b>.360</b> (25타수 9안타) · 도루는 양 팀 모두 없음"}
+    ],
+    foot:"5이닝 경기입니다."
+  },
+  {
+    id:"0510", date:"2026-05-10", dow:"일", time:"13:00", venue:"",
+    tour:"[여자야구] 2026 야구스포츠클럽디비전 승강제리그 · 챔프",
+    opp:"서울강남구드래곤볼여자야구단", wp:"노연정", lp:"도유진",
+    vsUs:true,
+    line:{a:[9,5,8,4], b:[0,3,2,3]},
+    tot:{a:{r:26,h:20,e:1,bb:9}, b:{r:8,h:1,e:6,bb:12}},
+    keyInnings:[1,3],
+    lede:{
+      head:'20안타 · 팀 타율 <em>.606</em>.',
+      sub:'네 이닝 내내 타순이 두 바퀴씩 돌았다. 3루타 5개와 2루타 3개가 나왔고, 상위 여섯 타순이 전원 2안타 이상. 실책 6개와 볼넷 12개가 겹치며 격차가 벌어졌다.'
+    },
+    compare:[
+      {k:"안타", a:20, b:1, hi:true},
+      {k:"도루", a:14, b:17},
+      {k:"사사구", a:9, b:12},
+      {k:"삼진", a:3, b:9},
+      {k:"실책", a:1, b:6, hi:true},
+      {k:"홈런", a:0, b:0},
+      {k:"타율", a:.606, b:.083, noBar:true}
+    ],
+    highlights:[
+      {k:"5타석 4안타 5타점 5득점", n:"노연정", sub:"#24 투수",
+       stat:"3루타 2개 · 타율 1.000 · 승리투수",
+       d:"1회와 2회에 좌월 3루타를 연달아 치고 3회 중전 2타점. 마운드에서는 3이닝 무피안타 7탈삼진."},
+      {k:"5득점 3도루", n:"권아인", sub:"#63 유격수",
+       stat:"3타수 2안타 · 타율 .667",
+       d:"1회에만 두 번 출루해 두 번 다 홈. 나갈 때마다 곧바로 다음 루를 훔쳤다."},
+      {k:"장타 8개", n:"3루타 5 · 2루타 3", sub:"노연정 2 · 서가림 2 · 한지현 2",
+       stat:"팀 20안타 중 8개가 장타",
+       d:"단타로 나가 도루로 진루하는 평소 패턴에 더해, 이 경기는 장타가 직접 주자를 불러들였다."}
+    ],
+    lineup:[
+      {ord:1, pos:"투수", name:"노연정", no:24,
+       ip:[["3내안","도루","도루","득점1","타석변경","좌월3","타점3","득점1"],
+           ["좌월3","득점1"],
+           ["중안","타점2","득점1"],
+           ["볼넷(4구)","투수보크","폭투","득점1"]],
+       s:["5","4","4","5","5","2","1.000"]},
+      {ord:2, pos:"유격수", name:"권아인", no:63,
+       ip:[["좌안","타점1","도루","도루","득점1","타석변경","볼넷(4구)","도루","득점1"],
+           ["유실","유송구실책","득점1"],
+           ["3내안","득점1"],
+           ["볼넷(4구)","폭투","득점1"]],
+       s:["5","3","2","1","5","3",".667"]},
+      {ord:3, pos:"1루수", name:"서가림", no:25,
+       ip:[["중월2","타점1","도루","득점1","타석변경","볼넷(4구)"],
+           ["3내안","3송구실책","득점1"],
+           ["우월2","타점2","득점1"],
+           ["볼넷(4구)","득점1"]],
+       s:["5","3","3","3","4","1","1.000"]},
+      {ord:4, pos:"3루수", name:"한지현", no:99,
+       ip:[["중월3","타점1","득점1","타석변경","2내안","타점1","도루"],
+           ["볼넷(4구)","도루","도루"],
+           ["3땅"],
+           ["중월2","타점2","득점1"]],
+       s:["5","4","3","4","2","3",".750"]},
+      {ord:5, pos:"좌익수", name:"박세연", no:22,
+       ip:[["볼넷(4구)","득점1","타석변경","투땅"],
+           ["유땅"],
+           ["우월3","득점1"],
+           ["중안","주자아웃"]],
+       s:["5","4","2","0","2","0",".500"]},
+      {ord:6, pos:"중견수", name:"주현나", no:15,
+       ip:[["유내안","타점1","도루","득점1"],
+           ["삼진"],
+           ["좌포구실책","투송구실책","득점1","타석변경","유내안","도루","득점1"],
+           ["유내안","도루자"]],
+       s:["5","5","3","1","3","2",".600"]},
+      {ord:7, pos:"우익수", name:"송혜린", no:93,
+       ip:[["유플"],
+           ["유송구실책","도루","득점1"],
+           ["유땅","타석변경","중안","타점1"],
+           ["유야선"]],
+       s:["4","4","1","1","1","1",".250"]},
+      {ord:8, pos:"2루수", name:"김예소", no:8,
+       ip:[["볼넷(4구)","득점1"],
+           ["삼진"],
+           ["볼넷(4구)","도루","득점1","타석변경","삼진"],
+           []],
+       s:["4","2","0","0","2","1",".000"]},
+      {ord:9, pos:"포수", name:"송희", no:54,
+       ip:[["유인플"],["좌월3","타점1","득점1"],["좌안","타점1","도루","득점1"],["좌플"]],
+       s:["4","4","2","2","2","1",".500"]}
+    ],
+    pitchers:[
+      {name:"노연정", res:"승", win:true, p:[85,"3.0",18,10,0,0,8,0,7,0,5,4,"12.00"]},
+      {name:"한지현", res:"", p:[18,"0.0",4,0,0,0,4,0,0,5,3,3,"99.99"]},
+      {name:"송희", res:"", p:[13,"1.0",3,3,1,0,0,0,2,0,0,0,"0.00"]}
+    ],
+    notes:[
+      {k:"3루타", v:"<b>1회 노연정 · 한지현</b>, <b>2회 노연정 · 송희</b>, <b>3회 박세연</b> — 한 경기 5개"},
+      {k:"2루타", v:"<b>1회 서가림</b>, <b>3회 서가림</b>, <b>4회 한지현</b>"},
+      {k:"도루", v:"팀 <b>14개</b> — 권아인 3, 한지현 3, 노연정 2, 주현나 2"}
+    ]
+  },
+  {
+    id:"0524", date:"2026-05-24", dow:"일", time:"13:00", venue:"천안B",
+    tour:"여자야구 페스티벌 2026 · G조",
+    opp:"인천부평구해머스스톰", wp:"조은심", lp:"허지혜",
+    line:{a:[1,2,3,0,1], b:[3,0,0,2,7]},
+    tot:{a:{r:7,h:8,e:5,bb:3}, b:{r:12,h:6,e:3,bb:9}},
+    keyInnings:[5], keySide:"b",
+    lede:{
+      head:'6-3으로 앞서다 마지막 두 이닝에 <em>9점</em>.',
+      sub:'3회까지 6-3. 그런데 4회 2점, 5회 7점을 연달아 내주며 뒤집혔다. 안타는 8-6으로 앞섰고 도루도 10개를 성공시켰지만, 실책 5개와 볼넷 8개가 발목을 잡았다.'
+    },
+    compare:[
+      {k:"도루", a:10, b:14},
+      {k:"안타", a:8, b:6},
+      {k:"실책", a:5, b:3, hi:true},
+      {k:"사사구", a:3, b:9, hi:true},
+      {k:"삼진", a:3, b:4},
+      {k:"홈런", a:0, b:0},
+      {k:"타율", a:.364, b:.250, noBar:true}
+    ],
+    highlights:[
+      {k:"3타수 3안타", n:"서가림", sub:"#25 유격수",
+       stat:"2득점 2도루 · 타율 1.000",
+       d:"1·3·5회 세 타석 모두 안타. 3회와 5회에는 안타 뒤 곧바로 도루로 득점권에 들어가 두 번 다 홈을 밟았다."},
+      {k:"3타수 3안타", n:"김아람", sub:"#50 중견수",
+       stat:"1타점 2득점 2도루 · 타율 1.000",
+       d:"2·3·5회 모두 안타. 3회 중전 적시타로 한 점을 보탰고 마운드에도 1이닝 올랐다. 서가림과 나란히 전 타석 안타."},
+      {k:"4·5회에 9실점", n:"실책 5개", sub:"5회에만 7점",
+       stat:"12실점 중 자책 8 · 볼넷 8개",
+       d:"3회까지는 6-3으로 앞섰다. 김예소가 3.1이닝을 던진 뒤 허지혜·김아람으로 이어졌지만 마지막 두 이닝을 넘기지 못했다."}
+    ],
+    lineup:[
+      {ord:1, pos:"포수", name:"노연정", no:24,
+       ip:[["좌플"],["중플"],[],["3포구실책","주자아웃"],[]],
+       s:["3","3","0","0","0","0",".000"]},
+      {ord:2, pos:"2루수", name:"권아인", no:63,
+       ip:[["볼넷(4구)","도루","도루","포송구실책","득점1"],[],["삼진"],["1파플"],[]],
+       s:["3","2","0","0","1","2",".000"]},
+      {ord:3, pos:"3루수", name:"한지현", no:99,
+       ip:[["유땅"],[],["3포구실책","득점1"],["삼진"],[]],
+       s:["3","3","0","0","1","0",".000"]},
+      {ord:4, pos:"유격수", name:"서가림", no:25,
+       ip:[["우안","도루자"],[],["중안","도루","득점1"],[],["중안","도루","득점1"]],
+       s:["3","3","3","0","2","2","1.000"]},
+      {ord:5, pos:"중견수", name:"김아람", no:50,
+       ip:[[],["중안","도루","폭투","득점1"],["중안","타점1","도루","득점1"],[],["좌안","주자아웃"]],
+       s:["3","3","3","1","2","2","1.000"]},
+      {ord:6, pos:"좌익수", name:"주현나", no:15,
+       ip:[[],["삼진"],["좌중2","타점2","도루"],["3땅출","주자아웃"],[]],
+       s:["3","3","1","2","0","1",".333"]},
+      {ord:7, pos:"1루수", name:"박세연", no:22,
+       ip:[["볼넷(4구)","도루","득점1"],["투수교체1","2플"],[],["중플"],[]],
+       s:["3","2","0","0","1","1",".000"]},
+      {ord:8, pos:"우익수", name:"박소라", no:3,
+       ip:[["좌안","타점1","도루"],["사구","도루"],[],[],[]],
+       s:["2","1","1","1","0","2","1.000"]},
+      {sub:true, pos:"포수", name:"송희", no:54,
+       ip:[[],[],["대수비"],[],[]],
+       s:["0","0","0","0","0","0",".000"]},
+      {ord:9, pos:"지명타자", name:"송혜린", no:93,
+       ip:[["유땅","타점1"],["유땅"],[],[],[]],
+       s:["2","2","0","1","0","0",".000"]},
+      {sub:true, pos:"투수", name:"허지혜", no:39,
+       ip:[[],[],["대수비"],[],[]],
+       s:["0","0","0","0","0","0",".000"]}
+    ],
+    pitchers:[
+      {name:"김예소", res:"무", p:[83,"3.1",19,13,2,0,6,0,4,0,5,4,"10.80"]},
+      {name:"허지혜", res:"패", p:[24,"0.2",6,5,3,0,1,0,0,0,3,3,"40.50"]},
+      {name:"김아람", res:"무", p:[32,"1.0",8,6,1,0,1,1,0,0,4,1,"9.00"]}
+    ],
+    notes:[
+      {k:"홈런 · 3루타", v:"기록 없음"},
+      {k:"2루타", v:"<b>3회 주현나</b> — 좌중간 2루타 (2타점)"},
+      {k:"도루", v:"팀 <b>10개</b> — 권아인·서가림·김아람·박소라 각 2"}
+    ],
+    foot:"비밀리에가 3루팀(후공)이었습니다."
+  },
+  {
+    id:"0525", date:"2026-05-25", dow:"월", time:"13:20", venue:"천안a",
+    tour:"여자야구 페스티벌 2026 · G조",
+    opp:"수원어셈블", wp:"박세연", lp:"",
+    line:{a:[11,1,1,3], b:[7,1,1,0]},
+    tot:{a:{r:16,h:8,e:1,bb:8}, b:{r:9,h:4,e:4,bb:13}},
+    keyInnings:[1],
+    lede:{
+      head:'1회에만 <em>11점</em>. 그리고 곧바로 7실점.',
+      sub:'첫 이닝에 2루타 두 개와 3루타 하나가 터지며 타순이 두 바퀴 돌았다. 그러나 그 뒤 곧장 7점을 내주며 한 이닝에 18점이 오갔다. 이후 세 이닝을 5-2로 관리하며 마무리.'
+    },
+    compare:[
+      {k:"도루", a:15, b:10, hi:true},
+      {k:"사사구", a:8, b:13},
+      {k:"안타", a:8, b:4},
+      {k:"실책", a:1, b:4, hi:true},
+      {k:"삼진", a:4, b:4},
+      {k:"홈런", a:0, b:0},
+      {k:"타율", a:.333, b:.267, noBar:true}
+    ],
+    highlights:[
+      {k:"1회에 2루타 + 3루타", n:"노연정", sub:"#24 투수",
+       stat:"3타수 2안타 3타점",
+       d:"첫 이닝 두 타석에서 우선상 2루타로 2타점, 좌전 3루타로 1타점을 더했다. 마운드에서는 0.1이닝만 던지고 내려왔다."},
+      {k:"한 경기 5도루", n:"서가림", sub:"#25 유격수",
+       stat:"4타수 2안타 1타점 3득점 5도루",
+       d:"1회 우월 2루타로 시작해 출루할 때마다 다음 루를 훔쳤다. 팀 도루 15개 중 3분의 1이 혼자 기록한 것."},
+      {k:"1회 11득점", n:"장타 4개", sub:"3루타 2 · 2루타 2",
+       stat:"팀 8안타 · 사사구 8개",
+       d:"서가림 2루타, 노연정 2루타와 3루타, 송혜린 3루타가 모두 첫 이닝에 나왔다. 4회에는 송희가 중월 3루타를 추가."}
+    ],
+    lineup:[
+      {ord:1, pos:"우익수", name:"김예소", no:8,
+       ip:[["사구","득점1","볼넷(4구)","수비방해"],["삼진"],[],["삼진"]],
+       s:["4","2","0","0","1","0",".000"]},
+      {ord:2, pos:"유격수", name:"서가림", no:25,
+       ip:[["우월2","타점1","도루","득점1","2땅출","득점1"],[],["3포구실책","도루","도루","폭투","득점1"],["중안","도루","도루"]],
+       s:["4","4","2","1","3","5",".500"]},
+      {ord:3, pos:"중견수", name:"한지현", no:99,
+       ip:[["유실","타점1","도루","득점1","2포구실책","득점1"],[],["삼진"],["사구","도루"]],
+       s:["4","3","0","1","2","2",".000"]},
+      {ord:4, pos:"3루수", name:"정수빈", no:13,
+       ip:[["볼넷(4구)","득점1","1땅","타점1"],[],["3플"],["삼진"]],
+       s:["4","3","0","1","1","0",".000"]},
+      {ord:5, pos:"투수", name:"노연정", no:24,
+       ip:[["우선2","타점2","도루","득점1","좌전3","타점1"],[],["볼넷(4구)","폭투"],["1플"]],
+       s:["4","3","2","3","1","1",".667"]},
+      {ord:6, pos:"2루수", name:"허지혜", no:39,
+       ip:[["유실","타점1","도루","득점1","1땅"],[],["투플"],[]],
+       s:["3","3","0","1","1","1",".000"]},
+      {ord:7, pos:"좌익수", name:"송혜린", no:93,
+       ip:[["우월3","타점1","득점1"],["투땅"],[],["볼넷(4구)","도루","득점1"]],
+       s:["3","2","1","1","2","1",".500"]},
+      {ord:8, pos:"포수", name:"김영실", no:14,
+       ip:[["볼넷(4구)","도루","득점1"],[],[],[]],
+       s:["1","0","0","0","1","1",".000"]},
+      {sub:true, pos:"포수", name:"송희", no:54,
+       ip:[[],["대타","우안","도루","도루","폭투","득점1"],[],["중월3","타점1","득점1"]],
+       s:["2","2","2","1","2","2","1.000"]},
+      {ord:9, pos:"1루수", name:"박세연", no:22,
+       ip:[["볼넷(4구)","득점1"],["2땅"],[],[]],
+       s:["2","1","0","0","1","0",".000"]},
+      {sub:true, pos:"투수", name:"김아람", no:50,
+       ip:[[],[],["대수비"],["중안","타점1","도루","도루","폭투","득점1"]],
+       s:["1","1","1","1","1","2","1.000"]}
+    ],
+    pitchers:[
+      {name:"노연정", res:"무", p:[34,"0.1",8,1,0,0,7,0,1,5,7,7,"0.00"]},
+      {name:"박세연", res:"승", win:true, p:[50,"1.2",10,5,2,0,5,0,1,0,1,1,"5.40"]},
+      {name:"김아람", res:"무", p:[33,"2.0",10,9,2,0,0,1,2,1,1,1,"4.50"]}
+    ],
+    notes:[
+      {k:"3루타", v:"<b>1회 노연정 · 송혜린</b>, <b>4회 송희</b> — 한 경기 3개"},
+      {k:"2루타", v:"<b>1회 노연정 · 서가림</b>"},
+      {k:"도루", v:"팀 <b>15개</b> — 서가림 5, 한지현·송희·김아람 각 2"}
+    ]
+  },
+  {
+    id:"0627", date:"2026-06-27", dow:"토", time:"16:00", venue:"평해복합구장",
+    tour:"2026 울진 전국여자야구대회",
+    opp:"인천부평구해머스스톰", wp:"조은심", lp:"김예소",
+    line:{a:[1,0,0,0,0], b:[0,1,1,2,4]},
+    tot:{a:{r:1,h:6,e:3,bb:2}, b:{r:8,h:6,e:1,bb:6}},
+    keyInnings:[5], keySide:"b",
+    lede:{
+      head:'1회에 낸 <em>1점</em>이 전부였다.',
+      sub:'첫 이닝 노연정의 좌전안타와 상대 송구실책으로 선취점을 냈지만 이후 네 이닝은 무득점. 안타는 6-6으로 같았는데, 상대는 도루 15개로 나갈 때마다 다음 루를 밟았다.'
+    },
+    compare:[
+      {k:"도루", a:4, b:15, hi:true},
+      {k:"안타", a:6, b:6},
+      {k:"사사구", a:2, b:6},
+      {k:"실책", a:3, b:1},
+      {k:"삼진", a:2, b:1},
+      {k:"홈런", a:0, b:0},
+      {k:"타율", a:.286, b:.316, noBar:true}
+    ],
+    highlights:[
+      {k:"1회 선취점", n:"노연정", sub:"#24 우익수",
+       stat:"3타수 1안타 1득점",
+       d:"첫 타석 좌전안타로 나간 뒤 상대 송구실책을 틈타 홈까지 들어왔다. 이 경기 팀의 유일한 득점."},
+      {k:"4이닝 6실점 (자책 3)", n:"김예소", sub:"#8 투수",
+       stat:"88구 5피안타 5볼넷 · ERA 6.75",
+       d:"3회까지 2실점으로 버텼지만 4·5회에 6점을 내줬다. 팀 실책 3개가 겹쳐 6실점 중 절반이 비자책점."},
+      {k:"도루 4 대 15", n:"주루에서 밀렸다", sub:"사사구도 2 대 6",
+       stat:"팀 6안타 · 잔루를 쌓지 못함",
+       d:"안타 수는 같았지만 출루 뒤 진루가 달랐다. 상대가 15개를 훔치는 동안 이쪽은 4개에 그쳤다."}
+    ],
+    lineup:[
+      {ord:1, pos:"우익수", name:"노연정", no:24,
+       ip:[["좌안","송구실책","득점1"],["유땅"],[],["3땅출"],[]],
+       s:["3","3","1","0","1","0",".333"]},
+      {ord:2, pos:"좌익수", name:"주현나", no:15,
+       ip:[["삼진"],[],["유땅"],[],["투땅"]],
+       s:["3","3","0","0","0","0",".000"]},
+      {ord:3, pos:"유격수", name:"서가림", no:25,
+       ip:[["1땅","타점1"],[],["중플"],[],["유땅"]],
+       s:["3","3","0","1","0","0",".000"]},
+      {ord:4, pos:"중견수", name:"김아람", no:50,
+       ip:[["중안","도루"],[],["유플"],[],["볼넷(4구)","도루"]],
+       s:["3","2","1","0","0","2",".500"]},
+      {ord:5, pos:"3루수", name:"한지현", no:99,
+       ip:[["포파플"],[],[],["우안","주자아웃"],["유땅"]],
+       s:["3","3","1","0","0","0",".333"]},
+      {ord:6, pos:"1루수", name:"박세연", no:22,
+       ip:[[],["좌안","폭투"],[],["유땅출","도루"],[]],
+       s:["2","2","1","0","0","1",".500"]},
+      {ord:7, pos:"2루수", name:"권아인", no:63,
+       ip:[[],["유내안","주자아웃"],[],["2플"],[]],
+       s:["2","2","1","0","0","0",".500"]},
+      {ord:8, pos:"지명타자", name:"박소라", no:3,
+       ip:[[],["유땅출","도루"],[],["볼넷(4구)","주자아웃"],[]],
+       s:["2","1","0","0","0","1",".000"]},
+      {ord:9, pos:"포수", name:"송희", no:54,
+       ip:[[],["삼진"],[],["좌안"],[]],
+       s:["2","2","1","0","0","0",".500"]}
+    ],
+    pitchers:[
+      {name:"김예소", res:"패", p:[88,"4.0",22,17,5,0,5,0,1,1,6,3,"6.75"]},
+      {name:"박세연", res:"", p:[8,"0.0",3,2,1,0,1,0,0,0,2,0,"0.00"]}
+    ],
+    notes:[
+      {k:"홈런 · 3루타 · 2루타", v:"기록 없음"},
+      {k:"도루", v:"팀 <b>4개</b> — 김아람 2 (1·5회), 박소라 (2회), 박세연 (4회)"},
+      {k:"타선", v:"6안타 2사사구 · 팀 타율 <b>.286</b> (21타수 6안타)"}
+    ],
+    foot:"비밀리에가 1루팀(선공)이었습니다."
+  },
+  {
+    id:"0822", date:"2026-08-22", dow:"토", time:"17:00", venue:"국가대표2구장",
+    tour:"제15회 익산시장기 전국여자야구대회 · 퓨처리그",
+    opp:"영구Y9", wp:"송희", lp:"구창휘",
+    line:{a:[0,0,4,10], b:[2,4,0,1]},
+    tot:{a:{r:14,h:6,e:1,bb:13}, b:{r:7,h:5,e:1,bb:8}},
+    keyInnings:[3,4],
+    lede:{
+      head:'2회까지 <em>0-6</em>. 그리고 3·4회에 <em>14점</em>.',
+      sub:'4이닝 경기. 볼넷·사구 13개로 계속 나가고 도루 17개로 계속 움직인 결과, 6점을 뒤진 채 맞은 3회부터 타순이 두 바퀴 돌았다.'
+    },
+    compare:[
+      {k:"도루", a:17, b:11, hi:true},
+      {k:"사사구", a:13, b:8, hi:true},
+      {k:"안타", a:6, b:5},
+      {k:"삼진", a:6, b:6},
+      {k:"홈런", a:1, b:0},
+      {k:"실책", a:1, b:1},
+      {k:"타율", a:.333, b:.333, noBar:true}
+    ],
+    highlights:[
+      {k:"4회 · 이 경기 유일한 홈런", n:"노연정", sub:"#24 유격수",
+       stat:"3타수 3안타 4타점 · 타율 1.000",
+       d:"3회 유격수 쪽 내야안타로 첫 타점, 4회 우중간 홈런으로 2타점, 같은 이닝 두 번째 타석에서 또 내야안타로 1타점. 세 번 친 공이 모두 안타가 됐다."},
+      {k:"승리투수 겸 3득점", n:"송희", sub:"#54 포수",
+       stat:"2이닝 1실점 · 2타수 2안타 3득점 3도루",
+       d:"마운드에서 2이닝을 9타자로 막고 삼진 3개. 타석에서는 2타수 2안타 전 출루에 도루 3개로 세 번 모두 홈을 밟았다."},
+      {k:"팀 도루 17", n:"주현나 · 박세연", sub:"각 3도루",
+       stat:"9명이 나눠 성공 · 3·4회에만 14개",
+       d:"사사구 13개로 얻은 출루를 그대로 득점권으로 옮겼다. 3회 6개, 4회 8개가 몰리면서 대량 득점의 직접적인 발판이 됐다."}
+    ],
+    lineup:[
+      {ord:1, pos:"중견수", name:"주현나", no:15,
+       ip:[["볼넷(4구)","도루"],["3직선타"],[],["3내안","도루","도루","폭투","득점1","타석변경","볼넷(4구)","득점1"]],
+       s:["4","2","1","0","2","3",".500"]},
+      {ord:2, pos:"3루수", name:"한지현", no:99,
+       ip:[["삼진"],[],["볼넷(4구)","도루","견제사"],["삼진","타석변경","3땅","타점1"]],
+       s:["4","3","0","1","0","1",".000"]},
+      {ord:3, pos:"포수", name:"송희", no:54,
+       ip:[["좌안","도루"],[],["볼넷(4구)","도루","득점1"],["볼넷(4구)","도루","득점1","타석변경","중안","타점1","폭투","득점1"]],
+       s:["4","2","2","1","3","3","1.000"]},
+      {ord:4, pos:"유격수", name:"노연정", no:24,
+       ip:[["볼넷(4구)"],[],["유내안","타점1","폭투","득점1"],["우중G홈","타점2","타석변경","유내안","타점1","도루"]],
+       s:["4","3","3","4","2","1","1.000"]},
+      {ord:5, pos:"1루수", name:"박세연", no:22,
+       ip:[["포파플"],[],["사구","도루","득점1"],["볼넷(4구)","도루","도루","폭투","득점1","타석변경","3땅"]],
+       s:["4","2","0","0","2","3",".000"]},
+      {ord:6, pos:"2루수", name:"허지혜", no:39,
+       ip:[["삼진"],[],["유송구실책","도루","득점1"],["낫아웃","도루","득점1"]],
+       s:["2","2","0","0","2","2",".000"]},
+      {ord:7, pos:"좌익수", name:"박소라", no:3,
+       ip:[[],["삼진"],["볼넷(4구)","도루","주자아웃"],["볼넷(4구)","도루","득점1"]],
+       s:["3","1","0","0","1","2",".000"]},
+      {ord:8, pos:"투수", name:"김예소", no:8,
+       ip:[[],["볼넷(4구)","도루","폭투"],[],[]],
+       s:["1","0","0","0","0","1",".000"]},
+      {sub:true, pos:"1루수", name:"김영실", no:14,
+       ip:[[],[],["3야선","도루"],["볼넷(4구)","폭투","득점1"]],
+       s:["2","1","0","0","1","1",".000"]},
+      {ord:9, pos:"우익수", name:"김지원", no:85,
+       ip:[["삼진"],[],[],[]],
+       s:["1","1","0","0","0","0",".000"]},
+      {sub:true, pos:"우익수", name:"송혜린", no:93,
+       ip:[[],[],["투직선타"],["사구","폭투","득점1"]],
+       s:["2","1","0","0","1","0",".000"]}
+    ],
+    pitchers:[
+      {name:"김예소", res:"", p:[44,"1.1",11,6,3,0,4,1,0,1,6,6,"40.50"]},
+      {name:"박세연", res:"", p:[18,"0.2",3,1,0,0,2,0,3,0,0,0,"0.00"]},
+      {name:"송희", res:"승", win:true, p:[33,"2.0",9,8,2,0,1,0,3,1,1,1,"4.50"]}
+    ],
+    notes:[
+      {k:"홈런", v:"<b>4회 노연정</b> — 우중간 홈런 (2타점)"},
+      {k:"2루타 · 3루타", v:"기록 없음"},
+      {k:"도루", v:"팀 <b>17개</b> · 9명 성공 (선수별 기록은 타자기록 표 참고)"}
+    ],
+    foot:"허지혜의 타석·타수는 원본 기록지 표기(각 2)를 그대로 따랐습니다."
+  },
+  {
+    id:"0823", date:"2026-08-23", dow:"일", time:"11:30", venue:"국가대표2구장",
+    tour:"제15회 익산시장기 전국여자야구대회 · 퓨처리그",
+    opp:"전남고흥군리더스", wp:"김아람", lp:"양종인",
+    line:{a:[8,8,3], b:[1,3,7]},
+    tot:{a:{r:19,h:9,e:3,bb:11}, b:{r:11,h:10,e:2,bb:1}},
+    keyInnings:[1,2],
+    lede:{
+      head:'1·2회에 <em>16점</em>. 그 뒤로는 버티기.',
+      sub:'3이닝 경기. 안타는 9-10으로 오히려 뒤졌지만 사사구 11개와 도루 15개가 초반 두 이닝에 그대로 점수로 바뀌었다. 3회 7실점으로 쫓겼어도 격차가 남았다.'
+    },
+    compare:[
+      {k:"도루", a:15, b:1, hi:true},
+      {k:"사사구", a:11, b:1, hi:true},
+      {k:"안타", a:9, b:10},
+      {k:"삼진", a:2, b:3},
+      {k:"실책", a:3, b:2},
+      {k:"홈런", a:1, b:0},
+      {k:"타율", a:.450, b:.435, noBar:true}
+    ],
+    highlights:[
+      {k:"1번타자 · 4득점", n:"주현나", sub:"#15 중견수",
+       stat:"2안타 2타점 4득점 4도루 · 타율 1.000",
+       d:"1회에만 두 번 타석에 서서 볼넷과 좌월 2루타로 두 번 다 홈을 밟았다. 네 타석 전부 출루, 네 번 다 득점."},
+      {k:"3이닝 완투승", n:"김아람", sub:"#50 투수",
+       stat:"82구 3이닝 10피안타 11실점 (자책 1)",
+       d:"실점 11점 중 자책은 1점. 뒤의 실책 3개가 겹친 결과였다. 타석에서도 4도루 3득점으로 초반 득점에 직접 가담했다."},
+      {k:"2회 좌월 홈런", n:"노연정", sub:"#24 유격수",
+       stat:"4타수 3안타 3타점 3득점 3도루",
+       d:"1회 좌전안타로 2타점을 먼저 올리고 2회 좌월 홈런. 같은 이닝 두 번째 타석에서 중전안타까지 더해 이틀 연속 홈런을 기록했다."}
+    ],
+    lineup:[
+      {ord:1, pos:"중견수", name:"주현나", no:15,
+       ip:[["볼넷(4구)","폭투","도루","폭투","득점1","타석변경","좌월2","타점2","도루","득점1"],
+           ["중안","도루","도루","폭투","득점1"],
+           ["볼넷(4구)","폭투","폭투","득점1"]],
+       s:["4","2","2","2","4","4","1.000"]},
+      {ord:2, pos:"투수", name:"김아람", no:50,
+       ip:[["볼넷(4구)","도루","득점1","타석변경","좌안","타점1","도루","도루"],
+           ["볼넷(4구)","도루","득점1"],
+           ["사구","폭투","폭투","득점1"]],
+       s:["4","1","1","1","3","4","1.000"]},
+      {ord:3, pos:"3루수", name:"한지현", no:99,
+       ip:[["볼넷(4구)","득점1","타석변경","2땅"],
+           ["우안","득점1"],
+           ["투수교체3","볼넷(4구)","폭투"]],
+       s:["4","2","1","0","2","0",".500"]},
+      {ord:4, pos:"유격수", name:"노연정", no:24,
+       ip:[["좌안","타점2","도루","도루","폭투","득점1"],
+           ["좌월G홈","타점1","타석변경","중안","도루","득점1"],
+           ["투수교체1","1플"]],
+       s:["4","4","3","3","3","3",".750"]},
+      {ord:5, pos:"1루수", name:"박세연", no:22,
+       ip:[["유플"],["유실","도루","득점1","타석변경","유실"],[]],
+       s:["3","3","0","0","1","1",".000"]},
+      {ord:6, pos:"2루수", name:"송희", no:54,
+       ip:[["유플"],["3플","타석변경","3플"],[]],
+       s:["3","3","0","0","0","0",".000"]},
+      {ord:7, pos:"좌익수", name:"송혜린", no:93,
+       ip:[["사구","도루","폭투","득점1"],
+           ["중안","타점1","도루","폭투","득점1"],
+           ["투수교체2","삼진"]],
+       s:["3","2","1","1","2","2",".500"]},
+      {ord:8, pos:"포수", name:"김영실", no:14,
+       ip:[["볼넷(4구)","득점1"],["좌안","도루","득점1"],["1땅"]],
+       s:["3","2","1","0","2","1",".500"]},
+      {ord:9, pos:"우익수", name:"김예소", no:8,
+       ip:[["볼넷(4구)","득점1"],["삼진"],["사구"]],
+       s:["3","1","0","0","1","0",".000"]},
+      {sub:true, pos:"우익수", name:"박소라", no:3,
+       ip:[[],[],["대주자","폭투","폭투","득점1"]],
+       s:["0","0","0","0","1","0",".000"]}
+    ],
+    pitchers:[
+      {name:"김아람", res:"승", win:true, p:[82,"3.0",24,23,10,0,1,0,3,0,11,1,"3.00"]}
+    ],
+    notes:[
+      {k:"홈런", v:"<b>2회 노연정</b> — 좌월 홈런 (1타점)"},
+      {k:"2루타", v:"<b>1회 주현나</b> — 좌월 2루타 (2타점)"},
+      {k:"도루", v:"팀 <b>15개</b> · 7명 성공 (선수별 기록은 타자기록 표 참고)"}
+    ],
+    foot:"원본 기록지 상단의 도루 목록은 한 줄로 잘려 13개만 표시되지만, 타자기록 표 기준 팀 도루는 15개입니다."
+  }
+  ];
+
+  /* ---------- helpers ---------- */
+  var HITS = ["좌안","중안","우안","좌중안","우중안","3내안","유내안","2내안","1내안","좌월2","중월2","우월2","좌선2","우선2"];
+  function chipClass(t){
+    if (/홈$/.test(t)) return "hr";
+    if (HITS.indexOf(t) > -1) return "hit";
+    if (t === "볼넷(4구)" || t === "사구" || /실책$/.test(t) || t === "유실" || t === "3야선") return "on";
+    if (t.indexOf("도루") === 0) return "sb";
+    if (t.indexOf("득점") === 0 || t.indexOf("타점") === 0) return "run";
+    if (t === "폭투" || t === "타석변경" || t === "대주자" || t.indexOf("투수교체") === 0) return "etc";
+    return "out";
+  }
+  function el(tag, cls, txt){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (txt !== undefined) e.textContent = txt;
+    return e;
+  }
+  function fmt3(v){ return v.toFixed(3).replace(/^0/, ""); }
+
+  var tip = document.getElementById("tip");
+  function bindTip(node, text){
+    node.addEventListener("mouseenter", function(){
+      tip.textContent = text; tip.style.opacity = "1";
+      var r = node.getBoundingClientRect();
+      tip.style.left = (r.left + r.width/2) + "px";
+      tip.style.top = r.top + "px";
+    });
+    node.addEventListener("mouseleave", function(){ tip.style.opacity = "0"; });
+  }
+  function section(title, hint){
+    var s = el("section");
+    var h = el("div", "shead");
+    h.appendChild(el("h2", null, title));
+    if (hint) h.appendChild(el("span", "hint", hint));
+    s.appendChild(h);
+    return s;
+  }
+
+  /* ---------- renderers ---------- */
+  function renderBoard(g){
+    var won = g.tot.a.r > g.tot.b.r;
+    var board = el("div", "board");
+
+    var top = el("div", "board__top");
+    var sa = el("div", "side side--a");
+    sa.appendChild(el("span", "result result--" + (won ? "w" : "l"), won ? "WIN" : "LOSS"));
+    sa.appendChild(el("span", "side__name", TEAM));
+    sa.appendChild(el("span", "side__score", String(g.tot.a.r)));
+    var laA = won ? ["승리투수", g.wp] : ["패전투수", g.lp];
+    if (laA[1]){
+      var na = el("span", "side__note"); na.innerHTML = laA[0] + " <b>" + laA[1] + "</b>";
+      sa.appendChild(na);
+    }
+
+    var mid = el("div", "divider");
+    mid.appendChild(el("div", "divider__rule"));
+    mid.appendChild(el("div", "divider__txt", "VS"));
+    mid.appendChild(el("div", "divider__rule"));
+
+    var sb = el("div", "side side--b");
+    sb.appendChild(el("span", "result result--" + (won ? "l" : "w"), won ? "LOSS" : "WIN"));
+    sb.appendChild(el("span", "side__name", g.opp));
+    sb.appendChild(el("span", "side__score", String(g.tot.b.r)));
+    var laB = won ? ["패전투수", g.lp] : ["승리투수", g.wp];
+    if (laB[1]){
+      var nb = el("span", "side__note"); nb.innerHTML = laB[0] + " <b>" + laB[1] + "</b>";
+      sb.appendChild(nb);
+    }
+
+    top.appendChild(sa); top.appendChild(mid); top.appendChild(sb);
+    board.appendChild(top);
+
+    /* line score */
+    var n = Math.max(g.line.a.length, g.line.b.length);
+    var keySide = g.keySide || "a";
+    var wrapT = el("div", "linescore");
+    var tbl = el("table");
+    var thead = el("thead"), htr = el("tr");
+    var th0 = el("th", null, "팀명");
+    th0.setAttribute("scope", "col");
+    th0.style.textAlign = "left";
+    th0.style.paddingLeft = "clamp(14px,3vw,30px)";
+    htr.appendChild(th0);
+    for (var i = 1; i <= n; i++){
+      var th = el("th", null, String(i)); th.setAttribute("scope", "col"); htr.appendChild(th);
+    }
+    ["R","H","E","B"].forEach(function(k, idx){
+      var th = el("th", idx === 0 ? "sepl" : null, k); th.setAttribute("scope", "col"); htr.appendChild(th);
+    });
+    thead.appendChild(htr); tbl.appendChild(thead);
+
+    var tbody = el("tbody");
+    [["a", TEAM, "var(--a)"], ["b", g.opp, "var(--b)"]].forEach(function(t){
+      var side = t[0];
+      var tr = el("tr");
+      var td = el("td", "lteam");
+      var dot = el("span"); dot.style.background = t[2];
+      td.appendChild(dot); td.appendChild(document.createTextNode(t[1]));
+      tr.appendChild(td);
+      for (var i = 0; i < n; i++){
+        var v = g.line[side][i];
+        if (v === undefined){ tr.appendChild(el("td", "runs cell--empty", "")); continue; }
+        var key = side === keySide && g.keyInnings && g.keyInnings.indexOf(i + 1) > -1;
+        tr.appendChild(el("td", "runs" + (key ? (keySide === "a" ? " big" : " big big--b") : ""), String(v)));
+      }
+      var tt = g.tot[side];
+      tr.appendChild(el("td", "tot tot--r sepl", String(tt.r)));
+      tr.appendChild(el("td", "tot", String(tt.h)));
+      tr.appendChild(el("td", "tot", String(tt.e)));
+      tr.appendChild(el("td", "tot", String(tt.bb)));
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody);
+    wrapT.appendChild(tbl);
+    board.appendChild(wrapT);
+    return board;
+  }
+
+  function renderLede(g){
+    var p = el("p", "lede");
+    p.innerHTML = g.lede.head +
+      '<span class="sub">' + g.date + "(" + g.dow + ") " + g.time + " · " + g.venue + " · " +
+      g.lede.sub + "</span>";
+    return p;
+  }
+
+  function renderInnings(g){
+    var s = section("이닝별 득점", "막대 아래는 해당 이닝 종료 시점 누적 스코어");
+    var lg = el("div", "legend");
+    [[TEAM, "var(--a)"], [g.opp, "var(--b)"]].forEach(function(t){
+      var sp = el("span");
+      var i = el("i"); i.style.background = t[1];
+      sp.appendChild(i); sp.appendChild(document.createTextNode(t[0]));
+      lg.appendChild(sp);
+    });
+    s.appendChild(lg);
+
+    var card = el("div", "card");
+    var host = el("div", "innings");
+    var n = Math.max(g.line.a.length, g.line.b.length);
+    var keySide = g.keySide || "a";
+    host.style.gridTemplateColumns = "repeat(" + n + ",1fr)";
+    var max = Math.max.apply(null, g.line.a.concat(g.line.b));
+    var H = 150, ca = 0, cb = 0;
+
+    for (var i = 0; i < n; i++){
+      var va = g.line.a[i], vb = g.line.b[i];
+      if (va !== undefined) ca += va;
+      if (vb !== undefined) cb += vb;
+      var isKey = g.keyInnings && g.keyInnings.indexOf(i + 1) > -1;
+      var col = el("div", "inn" + (isKey ? " inn--key inn--key-" + keySide : ""));
+      var plot = el("div", "inn__plot");
+      [["a", va, TEAM], ["b", vb, g.opp]].forEach(function(p){
+        var v = p[1];
+        if (v === undefined){
+          var gap = el("div", "bar bar--none");
+          gap.appendChild(el("span", "bar__val", "·"));
+          plot.appendChild(gap);
+          return;
+        }
+        var bar = el("div", "bar bar--" + p[0] + (v === 0 ? " bar--zero" : ""));
+        bar.style.height = v === 0 ? "2px" : Math.max(10, Math.round(v / max * (H - 26))) + "px";
+        bar.appendChild(el("span", "bar__val", v === 0 ? "–" : String(v)));
+        bindTip(bar, (i + 1) + "회 · " + p[2] + " " + v + "점");
+        plot.appendChild(bar);
+      });
+      var foot = el("div", "inn__foot");
+      foot.appendChild(el("div", "inn__no", (i + 1) + "회"));
+      foot.appendChild(el("div", "inn__cum", ca + " – " + cb));
+      if (isKey) foot.appendChild(el("div", "inn__badge", "승부처"));
+      col.appendChild(plot); col.appendChild(foot);
+      host.appendChild(col);
+    }
+    card.appendChild(host);
+    s.appendChild(card);
+    return s;
+  }
+
+  function renderCompare(g){
+    var vals = [];
+    g.compare.forEach(function(r){ if (!r.noBar) vals.push(r.a, r.b); });
+    var MAX = Math.max(6, Math.ceil(Math.max.apply(null, vals) / 6) * 6);
+
+    var s = section("팀 기록 비교", "왼쪽 " + TEAM.replace("서울송파구", "") + " · 오른쪽 " + g.opp + " · 모든 항목이 같은 축(0–" + MAX + ")을 씁니다");
+    var host = el("div", "card compare");
+
+    g.compare.forEach(function(r){
+      var f = r.noBar ? fmt3 : String;
+      var row = el("div", "crow" + (r.hi ? " crow--hi" : "") + (r.noBar ? " crow--nobar" : ""));
+      var ta = el("div", "ctrack ctrack--a");
+      var tb = el("div", "ctrack ctrack--b");
+      if (!r.noBar){
+        var ba = el("div", "cbar cbar--a" + (r.a ? "" : " cbar--zero"));
+        ba.style.width = (r.a / MAX * 100) + "%";
+        bindTip(ba, TEAM + " · " + r.k + " " + r.a);
+        ta.appendChild(ba);
+        var bb = el("div", "cbar cbar--b" + (r.b ? "" : " cbar--zero"));
+        bb.style.width = (r.b / MAX * 100) + "%";
+        bindTip(bb, g.opp + " · " + r.k + " " + r.b);
+        tb.appendChild(bb);
+      }
+      row.appendChild(el("div", "cval cval--a", f(r.a)));
+      row.appendChild(ta);
+      row.appendChild(el("div", "clabel", r.k));
+      row.appendChild(tb);
+      row.appendChild(el("div", "cval", f(r.b)));
+      host.appendChild(row);
+    });
+
+    var axis = el("div", "caxis");
+    var left = el("div", "caxis__side"), right = el("div", "caxis__side");
+    var ticks = [0, MAX / 3, MAX * 2 / 3, MAX].map(Math.round);
+    ticks.slice().reverse().forEach(function(t){ left.appendChild(el("span", null, String(t))); });
+    ticks.forEach(function(t){ right.appendChild(el("span", null, String(t))); });
+    axis.appendChild(el("div")); axis.appendChild(left);
+    axis.appendChild(el("div", "clabel", "공통 축"));
+    axis.appendChild(right); axis.appendChild(el("div"));
+    host.appendChild(axis);
+
+    s.appendChild(host);
+    return s;
+  }
+
+  function renderHighlights(g){
+    if (!g.highlights || !g.highlights.length) return null;
+    var s = section("이 경기의 세 장면");
+    var grid = el("div", "hl");
+    g.highlights.forEach(function(h){
+      var c = el("div", "card hlcard");
+      c.appendChild(el("div", "hlcard__k", h.k));
+      var n = el("div", "hlcard__n");
+      n.appendChild(document.createTextNode(h.n));
+      n.appendChild(el("small", null, h.sub));
+      c.appendChild(n);
+      c.appendChild(el("div", "hlcard__stat", h.stat));
+      c.appendChild(el("div", "hlcard__d", h.d));
+      grid.appendChild(c);
+    });
+    s.appendChild(grid);
+    return s;
+  }
+
+  function renderBatting(g){
+    var n = Math.max(g.line.a.length, g.line.b.length);
+    var s = section("타자기록", TEAM + " · 좌우로 스크롤");
+
+    var key = el("div", "keyrow");
+    [["hit","안타"],["on","사사구·출루"],["out","아웃"],["sb","도루"],["run","득점 / 타점"]].forEach(function(k){
+      key.appendChild(el("span", "chip chip--" + k[0], k[1]));
+    });
+    s.appendChild(key);
+
+    var card = el("div", "card scroller");
+    var tbl = el("table", "rec");
+    var thead = el("thead"), htr = el("tr");
+    ["타순","위치","선수"].forEach(function(h){
+      var th = el("th", null, h); th.setAttribute("scope", "col"); htr.appendChild(th);
+    });
+    for (var i = 1; i <= n; i++){
+      var th = el("th", null, i + "회"); th.setAttribute("scope", "col"); htr.appendChild(th);
+    }
+    ["타석","타수","안타","타점","득점","도루","타율"].forEach(function(h, idx){
+      var th = el("th", "tot" + (idx === 0 ? " grp" : ""), h); th.setAttribute("scope", "col"); htr.appendChild(th);
+    });
+    thead.appendChild(htr); tbl.appendChild(thead);
+
+    var tbody = el("tbody");
+    g.lineup.forEach(function(p){
+      var tr = el("tr", p.sub ? "sub" : "");
+      tr.appendChild(el("td", "ord", p.sub ? "" : String(p.ord)));
+      tr.appendChild(el("td", "pos", p.pos));
+      var who = el("td", "who");
+      who.appendChild(el("b", null, p.name));
+      who.appendChild(el("i", null, "#" + p.no));
+      tr.appendChild(who);
+
+      for (var i = 0; i < n; i++){
+        var ev = p.ip[i] || [];
+        var td = el("td");
+        if (!ev.length){ td.className = "c cell--empty"; td.textContent = "·"; }
+        else {
+          var box = el("div", "cell");
+          ev.forEach(function(t){ box.appendChild(el("span", "chip chip--" + chipClass(t), t)); });
+          td.appendChild(box);
+        }
+        tr.appendChild(td);
+      }
+      p.s.forEach(function(v, i){
+        tr.appendChild(el("td", (i === 6 ? "avg" : "num") + (i === 0 ? " grp" : ""), v));
+      });
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody);
+    card.appendChild(tbl);
+    s.appendChild(card);
+    return s;
+  }
+
+  function renderPitching(g){
+    var s = section("투수기록", TEAM);
+    var card = el("div", "card scroller");
+    var tbl = el("table", "rec");
+    var thead = el("thead"), htr = el("tr");
+    var th0 = el("th", null, "선수"); th0.setAttribute("scope", "col"); th0.style.textAlign = "left";
+    htr.appendChild(th0);
+    ["결과","투구수","이닝","타자","타수","피안타","피홈런","볼넷","사구","삼진","폭투","실점","자책"].forEach(function(h){
+      var th = el("th", null, h); th.setAttribute("scope", "col"); htr.appendChild(th);
+    });
+    var the = el("th", "tot", "ERA"); the.setAttribute("scope", "col"); htr.appendChild(the);
+    thead.appendChild(htr); tbl.appendChild(thead);
+
+    var tbody = el("tbody");
+    g.pitchers.forEach(function(p){
+      var tr = el("tr", p.win ? "win" : "");
+      var td0 = el("td", "who"); td0.appendChild(el("b", null, p.name));
+      tr.appendChild(td0);
+      tr.appendChild(el("td", "c res", p.res || "–"));
+      p.p.forEach(function(v, i){
+        tr.appendChild(el("td", "num" + (i === 12 ? " grp" : ""), String(v)));
+      });
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody);
+    card.appendChild(tbl);
+    s.appendChild(card);
+    return s;
+  }
+
+  function renderNotes(g){
+    var s = section("기록 상세");
+    var grid = el("div", "notes");
+    g.notes.forEach(function(nt){
+      var c = el("div", "card note");
+      c.appendChild(el("div", "note__k", nt.k));
+      var v = el("div", "note__v"); v.innerHTML = nt.v;
+      c.appendChild(v);
+      grid.appendChild(c);
+    });
+    s.appendChild(grid);
+    return s;
+  }
+
+  function renderGame(g){
+    var host = document.getElementById("game");
+    host.innerHTML = "";
+    var tour = el("div", "gtour", g.tour);
+    host.appendChild(tour);
+    host.appendChild(renderBoard(g));
+    host.appendChild(renderLede(g));
+    host.appendChild(renderInnings(g));
+    host.appendChild(renderCompare(g));
+    var hl = renderHighlights(g); if (hl) host.appendChild(hl);
+    host.appendChild(renderBatting(g));
+    host.appendChild(renderPitching(g));
+    host.appendChild(renderNotes(g));
+
+    var f = el("div", "foot");
+    f.innerHTML = g.tour + " · " + g.date + " " + g.venue +
+      " 공식 기록지를 옮긴 것입니다." + (g.foot ? "<br>" + g.foot : "");
+    host.appendChild(f);
+  }
+
+  /* =======================================================================
+     직전 맞대결 + 스카우팅 요약
+     ======================================================================= */
+  var US = "서울강남구드래곤볼여자야구단";
+
+  function posLabel(b){
+    var ks = Object.keys(b.pos).sort(function(x, y){ return b.pos[y] - b.pos[x]; });
+    if (ks.length > 1 && b.pos[ks[1]] >= 2) return ks[0] + "·" + ks[1] + (ks.length > 2 ? " 등" : "");
+    return ks[0];
+  }
+  function outs(s){ var p = String(s).split("."); return (+p[0]) * 3 + (+(p[1] || 0)); }
+  function ipStr(o){ return Math.floor(o / 3) + "." + (o % 3); }
+
+  function aggregate(){
+    var B = {}, P = {}, team = {sb:0, bb:0, e:0, ab:0, h:0, r:0, ra:0, w:0, l:0, pbb:0, pouts:0, pe:0};
+    GAMES.forEach(function(g){
+      g.lineup.forEach(function(p){
+        var k = p.name + "#" + p.no;
+        B[k] = B[k] || {name:p.name, no:p.no, g:0, pa:0, ab:0, h:0, rbi:0, r:0, sb:0, xbh:0, hr:0, bbh:0, so:0, pos:{}};
+        var b = B[k]; b.g++;
+        b.pa += +p.s[0]; b.ab += +p.s[1]; b.h += +p.s[2];
+        b.rbi += +p.s[3]; b.r += +p.s[4]; b.sb += +p.s[5];
+        b.pos[p.pos] = (b.pos[p.pos] || 0) + 1;
+        p.ip.forEach(function(ev){ ev.forEach(function(t){
+          if (/홈$/.test(t)) { b.hr++; b.xbh++; }
+          else if (/[23]$/.test(t) && !/타점|득점/.test(t)) b.xbh++;
+          if (t === "볼넷(4구)" || t === "사구") b.bbh++;
+          if (t === "삼진" || t === "낫아웃") b.so++;
+        }); });
+      });
+      g.pitchers.forEach(function(p){
+        P[p.name] = P[p.name] || {name:p.name, g:0, o:0, np:0, bf:0, h:0, bb:0, hbp:0, k:0, wp:0, r:0, er:0, w:0, l:0};
+        var q = P[p.name]; q.g++;
+        q.np += p.p[0]; q.o += outs(p.p[1]); q.bf += p.p[2]; q.h += p.p[4];
+        q.bb += p.p[6]; q.hbp += p.p[7]; q.k += p.p[8]; q.wp += p.p[9];
+        q.r += p.p[10]; q.er += p.p[11];
+        if (p.res === "승") q.w++;
+        if (p.res === "패") q.l++;
+        team.pbb += p.p[6] + p.p[7]; team.pouts += outs(p.p[1]);
+      });
+      g.compare.forEach(function(c){
+        if (c.k === "도루") team.sb += c.a;
+        if (c.k === "사사구") team.bb += c.a;
+        if (c.k === "실책") { team.e += c.a; team.pe += c.b; }
+      });
+      team.h += g.tot.a.h; team.r += g.tot.a.r; team.ra += g.tot.b.r;
+      if (g.tot.a.r > g.tot.b.r) team.w++; else team.l++;
+      g.lineup.forEach(function(p){ team.ab += +p.s[1]; });
+    });
+    return {
+      batters: Object.keys(B).map(function(k){ return B[k]; }).sort(function(x, y){ return y.h - x.h || y.r - x.r; }),
+      pitchers: Object.keys(P).map(function(k){ return P[k]; }).sort(function(x, y){ return y.o - x.o; }),
+      team: team
+    };
+  }
+
+  var AGG = aggregate();
+
+  function renderH2H(){
+    var g = null;
+    GAMES.forEach(function(x){ if (x.vsUs) g = x; });
+    if (!g) return;
+    var host = document.getElementById("h2h");
+
+    var s = section("우리와의 직전 맞대결", g.date + "(" + g.dow + ") · " + g.tour);
+    var card = el("div", "h2h");
+
+    var top = el("div", "h2h__top");
+    var sc = el("div", "h2h__score");
+    var b1 = el("b", "them", String(g.tot.a.r));
+    var mid = el("span", null, "VS");
+    var b2 = el("b", "us", String(g.tot.b.r));
+    sc.appendChild(b1); sc.appendChild(mid); sc.appendChild(b2);
+    top.appendChild(sc);
+
+    var who = el("div", "h2h__who");
+    who.appendChild(el("div", "t them", TEAM + " (승)"));
+    who.appendChild(el("div", "t", US + " (패)"));
+    who.appendChild(el("div", "d", "W " + g.wp + " · L " + g.lp));
+    top.appendChild(who);
+
+    var mini = el("div", "h2h__mini");
+    for (var i = 0; i < g.line.a.length; i++){
+      var c = el("div", "h2h__inn");
+      c.appendChild(el("i", null, (i + 1) + "회"));
+      c.appendChild(el("b", null, String(g.line.a[i])));
+      c.appendChild(el("u", null, String(g.line.b[i])));
+      mini.appendChild(c);
+    }
+    top.appendChild(mini);
+    card.appendChild(top);
+
+    var facts = el("div", "h2h__facts");
+    [
+      ["그날의 타격", "20안타 · .606", "33타수 20안타. 1~6번 타순이 전원 2안타 이상을 쳤다."],
+      ["장타", "3루타 5 · 2루타 3", "노연정·서가림·한지현이 각 2개. 단타로 나가 도루하는 평소 패턴 위에 장타가 겹쳤다."],
+      ["우리가 준 것", "볼넷 12 · 실책 6", "상대 26득점 중 상당수가 사사구와 수비에서 시작됐다."]
+    ].forEach(function(f){
+      var d = el("div", "h2h__fact");
+      d.appendChild(el("em", null, f[0]));
+      d.appendChild(el("b", null, f[1]));
+      d.appendChild(el("span", null, f[2]));
+      facts.appendChild(d);
+    });
+    card.appendChild(facts);
+
+    s.appendChild(card);
+    host.appendChild(s);
+  }
+
+  /* --- 선수별 경계 포인트 (수기 작성) --- */
+  var BAT_NOTES = {
+    "노연정": {tier:1, label:"최우선", how:
+      "10경기에서 <strong>삼진이 단 1개</strong>다. 볼넷도 4개뿐 — 스트라이크존에 들어오면 거의 다 돌린다. 팀 홈런 4개가 전부 이 선수 몫이고 방향은 중월·우중월. <strong>주자 있을 때 존 안에서 승부하지 말 것</strong>, 외야는 한 발 뒤에서 시작."},
+    "김아람": {tier:1, label:"최우선", how:
+      "출루하면 거의 예외 없이 다음 루로 간다. 8경기 15도루. 투수로도 나오는 주력 선수라 4번 안팎 상위타순에 고정. <strong>1루에 보내지 않는 게 최선</strong>이고, 보냈다면 견제와 퀵모션으로 스타트를 죽여야 한다."},
+    "서가림": {tier:1, label:"최우선", how:
+      "7경기 출전에 21타수 12안타. 안타 뒤에 곧바로 도루가 붙는 유형이라 단타 하나가 2루타가 된다. 5/25 경기에서는 <strong>혼자 5도루</strong>. 최근 상위타순 고정."},
+    "송희": {tier:2, label:"주의", how:
+      "포수이면서 하위타순에서 장타가 나온다. 3루타 3개 포함 장타 4개. 대타·대수비로도 자주 나오며 <strong>등판까지 하는 멀티 자원</strong>."},
+    "주현나": {tier:2, label:"주의", how:
+      "타율보다 출루가 무섭다. 사사구 7개에 도루 15개, 득점 13. 타순이 어디에 있든 나가면 뛴다. <strong>볼넷을 주면 2루타를 준 것과 같다.</strong>"},
+    "한지현": {tier:2, label:"주의", how:
+      "타율은 .259로 낮은데 <strong>타점이 10개로 팀 2위</strong>. 주자 있을 때 결과를 만든다. 도루도 10개. 타율만 보고 편하게 승부하면 당한다."},
+    "곽민정": {tier:3, label:"참고", how:
+      "4경기 출전으로 표본은 적지만 9타수 5안타에 장타 3개. 나오면 중심타선에 배치된다."},
+    "권아인": {tier:3, label:"참고", how:
+      "3경기 출전에 득점 6, 도루 5. 5/10 우리와의 경기에서 <strong>5득점 3도루</strong>로 가장 많이 홈을 밟은 선수."}
+  };
+
+  var PIT_NOTES = {
+    "김아람": {tier:1, label:"주전", how:
+      "가장 많은 이닝을 던지는 실질적 에이스(17.2이닝 3승). 다만 <strong>사구가 12개</strong>로 몸쪽을 붙이는 유형이다. 9이닝당 사사구 10.2개. 피안타 22개로 맞기도 하는데 실점 30 중 자책은 11 — <strong>뒤 수비가 흔들릴 때 대량 실점</strong>이 난다. 참고 기다리면 출루 기회가 온다."},
+    "김예소": {tier:2, label:"제구 난조", how:
+      "10이닝에 볼넷 21개, 9이닝당 19.8개. 삼진은 9이닝당 6.3개로 적다. <strong>등판하면 기다리는 게 정답</strong>이고, 초구부터 손이 나가면 오히려 살려준다."},
+    "송희": {tier:2, label:"구위형", how:
+      "6이닝 9탈삼진으로 <strong>구위는 팀에서 가장 좋다</strong>. 짧게 나오는 마무리 역할이라 접전 후반에 만날 가능성이 크다. 대신 6이닝 8피안타로 맞기도 한다."},
+    "노연정": {tier:2, label:"기복", how:
+      "타자로는 최고지만 투수로는 3.1이닝 볼넷 15·폭투 5로 극단적이다. 단, <strong>5/10 우리와의 경기에서는 3이닝 무피안타 7탈삼진</strong>. 스트라이크가 들어오는 날은 까다롭다."},
+    "김예소2": null
+  };
+
+  function renderScout(){
+    var host = document.getElementById("scout");
+    var t = AGG.team;
+    var gCount = GAMES.length;
+
+    /* --- KPI --- */
+    var s0 = section("한눈에 보는 상대", gCount + "경기 누적");
+    var kp = el("div", "kpis");
+    [
+      ["경기당 도루", (t.sb / gCount).toFixed(1), "총 " + t.sb + "개. 출루를 곧바로 득점권으로 바꾼다. 이 팀 공격의 1번 엔진."],
+      ["팀 타율", (t.h / t.ab).toFixed(3).replace(/^0/, ""), t.ab + "타수 " + t.h + "안타. 상위타순 다섯 명이 .470 이상."],
+      ["상대 투수진 사사구", t.pbb + "개", "약 " + Math.round(t.pouts / 3) + "이닝 동안. 참고 골라내면 출루가 열린다."],
+      ["경기당 실책", (t.pe / gCount).toFixed(1) + "개", "상대 수비도 흔들린다. 주자를 쌓아 압박하면 스스로 무너진 경기가 있었다."]
+    ].forEach(function(k){
+      var c = el("div", "card kpi");
+      c.appendChild(el("div", "k", k[0]));
+      c.appendChild(el("b", null, k[1]));
+      c.appendChild(el("div", "d", k[2]));
+      kp.appendChild(c);
+    });
+    s0.appendChild(kp);
+    host.appendChild(s0);
+
+    /* --- 대응 플랜 --- */
+    var s1 = section("준결승 대응 3원칙");
+    var plan = el("div", "card plan");
+    [
+      ["1루를 내주지 않는다",
+       "경기당 도루 <b>" + (t.sb / gCount).toFixed(1) + "개</b>. 볼넷 하나가 곧 2루타다. 배터리는 퀵모션과 견제를 먼저 준비하고, 주자 1루에서는 피치아웃 카드도 하나 남겨둔다."],
+      ["존 안에서 승부할 타자와 아닌 타자를 나눈다",
+       "노연정·김아람·서가림은 <b>스트라이크를 그냥 주지 않는다</b>. 반대로 하위 세 타순(김예소·김영실·허지혜)은 합계 타율이 낮으니 여기서 아웃카운트를 벌어야 한다."],
+      ["볼넷을 참는다",
+       "상대 투수진은 약 " + Math.round(t.pouts / 3) + "이닝에 사사구 <b>" + t.pbb + "개</b>. 김예소가 나오면 특히 그렇다. 초구부터 손이 나가면 상대 제구 난조를 지워주는 셈이 된다."]
+    ].forEach(function(p, i){
+      var row = el("div", "plan__row");
+      row.appendChild(el("div", "plan__n", String(i + 1)));
+      var box = el("div");
+      box.appendChild(el("div", "plan__t", p[0]));
+      var d = el("div", "plan__d"); d.innerHTML = p[1];
+      box.appendChild(d);
+      row.appendChild(box);
+      plan.appendChild(row);
+    });
+    s1.appendChild(plan);
+    host.appendChild(s1);
+
+    /* --- 타자 --- */
+    var s2 = section("경계 타자", "10경기 누적 · 등급은 위협도 순");
+    var tg = el("div", "threats");
+    AGG.batters.forEach(function(b){
+      var n = BAT_NOTES[b.name];
+      if (!n) return;
+      var c = el("div", "card threat threat--" + n.tier);
+      var hd = el("div", "threat__hd");
+      hd.appendChild(el("b", null, b.name));
+      hd.appendChild(el("i", null, "#" + b.no + " · " + posLabel(b)));
+      hd.appendChild(el("span", "tier tier--" + n.tier, n.label));
+      c.appendChild(hd);
+      var ln = el("div", "threat__line");
+      ln.innerHTML = "타율 <b>" + (b.h / b.ab).toFixed(3).replace(/^0/, "") + "</b> (" + b.ab + "타수 " + b.h + "안타) · " +
+        b.rbi + "타점 " + b.r + "득점<br>도루 <b>" + b.sb + "</b> · 장타 " + b.xbh + (b.hr ? " (홈런 " + b.hr + ")" : "") +
+        " · 삼진 " + b.so + " · " + b.g + "경기";
+      c.appendChild(ln);
+      var how = el("div", "threat__how"); how.innerHTML = n.how;
+      c.appendChild(how);
+      tg.appendChild(c);
+    });
+    s2.appendChild(tg);
+
+    var t2 = el("div", "card scroller");
+    var tbl = el("table", "agg");
+    var th = el("thead"), htr = el("tr");
+    ["선수", "주포지션", "경기", "타석", "타수", "안타", "타율", "장타", "타점", "득점", "도루", "사사구", "삼진"].forEach(function(h, i){
+      var e = el("th", null, h); e.setAttribute("scope", "col");
+      if (i < 2) e.style.textAlign = "left";
+      htr.appendChild(e);
+    });
+    th.appendChild(htr); tbl.appendChild(th);
+    var tb = el("tbody");
+    AGG.batters.filter(function(b){ return b.pa >= 8; }).forEach(function(b){
+      var tr = el("tr", BAT_NOTES[b.name] && BAT_NOTES[b.name].tier === 1 ? "hot" : "");
+      var w = el("td", "who");
+      w.appendChild(el("b", null, b.name));
+      w.appendChild(el("i", null, "#" + b.no));
+      tr.appendChild(w);
+      tr.appendChild(el("td", "pos", posLabel(b)));
+      [b.g, b.pa, b.ab, b.h].forEach(function(v){ tr.appendChild(el("td", null, String(v))); });
+      tr.appendChild(el("td", "lead", (b.h / b.ab).toFixed(3).replace(/^0/, "")));
+      [b.xbh, b.rbi, b.r].forEach(function(v){ tr.appendChild(el("td", null, String(v))); });
+      tr.appendChild(el("td", "lead", String(b.sb)));
+      [b.bbh, b.so].forEach(function(v){ tr.appendChild(el("td", null, String(v))); });
+      tb.appendChild(tr);
+    });
+    tbl.appendChild(tb);
+    t2.appendChild(tbl);
+    s2.appendChild(t2);
+    host.appendChild(s2);
+
+    /* --- 투수 --- */
+    var s3 = section("상대 투수진", "10경기 누적");
+    var pg = el("div", "threats");
+    AGG.pitchers.forEach(function(q){
+      var n = PIT_NOTES[q.name];
+      if (!n) return;
+      var c = el("div", "card threat threat--" + n.tier);
+      var hd = el("div", "threat__hd");
+      hd.appendChild(el("b", null, q.name));
+      hd.appendChild(el("i", null, q.w + "승 " + q.l + "패 · " + q.g + "경기"));
+      hd.appendChild(el("span", "tier tier--" + n.tier, n.label));
+      c.appendChild(hd);
+      var ip = q.o / 3;
+      var ln = el("div", "threat__line");
+      ln.innerHTML = "<b>" + ipStr(q.o) + "이닝</b> · 피안타 " + q.h + " · 사사구 " + (q.bb + q.hbp) +
+        " · 탈삼진 " + q.k + "<br>실점 " + q.r + " (자책 " + q.er + ") · ERA <b>" + (q.er * 9 / ip).toFixed(2) + "</b>" +
+        " · 9이닝당 사사구 " + ((q.bb + q.hbp) * 9 / ip).toFixed(1);
+      c.appendChild(ln);
+      var how = el("div", "threat__how"); how.innerHTML = n.how;
+      c.appendChild(how);
+      pg.appendChild(c);
+    });
+    s3.appendChild(pg);
+
+    var t3 = el("div", "card scroller");
+    var ptbl = el("table", "agg");
+    var pth = el("thead"), ptr = el("tr");
+    ["선수", "등판", "승-패", "이닝", "투구수", "피안타", "볼넷", "사구", "삼진", "폭투", "실점", "자책", "ERA"].forEach(function(h, i){
+      var e = el("th", null, h); e.setAttribute("scope", "col");
+      if (i === 0) e.style.textAlign = "left";
+      ptr.appendChild(e);
+    });
+    pth.appendChild(ptr); ptbl.appendChild(pth);
+    var ptb = el("tbody");
+    AGG.pitchers.forEach(function(q){
+      var tr = el("tr", PIT_NOTES[q.name] && PIT_NOTES[q.name].tier === 1 ? "hot" : "");
+      var w = el("td", "who"); w.appendChild(el("b", null, q.name));
+      tr.appendChild(w);
+      tr.appendChild(el("td", null, String(q.g)));
+      tr.appendChild(el("td", null, q.w + "-" + q.l));
+      tr.appendChild(el("td", "lead", ipStr(q.o)));
+      [q.np, q.h, q.bb, q.hbp, q.k, q.wp, q.r, q.er].forEach(function(v){ tr.appendChild(el("td", null, String(v))); });
+      tr.appendChild(el("td", "lead", q.o ? (q.er * 9 / (q.o / 3)).toFixed(2) : "–"));
+      ptb.appendChild(tr);
+    });
+    ptbl.appendChild(ptb);
+    t3.appendChild(ptbl);
+    s3.appendChild(t3);
+    host.appendChild(s3);
+  }
+
+  /* ---------- tabs ---------- */
+  function buildTabs(){
+    var host = document.getElementById("tabs");
+    GAMES.forEach(function(g, i){
+      var won = g.tot.a.r > g.tot.b.r;
+      var b = el("button", "tab" + (g.vsUs ? " tab--us" : ""));
+      b.type = "button";
+      b.setAttribute("role", "tab");
+      b.setAttribute("aria-selected", "false");
+      b.id = "tab-" + g.id;
+      var md = g.date.slice(5).replace("-", "/").replace(/^0/, "");
+      b.appendChild(el("span", "tab__d", md + " (" + g.dow + ")"));
+      b.appendChild(el("span", "tab__o", g.vsUs ? "vs 우리 (드래곤볼)" : "vs " + g.opp));
+      var sc = el("span", "tab__s");
+      sc.appendChild(el("b", won ? "w" : "l", won ? "승" : "패"));
+      sc.appendChild(document.createTextNode(g.tot.a.r + "-" + g.tot.b.r));
+      b.appendChild(sc);
+      b.addEventListener("click", function(){ select(i, true); });
+      b.addEventListener("keydown", function(e){
+        if (e.key === "ArrowRight" || e.key === "ArrowLeft"){
+          e.preventDefault();
+          select((i + (e.key === "ArrowRight" ? 1 : GAMES.length - 1)) % GAMES.length, true, true);
+        }
+      });
+      host.appendChild(b);
+    });
+  }
+
+  function select(i, push, focus){
+    var tabs = document.querySelectorAll(".tab");
+    for (var k = 0; k < tabs.length; k++){
+      tabs[k].setAttribute("aria-selected", k === i ? "true" : "false");
+      tabs[k].tabIndex = k === i ? 0 : -1;
+    }
+    if (focus) tabs[i].focus();
+    renderGame(GAMES[i]);
+    if (push && history.replaceState) history.replaceState(null, "", "#" + GAMES[i].id);
+    tip.style.opacity = "0";
+  }
+
+  function summary(){
+    var w = 0, l = 0, rf = 0, ra = 0;
+    GAMES.forEach(function(g){
+      if (g.tot.a.r > g.tot.b.r) w++; else l++;
+      rf += g.tot.a.r; ra += g.tot.b.r;
+    });
+    document.getElementById("record").textContent =
+      "서울송파구비밀리에 · 2026 시즌 " + GAMES.length + "경기 " + w + "승 " + l + "패 (득점 " + rf + " / 실점 " + ra + ")";
+  }
+
+  renderH2H();
+  renderScout();
+  buildTabs();
+  summary();
+  var start = 0;
+  var h = (location.hash || "").replace("#", "");
+  GAMES.forEach(function(g, i){ if (g.id === h) start = i; });
+  select(start, false);
+})();
+</script>
+
+</body>
+</html>
