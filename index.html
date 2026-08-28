@@ -19,6 +19,7 @@
   --b:#1273A8; --b-soft:rgba(18,115,168,.11); --b-mid:rgba(18,115,168,.22);
   --good:#1E6B50;
   --chip-out-bg:rgba(23,24,27,.05);
+  --grass:#E8E5DF; --dirt:#DFD4C7; --fline:#BDB6AC;
   --shadow:0 1px 2px rgba(30,24,18,.05), 0 8px 24px -16px rgba(30,24,18,.25);
 }
 @media (prefers-color-scheme: dark){
@@ -30,6 +31,8 @@
     --b:#3D9AD1; --b-soft:rgba(61,154,209,.15); --b-mid:rgba(61,154,209,.30);
     --good:#4FAE87;
     --chip-out-bg:rgba(236,234,231,.07);
+  --grass:#1E2022; --dirt:#2B2621; --fline:#44444C;
+    --grass:#1E2022; --dirt:#2B2621; --fline:#44444C;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
   }
 }
@@ -41,6 +44,7 @@
   --b:#3D9AD1; --b-soft:rgba(61,154,209,.15); --b-mid:rgba(61,154,209,.30);
   --good:#4FAE87;
   --chip-out-bg:rgba(236,234,231,.07);
+  --grass:#1E2022; --dirt:#2B2621; --fline:#44444C;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
 }
 
@@ -171,6 +175,47 @@ table.agg tr.hot td{background:var(--a-soft)}
 table.agg tr.hot td.who b{color:var(--a)}
 table.agg td.lead{font-weight:600; color:var(--ink)}
 
+/* ---------- spray chart ---------- */
+.spray{display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); gap:clamp(14px,3vw,28px); padding:clamp(16px,3vw,24px); align-items:start}
+@media (max-width:720px){ .spray{grid-template-columns:1fr} }
+.spray svg{width:100%; height:auto; display:block; max-width:430px; margin:0 auto; overflow:visible}
+.field-grass{fill:var(--grass)}
+.field-dirt{fill:var(--dirt)}
+.field-line{fill:none; stroke:var(--fline); stroke-width:1.2}
+.field-lbl{fill:var(--muted); font-family:"IBM Plex Mono",monospace; font-size:9px; letter-spacing:.08em}
+.bb{cursor:default; transition:opacity .15s}
+.bb-hit{fill:var(--a); fill-opacity:.82; stroke:var(--surface); stroke-width:.8}
+.bb-xbh{fill:var(--a); stroke:var(--surface); stroke-width:1.6}
+.bb-out{fill:none}
+.bb-out{fill:none; stroke:var(--muted); stroke-width:1.4; opacity:.75}
+.bb-reach{fill:none; stroke:var(--a); stroke-width:1.6}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chipb{
+  appearance:none; cursor:pointer; font-family:inherit; font-size:12.5px; padding:5px 11px;
+  border-radius:2px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink-2);
+  transition:background .15s, color .15s, border-color .15s;
+}
+.chipb:hover{border-color:var(--a); color:var(--ink)}
+.chipb[aria-pressed="true"]{background:var(--a); border-color:var(--a); color:#fff; font-weight:600}
+.chipb small{font-family:"IBM Plex Mono",monospace; opacity:.7; margin-left:4px}
+.sprayside{display:flex; flex-direction:column; gap:14px; min-width:0}
+.sprayleg{display:flex; flex-wrap:wrap; gap:12px; font-size:12px; color:var(--ink-2)}
+.sprayleg span{display:inline-flex; align-items:center; gap:6px}
+.sprayleg svg{width:14px; height:14px; margin:0; max-width:none}
+.dirbars{display:flex; flex-direction:column; gap:7px}
+.dirbar{display:grid; grid-template-columns:44px 1fr 46px; gap:9px; align-items:center; font-size:12.5px}
+.dirbar .l{color:var(--muted)}
+.dirbar .t{height:9px; background:var(--chip-out-bg); border-radius:2px; overflow:hidden}
+.dirbar .t i{display:block; height:100%; background:var(--a); border-radius:2px}
+.dirbar .v{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-2); text-align:right}
+.spraynote{font-size:13px; line-height:1.65; color:var(--ink-2); border-top:1px solid var(--line); padding-top:12px}
+.spraynote b{color:var(--ink); font-weight:600}
+
+.minispray{margin-top:4px; padding-top:12px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:7px}
+.minispray svg{width:100%; height:auto; display:block; max-width:250px; margin:0 auto; overflow:visible}
+.minispray svg .bb-hit{stroke-width:.6}
+.minicap{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--muted); text-align:center; line-height:1.6}
+.minicap b{color:var(--a); font-weight:600}
 /* ---------- board ---------- */
 #game{display:flex; flex-direction:column; gap:clamp(28px,4.5vw,52px)}
 .gtour{
@@ -1734,13 +1779,16 @@ tr.win td.res{color:var(--a); font-weight:600}
     host.appendChild(s0);
 
     /* --- 대응 플랜 --- */
-    var s1 = section("준결승 대응 3원칙");
+    var sp = dirSummary(BALLS.all);
+    var s1 = section("준결승 대응 4원칙");
     var plan = el("div", "card plan");
     [
       ["1루를 내주지 않는다",
        "경기당 도루 <b>" + (t.sb / gCount).toFixed(1) + "개</b>. 볼넷 하나가 곧 2루타다. 배터리는 퀵모션과 견제를 먼저 준비하고, 주자 1루에서는 피치아웃 카드도 하나 남겨둔다."],
       ["존 안에서 승부할 타자와 아닌 타자를 나눈다",
        "노연정·김아람·서가림은 <b>스트라이크를 그냥 주지 않는다</b>. 반대로 하위 세 타순(김예소·김영실·허지혜)은 합계 타율이 낮으니 여기서 아웃카운트를 벌어야 한다."],
+      ["수비를 좌측으로 돌린다",
+       "인플레이 타구 " + sp.n + "개 중 <b>좌측이 " + sp.left + "%</b>, 우측은 " + sp.right + "%뿐이다. 노연정 62%, 김아람 73%로 상위타순일수록 심하다. 좌익수·중견수를 한 발씩 좌측으로 옮기고 3루수도 라인 쪽에 붙인다."],
       ["볼넷을 참는다",
        "상대 투수진은 약 " + Math.round(t.pouts / 3) + "이닝에 사사구 <b>" + t.pbb + "개</b>. 김예소가 나오면 특히 그렇다. 초구부터 손이 나가면 상대 제구 난조를 지워주는 셈이 된다."]
     ].forEach(function(p, i){
@@ -1775,6 +1823,8 @@ tr.win td.res{color:var(--a); font-weight:600}
       c.appendChild(ln);
       var how = el("div", "threat__how"); how.innerHTML = n.how;
       c.appendChild(how);
+      var mini = miniSpray(b.name + "#" + b.no);
+      if (mini) c.appendChild(mini);
       tg.appendChild(c);
     });
     s2.appendChild(tg);
@@ -1807,6 +1857,8 @@ tr.win td.res{color:var(--a); font-weight:600}
     t2.appendChild(tbl);
     s2.appendChild(t2);
     host.appendChild(s2);
+
+    host.appendChild(renderSpray());
 
     /* --- 투수 --- */
     var s3 = section("상대 투수진", "10경기 누적");
@@ -1857,6 +1909,252 @@ tr.win td.res{color:var(--a); font-weight:600}
     t3.appendChild(ptbl);
     s3.appendChild(t3);
     host.appendChild(s3);
+  }
+
+  /* =======================================================================
+     타구 분포 (spray chart)
+     ======================================================================= */
+  var SKIP_RE = /^(득점|타점|도루|폭투|타석변경|대타|대수비|대주자|투수교체|주자아웃|견제사|보크|투수보크|삼진|낫아웃|볼넷|사구|타격방해|수비방해|송구실책$)/;
+  var DIRS = [
+    ["좌중", -15], ["우중", 15], ["좌월", -30], ["우월", 30], ["중월", 0],
+    ["좌선", -42], ["우선", 42], ["좌전", -30], ["우전", 30], ["중전", 0],
+    ["좌", -30], ["중", 0], ["우", 30],
+    ["투", 0], ["포", -8], ["유", -20], ["1", 38], ["2", 20], ["3", -38]
+  ];
+  var INF_FT = {"투":62, "포":34, "유":142, "1":102, "2":142, "3":102};
+  var OF_FT = {hit:232, ihit:232, out:272, dbl:300, tri:322, hr:352, reach:250};
+
+  function parseBall(t){
+    if (SKIP_RE.test(t)) return null;
+    var dir = null, key = null;
+    for (var i = 0; i < DIRS.length; i++){
+      if (t.indexOf(DIRS[i][0]) === 0){ key = DIRS[i][0]; dir = DIRS[i][1]; break; }
+    }
+    if (dir === null) return null;
+    var rest = t.slice(key.length);
+    if (!rest) return null;
+    var kind;
+    if (/홈$/.test(t)) kind = "hr";
+    else if (/3$/.test(rest)) kind = "tri";
+    else if (/2$/.test(rest)) kind = "dbl";
+    else if (/내안$/.test(rest)) kind = "ihit";
+    else if (/안$/.test(rest)) kind = "hit";
+    else if (/실책$|^실$/.test(rest)) kind = "reach";
+    else if (/야선$|땅출$/.test(rest)) kind = "reach";
+    else if (/땅$|플$|직선타$|파플$|인플$/.test(rest)) kind = "out";
+    else return null;
+    var inf = INF_FT.hasOwnProperty(key);
+    var ft = inf ? INF_FT[key] : OF_FT[kind];
+    if (inf && kind === "hr") ft = OF_FT.hr;
+    return {dir:dir, ft:ft, kind:kind, inf:inf, label:t};
+  }
+
+  function hashStr(str){
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = (h * 16777619) >>> 0; }
+    return h >>> 0;
+  }
+  function collectBalls(){
+    var by = {}, all = [];
+    GAMES.forEach(function(g){
+      g.lineup.forEach(function(p){
+        var k = p.name + "#" + p.no;
+        by[k] = by[k] || {name:p.name, no:p.no, balls:[]};
+        p.ip.forEach(function(ev, inn){
+          var seg = [[]];
+          ev.forEach(function(t){ if (t === "타석변경") seg.push([]); else seg[seg.length - 1].push(t); });
+          seg.forEach(function(list){
+            for (var i = 0; i < list.length; i++){
+              var b = parseBall(list[i]);
+              if (b){
+                b.game = g.date; b.inn = inn + 1;
+                var sd = hashStr(k + g.date + inn + i + list[i]);
+                b.dir += ((sd % 1000) / 1000 - 0.5) * (b.inf ? 11 : 15);
+                b.ft += (((sd >> 7) % 1000) / 1000 - 0.5) * (b.inf ? 26 : 44);
+                if (b.ft < 24) b.ft = 24;
+                by[k].balls.push(b); all.push(b); break;
+              }
+            }
+          });
+        });
+      });
+    });
+    return {by: by, all: all};
+  }
+
+  var BALLS = collectBalls();
+
+  function fpt(a, ft){
+    var r = ft / 360 * 245, rad = a * Math.PI / 180;
+    return [170 + Math.sin(rad) * r, 285 - Math.cos(rad) * r];
+  }
+  function svgEl(tag, attrs){
+    var e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (var k in attrs) if (attrs.hasOwnProperty(k)) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  function buildField(mini){
+    var svg = svgEl("svg", {viewBox:"0 0 340 300", role:"img", "aria-label":"타구 분포도"});
+    if (mini) svg.setAttribute("class", "mini");
+    var L = fpt(-45, 345), R = fpt(45, 345), rr = 345 / 360 * 245;
+    svg.appendChild(svgEl("path", {"class":"field-grass",
+      d:"M170,285 L" + L[0].toFixed(1) + "," + L[1].toFixed(1) +
+        " A" + rr.toFixed(1) + "," + rr.toFixed(1) + " 0 0 1 " + R[0].toFixed(1) + "," + R[1].toFixed(1) + " Z"}));
+    var iL = fpt(-45, 152), iR = fpt(45, 152), ir = 152 / 360 * 245;
+    svg.appendChild(svgEl("path", {"class":"field-dirt",
+      d:"M170,285 L" + iL[0].toFixed(1) + "," + iL[1].toFixed(1) +
+        " A" + ir.toFixed(1) + "," + ir.toFixed(1) + " 0 0 1 " + iR[0].toFixed(1) + "," + iR[1].toFixed(1) + " Z"}));
+    /* foul lines + fence */
+    svg.appendChild(svgEl("path", {"class":"field-line",
+      d:"M170,285 L" + L[0].toFixed(1) + "," + L[1].toFixed(1) +
+        " A" + rr.toFixed(1) + "," + rr.toFixed(1) + " 0 0 1 " + R[0].toFixed(1) + "," + R[1].toFixed(1) + " Z"}));
+    /* diamond */
+    var b1 = fpt(45, 90), b2 = fpt(0, 127), b3 = fpt(-45, 90);
+    svg.appendChild(svgEl("path", {"class":"field-line",
+      d:"M170,285 L" + b1[0].toFixed(1) + "," + b1[1].toFixed(1) +
+        " L" + b2[0].toFixed(1) + "," + b2[1].toFixed(1) +
+        " L" + b3[0].toFixed(1) + "," + b3[1].toFixed(1) + " Z"}));
+    (mini ? [] : [["좌", -37, 368], ["중", 0, 386], ["우", 37, 368]]).forEach(function(t){
+      var p = fpt(t[1], t[2]);
+      var lb = svgEl("text", {"class":"field-lbl", x:p[0].toFixed(1), y:p[1].toFixed(1), "text-anchor":"middle"});
+      lb.textContent = t[0];
+      svg.appendChild(lb);
+    });
+    return svg;
+  }
+
+  function plotBalls(svg, balls){
+    var old = svg.querySelectorAll(".bb");
+    for (var i = 0; i < old.length; i++) old[i].parentNode.removeChild(old[i]);
+    balls.forEach(function(b){
+      var p = fpt(b.dir, b.ft);
+      var cls = (b.kind === "hit" || b.kind === "ihit") ? "bb-hit"
+        : (b.kind === "dbl" || b.kind === "tri" || b.kind === "hr") ? "bb-xbh"
+        : (b.kind === "reach") ? "bb-reach" : "bb-out";
+      var r = (b.kind === "hr") ? 5 : (b.kind === "dbl" || b.kind === "tri") ? 4.4 : 3.5;
+      var c = svgEl("circle", {"class":"bb " + cls, cx:p[0].toFixed(1), cy:p[1].toFixed(1), r:r});
+      var tt = svgEl("title");
+      tt.textContent = b.game + " " + b.inn + "회 · " + b.label;
+      c.appendChild(tt);
+      svg.appendChild(c);
+    });
+  }
+
+  function dirSummary(balls){
+    var b = {좌:0, 중:0, 우:0}, inf = 0;
+    balls.forEach(function(x){
+      b[x.dir < -12 ? "좌" : x.dir > 12 ? "우" : "중"]++;
+      if (x.inf) inf++;
+    });
+    var n = balls.length || 1;
+    return {
+      left: Math.round(b["좌"] / n * 100),
+      mid: Math.round(b["중"] / n * 100),
+      right: Math.round(b["우"] / n * 100),
+      of: Math.round((balls.length - inf) / n * 100),
+      n: balls.length
+    };
+  }
+
+  function miniSpray(key){
+    var p = BALLS.by[key];
+    if (!p || p.balls.length < 4) return null;
+    var wrap = el("div", "minispray");
+    var svg = buildField(true);
+    plotBalls(svg, p.balls);
+    wrap.appendChild(svg);
+    var d = dirSummary(p.balls);
+    var cap = el("div", "minicap");
+    cap.innerHTML = "인플레이 <b>" + d.n + "</b>타구 · 좌 <b>" + d.left + "%</b> · 중 " + d.mid +
+      "% · 우 " + d.right + "% · 외야 " + d.of + "%";
+    wrap.appendChild(cap);
+    return wrap;
+  }
+
+  function renderSpray(){
+    var s = section("타구 분포", "10경기 · 기록지의 타구 방향을 그대로 좌표로 옮긴 것");
+    var card = el("div", "card spray");
+
+    var left = el("div");
+    var svg = buildField();
+    left.appendChild(svg);
+    card.appendChild(left);
+
+    var side = el("div", "sprayside");
+    var chips = el("div", "chips");
+    var stats = el("div", "dirbars");
+    var note = el("div", "spraynote");
+
+    var leg = el("div", "sprayleg");
+    [["bb-hit", "안타"], ["bb-xbh", "장타"], ["bb-out", "아웃"], ["bb-reach", "실책·야수선택 출루"]].forEach(function(x){
+      var sp = el("span");
+      var mini = svgEl("svg", {viewBox:"0 0 14 14"});
+      mini.appendChild(svgEl("circle", {"class":"bb " + x[0], cx:7, cy:7, r:4}));
+      sp.appendChild(mini);
+      sp.appendChild(document.createTextNode(x[1]));
+      leg.appendChild(sp);
+    });
+
+    var list = Object.keys(BALLS.by).map(function(k){ return BALLS.by[k]; })
+      .filter(function(p){ return p.balls.length >= 5; })
+      .sort(function(x, y){ return y.balls.length - x.balls.length; });
+
+    function show(balls, who){
+      plotBalls(svg, balls);
+      var buckets = {좌:0, 중:0, 우:0}, inf = 0, hits = 0;
+      balls.forEach(function(b){
+        buckets[b.dir < -12 ? "좌" : b.dir > 12 ? "우" : "중"]++;
+        if (b.inf) inf++;
+        if (b.kind !== "out") hits++;
+      });
+      stats.innerHTML = "";
+      ["좌", "중", "우"].forEach(function(k){
+        var row = el("div", "dirbar");
+        row.appendChild(el("div", "l", k + "측"));
+        var t = el("div", "t");
+        var f = el("i");
+        f.style.width = (balls.length ? buckets[k] / balls.length * 100 : 0) + "%";
+        t.appendChild(f); row.appendChild(t);
+        row.appendChild(el("div", "v", buckets[k] + " (" + Math.round(buckets[k] / (balls.length || 1) * 100) + "%)"));
+        stats.appendChild(row);
+      });
+      var ofp = Math.round((balls.length - inf) / (balls.length || 1) * 100);
+      note.innerHTML = "<b>" + who + "</b> — 인플레이 타구 <b>" + balls.length + "개</b>. " +
+        "외야로 <b>" + ofp + "%</b>, 내야로 " + (100 - ofp) + "%. " +
+        "이 중 아웃되지 않고 살아나간 타구가 " + hits + "개.";
+      proseify(note.parentNode);
+    }
+
+    var allBtn = el("button", "chipb", "전체");
+    allBtn.type = "button";
+    chips.appendChild(allBtn);
+    var btns = [allBtn];
+    list.forEach(function(p){
+      var b = el("button", "chipb");
+      b.type = "button";
+      b.appendChild(document.createTextNode(p.name));
+      b.appendChild(el("small", null, String(p.balls.length)));
+      chips.appendChild(b);
+      btns.push(b);
+      b.addEventListener("click", function(){ pick(b, p.balls, p.name + " #" + p.no); });
+    });
+    function pick(btn, balls, who){
+      btns.forEach(function(x){ x.setAttribute("aria-pressed", x === btn ? "true" : "false"); });
+      note.removeAttribute("data-prosed");
+      show(balls, who);
+    }
+    allBtn.addEventListener("click", function(){ pick(allBtn, BALLS.all, "전체 타자"); });
+
+    side.appendChild(chips);
+    side.appendChild(leg);
+    side.appendChild(stats);
+    side.appendChild(note);
+    card.appendChild(side);
+    s.appendChild(card);
+
+    setTimeout(function(){ pick(allBtn, BALLS.all, "전체 타자"); }, 0);
+    return s;
   }
 
   /* ---------- tabs ---------- */
