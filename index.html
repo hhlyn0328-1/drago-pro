@@ -109,13 +109,14 @@ input[type=range]{flex:1;min-width:120px;accent-color:var(--accent)}
 <div class="wrap">
   <header class="top">
     <h1>우리팀 수비 상황판<small>주자 상황 · 타구 방향 · 타구 종류를 고르면 9명이 어디로 가야 하는지 움직여서 보여줘요</small></h1>
-    <div class="note"><b>0~1아웃 기준</b> · 2아웃이면 뜬공은 그대로 이닝 종료, 땅볼은 가장 쉬운 아웃 하나</div>
+    <div class="note"><b>여자 사회인야구 · 0~1아웃 기준</b> · 2아웃이면 뜬공은 그대로 이닝 종료, 땅볼은 가장 쉬운 아웃 하나</div>
   </header>
 
   <section class="controls" aria-label="상황 선택">
     <div class="crow"><div class="lab">주자</div><div class="chips" id="cRun"></div></div>
     <div class="crow"><div class="lab">타구 방향</div><div class="chips" id="cHit"></div></div>
     <div class="crow"><div class="lab">타구 종류</div><div class="chips" id="cType"></div></div>
+    <div class="crow"><div class="lab">타구 깊이</div><div class="chips" id="cDepth"></div></div>
   </section>
 
   <div class="main">
@@ -151,8 +152,8 @@ input[type=range]{flex:1;min-width:120px;accent-color:var(--accent)}
   <section class="concepts">
     <h3>먼저 알아둘 말</h3>
     <div class="cgrid">
-      <div class="cc"><b>커트맨</b><p>외야수와 목표 베이스 사이 일직선에 서는 내야수. 송구를 잘라 다른 베이스로 돌리거나 그냥 흘려보내요. 홈 송구는 1루수(좌익수 쪽은 3루수), 3루 송구는 유격수.</p></div>
-      <div class="cc"><b>중계맨 · 트레일러</b><p>외야 깊은 장타 때 외야로 나가 공을 이어받는 사람이 중계맨, 중계맨 바로 뒤 대여섯 걸음에서 빗나간 공을 막고 방향을 불러주는 사람이 트레일러예요. 왼쪽 타구는 유격수, 오른쪽 타구는 2루수가 중계.</p></div>
+      <div class="cc"><b>외야 송구 원칙</b><p>짧은 타구는 홈으로 오는 주자가 있으면 홈 승부. 보통 깊이는 중계 없이 2루로 바로. 깊은 타구와 장타는 한 베이스 거리 안까지 나온 중계맨에게. 송구는 언제든 빠질 수 있으니 받는 사람 뒤에는 항상 백업이 일직선으로.</p></div>
+      <div class="cc"><b>중계맨 · 트레일러</b><p>좌익수·좌중간·중견수 쪽 타구는 유격수, 우중간·우익수 쪽은 2루수가 중계맨. 장타는 중계가 2명이거나, 중계맨 뒤에 트레일러가 붙어요. 중계는 언제든 빠질 수 있으니 뒤 사람은 항상 같은 일직선 위에.</p></div>
       <div class="cc"><b>백업</b><p>공이 빠질 자리에 미리 가 있는 것. 우익수는 1루 뒤, 중견수는 2루 뒤, 투수는 송구 받는 베이스 뒤. 공이 안 와도 움직이는 게 백업이에요.</p></div>
       <div class="cc"><b>포스아웃 vs 태그아웃</b><p>뒤 주자 때문에 무조건 뛰어야 하는 주자는 베이스만 밟아도 아웃(포스). 안 뛰어도 되는 주자는 몸에 태그해야 아웃.</p></div>
       <div class="cc"><b>뜬공 우선순위</b><p>중견수 &gt; 코너 외야수 &gt; 내야수. 잡을 사람이 "마이!"를 크게 외치고, 나머지는 비켜서 뒤로 백업.</p></div>
@@ -186,6 +187,7 @@ const FSPD=28, RSPD=33, TSPD=85, ISPD=100;
 const RUNS=[['0','주자 없음'],['1','1루'],['2','2루'],['3','3루'],['12','1·2루'],['23','2·3루'],['13','1·3루'],['123','만루']];
 const OF=[['LL','좌측 선상',-41],['L','좌익수 정면',-28],['LC','좌중간',-14],['C','중견수 정면',0],['RC','우중간',14],['R','우익수 정면',28],['RL','우측 선상',41]];
 const IF=[['g3B','3루 땅볼','3B'],['gSS','유격수 땅볼','SS'],['gP','투수 앞 땅볼','P'],['g2B','2루 땅볼','2B'],['g1B','1루 땅볼','1B']];
+const DEPTHS=[['short','짧게'],['mid','보통'],['deep','깊게']];
 const TYPES=[['single','앞에 떨어짐 (안타)'],['fly','잡음 (뜬공)'],['extra','키 넘김 (장타)']];
 const ORDER=['H','1B','2B','3B','H'];
 
@@ -218,14 +220,14 @@ function basesBetween(from,to){ // from index to index along ORDER
 function runTo(tr,from,to,t0,spd){tr.wait(t0);basesBetween(from,to).forEach(p=>tr.go(p,spd||RSPD));return tr}
 
 // ---------- scenario ----------
-function build(runKey,hitId,type){
+function build(runKey,hitId,type,depth){
   const r1=runKey.includes('1'),r2=runKey.includes('2'),r3=runKey.includes('3');
   const sc={tracks:{},runners:[],ball:[],events:[],roles:{},throws:[],hitLine:null};
   POS.forEach(p=>sc.tracks[p]=track(START[p],true));
   const mk=(label,base)=>{const t=track(base==='bat'?[-4,1]:B[base]);const o={label,tr:t,outAt:null,base};sc.runners.push(o);return o};
   const R1=r1?mk('1',"1B"):null,R2=r2?mk('2','2B'):null,R3=r3?mk('3','3B'):null,BAT=mk('타','bat');
   const of=OF.find(o=>o[0]===hitId);
-  if(of) buildOF(sc,{r1,r2,r3,R1,R2,R3,BAT},of,type); else buildIF(sc,{r1,r2,r3,R1,R2,R3,BAT},IF.find(o=>o[0]===hitId));
+  if(of) buildOF(sc,{r1,r2,r3,R1,R2,R3,BAT},of,type,depth||'mid'); else buildIF(sc,{r1,r2,r3,R1,R2,R3,BAT},IF.find(o=>o[0]===hitId));
   let dur=0;
   POS.forEach(p=>dur=Math.max(dur,sc.tracks[p].time()));
   sc.runners.forEach(r=>dur=Math.max(dur,r.tr.time()));
@@ -236,87 +238,86 @@ function build(runKey,hitId,type){
 function throwSeg(sc,a,b,t0,spd,arc){const d=dist(a,b);const t1=t0+d/(spd||TSPD);sc.ball.push({t0,t1,a,b,h:arc==null?Math.min(28,d*.09):arc,kind:'air',throw:true});return t1}
 
 // ---------- outfield ----------
-function buildOF(sc,R,of,type){
+function buildOF(sc,R,of,type,depth){
   const [id,label,a]=of; const T=sc.tracks;
-  const side=a<0?'L':a>0?'R':'C';
+  if(type==='extra')depth='deep';
   const isLine=Math.abs(a)>=38, isGap=Math.abs(a)>5&&Math.abs(a)<20;
   const primary=Math.abs(a)>=20?(a<0?'LF':'RF'):'CF';
   let backups,far;
   if(primary==='CF'){backups=a<0?['LF']:a>0?['RF']:['LF','RF'];far=a<0?'RF':a>0?'LF':null}
   else{backups=['CF'];far=primary==='LF'?'RF':'LF'}
+  const isFly=type==='fly';
   let land,fieldPt,tLand,tField,tThrow,hAir;
-  if(type==='single'){const r=(isGap||isLine)?198:180;land=P(r,a);fieldPt=P(r+((isGap||isLine)?26:14),isLine?a*.97:a);tLand=1.25;tField=2.1;tThrow=2.4;hAir=16}
-  else if(type==='fly'){const r=isGap?252:isLine?246:240;land=P(r,isLine?a*.9:a);fieldPt=land;tLand=2.9;tField=2.9;tThrow=3.25;hAir=115}
+  const aa=isLine?a*.95:a;
+  if(type==='single'){
+    const r=depth==='short'?160:depth==='deep'?220:((isGap||isLine)?198:180);
+    const roll=depth==='short'?10:depth==='deep'?28:((isGap||isLine)?26:14);
+    land=P(r,a);fieldPt=P(r+roll,aa);tLand=depth==='short'?1.0:1.25;tField=depth==='short'?1.7:2.2;tThrow=tField+.3;hAir=16}
+  else if(isFly){
+    const r=depth==='short'?195:depth==='deep'?272:(isGap?252:isLine?246:240);
+    land=P(r,isLine?a*.9:a);fieldPt=land;tLand=depth==='short'?2.4:3.1;tField=tLand;tThrow=tField+.35;hAir=depth==='short'?95:125}
   else{land=P(266,isLine?a*.98:a);fieldPt=isLine?P(285,a>0?42.5:-42.5):P(290,a);tLand=2.1;tField=3.4;tThrow=3.7;hAir=70}
   sc.ball.push({t0:0,t1:tLand,a:B.H,b:land,h:hAir,kind:'air'});
-  if(type!=='fly')sc.ball.push({t0:tLand,t1:tField,a:land,b:fieldPt,h:type==='single'?3:5,kind:'ground'});
+  if(!isFly)sc.ball.push({t0:tLand,t1:tField,a:land,b:fieldPt,h:type==='single'?3:5,kind:'ground'});
   sc.hitLine=[B.H,land];
-  // target
-  let target;
-  if(type==='single'){target=R.r2?'H':R.r1?(side==='L'?'2B':'3B'):'2B'}
-  else if(type==='fly'){target=R.r3?'H':(R.r2&&a>=-10)?'3B':'2B'}
-  else target=R.r1?'H':'3B';
+  // 우리 팀 원칙: 짧으면 홈 승부(홈으로 오는 주자가 있을 때) / 보통이면 2루로 바로 / 깊으면 중계
+  const runnerHome=type==='single'?R.r2:isFly?R.r3:false;
+  const mode=type==='extra'||depth==='deep'?'relay':(depth==='short'&&runnerHome)?'home':'direct';
+  const target=type==='extra'?'3B':mode==='home'?'H':'2B';
   const tName=BN[target];
-  // outfielders
-  T[primary].goBy(fieldPt,.1,type==='fly'?tField-.3:tField);
-  backups.forEach((bk,i)=>{
+  sc.target=mode==='relay'?'relay':target;sc.primary=primary;sc.mode=mode;
+  const first=a<=0?'SS':'2B', second=first==='SS'?'2B':'SS';
+  const tb=COVER[target];
+  T[primary].goBy(fieldPt,.1,isFly?tField-.3:tField);
+  backups.forEach(bk=>{
     let p;
     if(type==='extra'){p=add(fieldPt,unit(fieldPt,B.H),34);p=add(p,unit(fieldPt,START[bk]),22)}
     else{p=add(fieldPt,unit(B.H,fieldPt),30);if(backups.length===2)p=add(p,[bk==='LF'?-1:1,0],26);else p=add(p,unit(fieldPt,START[bk]),10)}
     const r=Math.hypot(p[0],p[1]);if(r>292)p=[p[0]*292/r,p[1]*292/r];
     T[bk].go(p,FSPD,.2);
   });
-  if(far)T[far].go(lerp(START[far],B['2B'],type==='extra'&&target==='H'?.72:.55),FSPD,.3);
-
-  const roles=sc.roles;
-  const pName=NAME[primary];
-  let cut=null,relay=null,trailer=null,goer=null;
-  const tgtPt=COVER[target];
-  if(type==='extra'){
-    relay=side==='R'?'2B':'SS';trailer=relay==='2B'?'SS':'2B';
-    const tp=B[target];const d=dist(fieldPt,tp);
-    const rp=add(fieldPt,unit(fieldPt,tp),Math.min(.45*d,135));
-    const trp=add(rp,unit(fieldPt,tp),18);
-    T[relay].go(rp,FSPD,.3);T[trailer].go(trp,FSPD,.35);
-    T['3B'].go(COVER['3B'],FSPD,.2);T.C.go(COVER.H,FSPD,.2);
-    let cutPt=null;
-    if(target==='H'){cut='1B';cutPt=add(B.H,unit(B.H,rp),42);T['1B'].go(cutPt,FSPD,.4);T.P.go(add(B.H,unit(rp,B.H),26),FSPD,.4)}
-    else{T['1B'].go(COVER['2B'],FSPD*.9,.8);T.P.go(add(B['3B'],unit(rp,B['3B']),26),FSPD,.4)}
-    let t=throwSeg(sc,fieldPt,rp,tThrow);
-    t+=.35;
-    throwSeg(sc,rp,tgtPt,t);
-  } else if(target==='H'){
-    cut=side==='L'?'3B':'1B';
-    const cutPt=add(B.H,unit(B.H,fieldPt),42);
-    T[cut].go(cutPt,FSPD,.2);
+  if(far)T[far].go(lerp(START[far],B['2B'],.55),FSPD,.3);
+  let relays=[],rPts=[],trailer=null,cut=null;
+  if(mode==='relay'){
+    const hops=Math.min(3,Math.max(2,Math.ceil(dist(fieldPt,tb)/85)));
+    relays=hops===3?[first,second]:[first];
+    rPts=relays.map((p,i)=>lerp(fieldPt,tb,(i+1)/hops));
+    relays.forEach((p,i)=>T[p].go(rPts[i],FSPD,.2+i*.1));
+    if(target==='2B'){
+      T[second].go(COVER['2B'],FSPD,.3);
+      T.P.go(add(COVER['2B'],unit(rPts[0],COVER['2B']),24),FSPD,.4);
+      T['1B'].go(COVER['1B'],FSPD,.2);T['3B'].go(COVER['3B'],FSPD,.2);
+    } else {
+      if(relays.length===1){trailer=second;T[second].go(add(rPts[0],unit(fieldPt,tb),18),FSPD,.35)}
+      T['3B'].go(COVER['3B'],FSPD,.2);T['1B'].go(COVER['2B'],FSPD*.9,.8);
+      T.P.go(add(B['3B'],unit(rPts[rPts.length-1],B['3B']),26),FSPD,.4);
+    }
+  } else if(mode==='home'){
+    cut=primary==='LF'?'3B':'1B';
+    T[cut].go(add(B.H,unit(B.H,fieldPt),42),FSPD,.2);
     if(cut==='1B'){T['2B'].go(COVER['1B'],FSPD,.3);T.SS.go(COVER['2B'],FSPD,.3);T['3B'].go(COVER['3B'],FSPD,.2)}
     else{T.SS.go(COVER['3B'],FSPD,.3);T['2B'].go(COVER['2B'],FSPD,.3);T['1B'].go(COVER['1B'],FSPD,.2)}
-    T.P.go(add(B.H,unit(fieldPt,B.H),26),FSPD,.3);T.C.go(COVER.H,FSPD,.1);
-    throwSeg(sc,fieldPt,tgtPt,tThrow);
-  } else if(target==='3B'){
-    cut='SS';
-    const cutPt=add(B['3B'],unit(B['3B'],fieldPt),55);
-    T.SS.go(cutPt,FSPD,.2);T['2B'].go(COVER['2B'],FSPD,.3);T['3B'].go(COVER['3B'],FSPD,.2);T['1B'].go(COVER['1B'],FSPD,.2);
-    T.P.go(add(B['3B'],unit(fieldPt,B['3B']),26),FSPD,.3);T.C.go(COVER.H,FSPD,.1);
-    throwSeg(sc,fieldPt,tgtPt,tThrow);
+    T.P.go(add(B.H,unit(fieldPt,B.H),26),FSPD,.3);
   } else {
-    goer=a<=0?'SS':'2B';const cover=goer==='SS'?'2B':'SS';
-    const gp=add(B['2B'],unit(B['2B'],fieldPt),Math.min(.4*dist(B['2B'],fieldPt),75));
-    T[goer].go(gp,FSPD,.2);T[cover].go(COVER['2B'],FSPD,.3);T['3B'].go(COVER['3B'],FSPD,.3);T['1B'].go(COVER['1B'],FSPD,.2);
-    T.P.go([0,84],FSPD,.4);T.C.go(COVER.H,FSPD,.1);
-    throwSeg(sc,fieldPt,tgtPt,tThrow);
+    {const m=lerp(COVER['2B'],fieldPt,.42),u=unit(COVER['2B'],fieldPt);let n=[-u[1],u[0]];if((n[0]>0)!==(START[first][0]>0))n=[-n[0],-n[1]];T[first].go(add(m,n,14),FSPD,.15);}
+    T[second].go(COVER['2B'],FSPD,.25);
+    T['1B'].go(COVER['1B'],FSPD,.2);T['3B'].go(COVER['3B'],FSPD,.2);T.P.go(add(COVER['2B'],unit(fieldPt,COVER['2B']),24),FSPD,.4);
   }
+  T.C.go(COVER.H,FSPD,.1);
+  let t=tThrow,from=fieldPt;
+  [...rPts,tb].forEach(pt=>{t=throwSeg(sc,from,pt,t,70,mode==='direct'?Math.min(14,dist(from,pt)*.1):null);from=pt;t+=.35});
   // runners
   const go0=.15;
   if(type==='single'){
     if(R.R3)runTo(R.R3.tr,'3B','H',go0);
     if(R.R2)runTo(R.R2.tr,'2B','H',go0);
-    if(R.R1)runTo(R.R1.tr,'1B',(target==='3B'||(target==='H'&&side!=='L'))?'3B':'2B',go0);
+    if(R.R1)runTo(R.R1.tr,'1B',(primary!=='LF'&&depth==='deep')?'3B':'2B',go0);
     R.BAT.tr.wait(.3).go(B['1B'],RSPD).go(add(B['1B'],unit(B['1B'],B['2B']),14),RSPD*.6);
-  } else if(type==='fly'){
+  } else if(isFly){
     const tc=tField;
     if(R.R3){R.R3.tr.go(add(B['3B'],unit(B['3B'],B.H),3),8,.2).wait(tc);runTo(R.R3.tr,'3B','H',tc+.02)}
-    if(R.R2){if(target==='3B'||(target==='H'&&a>=-10)){R.R2.tr.wait(tc);runTo(R.R2.tr,'2B','3B',tc+.02)}
+    const r2go=R.r2&&depth!=='short'&&(depth==='deep'||a>=-10);
+    if(R.R2){if(r2go){R.R2.tr.wait(tc);runTo(R.R2.tr,'2B','3B',tc+.02)}
       else R.R2.tr.go(add(B['2B'],unit(B['2B'],B['3B']),16),12,.2).go(B['2B'],12,tc-.6)}
     if(R.R1)R.R1.tr.go(add(B['1B'],unit(B['1B'],B['2B']),24),14,.2).go(B['1B'],14,tc-.4);
     R.BAT.tr.wait(.3).go(lerp(B.H,B['1B'],.92),RSPD*.8);R.BAT.outAt=tc;
@@ -325,92 +326,93 @@ function buildOF(sc,R,of,type){
     if(R.R3)runTo(R.R3.tr,'3B','H',go0);
     if(R.R2)runTo(R.R2.tr,'2B','H',go0);
     if(R.R1)runTo(R.R1.tr,'1B','H',go0);
-    runTo(R.BAT.tr,'H',target==='H'?'2B':'3B',.3);
+    runTo(R.BAT.tr,'H',R.r1?'2B':'3B',.3);
   }
-
-  // ---------- roles (text) ----------
+  const r2tag=isFly&&R.r2&&depth!=='short'&&(depth==='deep'||a>=-10);
+  const r1to3=type==='single'&&R.r1&&primary!=='LF'&&depth==='deep';
+  // ---------- roles ----------
+  const roles=sc.roles;const pName=NAME[primary];const fName=NAME[first];
   const tline=isLine?' 선상 타구는 파울라인 쪽으로 휘어 나가니 공보다 바깥 각도로 뛰세요.':isGap?' 중간 타구는 중견수 우선. 먼저 "마이!" 외친 사람이 잡기.':'';
-  let throwDesc;
-  if(type==='extra')throwDesc=`중계맨(${NAME[relay]}) 가슴 쪽으로 바로 송구`;
-  else if(target==='H')throwDesc=`홈으로 송구. 커트맨(${NAME[cut]}) 머리 높이로 낮고 강하게`;
-  else if(target==='3B')throwDesc='3루로 송구. 커트맨(유격수) 머리 높이로 낮게';
-  else throwDesc='2루로 빠르고 정확하게. 원바운드여도 괜찮아요';
-  if(type==='single'){
-    roles[primary]={tag:'타구 처리 → '+(target==='2B'?'2루':tName),main:true,
-      text:`공을 향해 바로 달려 들어가 몸 정면에서 잡고, ${throwDesc}.`,
-      tip:(target==='2B'?'목표는 진루 막기. 무리한 다이빙 말고 무릎을 꿇어서라도 공을 몸 앞에 세우기.':'공을 깔끔하게 못 잡았거나 거리가 애매하면 승부 포기하고 2루로. 공이 빠져서 주자 둘이 더 가는 게 최악이에요.')+tline};
-  } else if(type==='fly'){
-    roles[primary]={tag:'포구 → '+(target==='2B'?'내야로':tName),main:true,
-      text:`낙구 지점에 먼저 가서 기다렸다가, 두세 걸음 뒤에서 앞으로 들어오며 잡고 ${throwDesc}.`,
-      tip:(target==='H'?'3루 주자는 공이 글러브에 닿는 순간 출발해요. 잡고 바로 던질 수 있게 송구 방향으로 몸이 향한 채로 잡기.':target==='3B'?'2루 주자는 잡는 순간 3루로 뛰어요. 잡고 멈칫하지 말고 바로 커트맨에게.':'잡기 전에 "마이!" 크게. 뒷걸음질 말고 몸을 돌려서 뛰기.')+tline};
+  const catchTxt='낙구 지점에 먼저 가서 기다렸다가, 두세 걸음 뒤에서 앞으로 들어오며 잡고';
+  if(mode==='home'){
+    roles[primary]={tag:(isFly?'포구':'타구 처리')+' → 홈',main:true,
+      text:isFly?`짧은 뜬공이라 홈 승부가 돼요. ${catchTxt} 홈으로 바로 송구. 커트맨(${NAME[cut]}) 머리 높이로 낮게, 원바운드 OK.`:`짧은 안타라 홈 승부가 돼요. 공을 향해 달려 들어가 잡고 홈으로 바로 송구. 커트맨(${NAME[cut]}) 머리 높이로 낮게, 원바운드 OK.`,
+      tip:(isFly?'3루 주자는 공이 글러브에 닿는 순간 출발해요. 송구 방향으로 몸이 향한 채로 잡기.':'잡는 게 늦었거나 주자가 이미 3루를 크게 돌았으면 홈은 포기하고 2루로.')+tline};
+  } else if(mode==='direct'){
+    roles[primary]={tag:(isFly?'포구':'타구 처리')+' → 2루',main:true,
+      text:isFly?`${catchTxt} 2루(${NAME[second]})로 바로 송구. 옆으로 비켜 있는 ${fName} 옆으로 지나가게 낮게.`:`공을 향해 달려 들어가 몸 정면에서 잡고, 2루(${NAME[second]})로 바로 송구. 옆으로 비켜 앉은 ${fName} 옆으로 지나가게 낮게.`,
+      tip:(isFly&&R.r3?'3루 주자 태그업 득점은 줘도 괜찮아요. 홈까지는 멀어요. 2루로 빠르게.':isFly?'잡기 전에 "마이!" 크게. 뒷걸음질 말고 몸을 돌려서 뛰기.':'2루까지 한 번에 안 닿을 것 같으면 원바운드로. 높이 뜬 송구보다 낫다.')+tline};
+  } else if(type==='extra'){
+    roles[primary]={tag:'펜스 처리 → 중계',main:true,text:`펜스까지 쫓아가 공을 잡고, 돌아서서 중계맨(${fName}) 가슴 쪽으로 송구.`,
+      tip:`한 번에 멀리 던지려 하지 말고 중계맨까지만 정확하게. ${relays.length>1?'중계가 2명이라 짧게 세 번 이어지면 3루까지 가요.':'중계맨이 받아서 3루로 이어줘요.'}`+(isLine?' 선상 코너 공은 펜스에 맞고 튀어나오는 방향을 예상하세요.':'')};
   } else {
-    roles[primary]={tag:'펜스 처리 → 중계',main:true,
-      text:`펜스까지 쫓아가 공을 잡고, 돌아서서 ${throwDesc}.`,
-      tip:'펜스 앞에선 속도를 줄이고 손으로 펜스 확인. 한 번에 '+tName+'까지 던지려 하지 말고 중계맨까지만 정확하게.'+(isLine?' 선상 코너 공은 펜스에 맞고 튀어나오는 방향을 예상하세요.':'')};
+    roles[primary]={tag:(isFly?'포구':'타구 처리')+' → 중계',main:true,
+      text:isFly?`깊게 잡은 공이라 2루까지 바로 안 닿아요. ${catchTxt} 중계맨(${fName})에게 송구.`:`깊은 타구라 2루까지 바로 안 닿아요. 공을 잡고 한 베이스 거리 안까지 나와 있는 중계맨(${fName})에게 송구.`,
+      tip:(isFly&&R.r3?'3루 주자 태그업은 막기 어려워요. 홈으로 무리하게 던지지 말고 중계맨에게 빠르게.':'홈·3루로 직접 던지지 않아요. 중계맨 가슴까지만 정확하게.')+tline};
   }
   backups.forEach(bk=>{
-    if(type==='extra')roles[bk]={tag:'같이 쫓기 + 콜',text:`${pName}와 함께 달려가 공 위치를 알려주고 "${NAME[relay].replace('수','')}! ${tName}!"처럼 던질 곳을 불러주기. 공이 튀어나오면 내가 처리.`,tip:'장타 때 외야수 두 명이 같이 가는 게 기본. 혼자 쫓으면 돌아서서 던질 곳을 찾느라 1~2초를 잃어요.'};
-    else if(type==='fly')roles[bk]={tag:'포구 백업',text:`홈에서 ${pName}를 잇는 선을 펜스 쪽으로 쭉 늘린 곳, 즉 ${pName} 등 뒤 대각선으로 달려가기. ${pName}보다 열 걸음쯤 뒤에서 멈춰 자세 낮추기. 놓치거나 글러브 맞고 튀면 바로 처리.`,tip:primary==='CF'?'중견수가 "마이!" 하면 무조건 양보하고 뒤로. 둘이 같이 손 뻗으면 충돌해요.':'코너 외야수가 잡을 수 있으면 중견수는 콜만 하고 뒤로 빠지기.'};
+    if(type==='extra')roles[bk]={tag:'같이 쫓기 + 콜',text:`${pName}와 함께 달려가 공 위치를 알려주고, 돌아서는 ${pName}에게 중계맨(${fName}) 쪽을 가리키며 "중계!" 하고 불러주기. 공이 튀어나오면 내가 처리.`,tip:'장타 때 외야수 두 명이 같이 가는 게 기본. 혼자 쫓으면 돌아서서 던질 곳을 찾느라 1~2초를 잃어요.'};
+    else if(isFly)roles[bk]={tag:'포구 백업',text:`홈에서 ${pName}를 잇는 선을 펜스 쪽으로 쭉 늘린 곳, 즉 ${pName} 등 뒤 대각선으로 달려가기. ${pName}보다 열 걸음쯤 뒤에서 멈춰 자세 낮추기. 놓치거나 글러브 맞고 튀면 바로 처리.`,tip:primary==='CF'?'중견수가 "마이!" 하면 무조건 양보하고 뒤로. 둘이 같이 손 뻗으면 충돌해요.':'코너 외야수가 잡을 수 있으면 중견수는 콜만 하고 뒤로 빠지기.'};
     else roles[bk]={tag:'뒤 백업',text:`홈에서 ${pName}를 잇는 선을 펜스 쪽으로 쭉 늘린 곳, 즉 ${pName} 등 뒤 대각선으로 전력질주. ${pName}보다 열 걸음쯤 뒤에서 멈춰 자세 낮추기. 공이 빠지면 그 선을 따라 굴러오니까 내가 바로 막기.`,tip:'백업이 없으면 외야 안타가 그대로 2루타·3루타가 돼요. 걷지 말고 뛰기!'};
   });
-  if(far){
-    if(type==='extra'&&target==='H')roles[far]={tag:'2루 채우기',text:'1루수가 홈 커트맨으로 가서 2루 근처가 비어요. 내야 쪽으로 깊게 들어와 2루 커버를 돕기.',tip:'반대편 외야수도 장타 때는 할 일이 있어요. 타구 나오면 무조건 움직이기.'};
-    else roles[far]={tag:'2루 방향 백업',text:'타구 반대편이어도 2루 쪽으로 들어오기. 내야 송구가 빠질 때를 대비해요.',tip:'공이 안 온다고 서 있는 외야수가 제일 많아요. 타구가 나오면 한 방향으로라도 움직이기.'};
-  }
-  // infield + battery
-  const CUT_H=p=>({tag:'홈 커트맨',main:true,text:`${pName}와 홈을 잇는 일직선 위, 마운드에서 홈 쪽으로 일곱 걸음쯤 내려온 곳에서 양손 들기. 포수가 "컷!" 하면 잘라서 다른 베이스로, "놔둬!" 하면 흘려보내기.`,tip:p==='1B'?'"안타 맞으면 1루수는 할 일 끝"이 아니에요. 홈 송구 때는 1루수가 커트맨.':'좌익수 쪽에서 홈으로 올 때는 3루수가 커트맨, 3루 베이스는 유격수가 채워요.'});
-  if(type==='extra'){
-    roles[relay]={tag:'중계맨',main:true,text:`외야 잔디 안쪽까지 깊게 나가 ${pName}와 ${tName}를 잇는 일직선에 서기. 거리는 외야수가 노바운드로 편하게 던질 수 있을 만큼. 양손 크게 흔들며 "여기!" → 받으면 몸을 돌려 ${tName}로.`,tip:'받기 전에 글러브 쪽 어깨를 목표 방향으로 반쯤 돌려두면 송구가 0.5초 빨라져요.'};
-    roles[trailer]={tag:'2차 컷 (트레일러)',text:`중계맨(${NAME[relay]})과 같은 일직선 위, 중계맨 바로 뒤 대여섯 걸음. 송구가 빗나가면 대신 받아 연결하고, 중계맨에게 "${tName}!" 하고 방향 불러주기.`,tip:'트레일러의 핵심은 목소리. 중계맨은 공만 보고 있어서 주자가 안 보여요.'};
-    if(target==='H'){roles['1B']=CUT_H('1B');roles.P={tag:'홈 백업',text:'홈 뒤쪽으로 달려가 송구가 빠질 때 대비.',tip:'투수는 공 던지고 끝이 아니에요. 송구 받는 베이스 뒤가 투수 자리.'}}
-    else{roles['1B']={tag:'2루 커버 (타자 따라가기)',text:'타자 주자 뒤를 따라 2루로 가서 커버. 중계 송구가 빗나가면 2루에서 막기.',tip:'2루수·유격수가 모두 외야로 나가면 2루가 비어요. 그 자리를 1루수가 채워요.'};roles.P={tag:'3루 백업',text:'3루 뒤쪽 파울 지역으로 달려가 송구 백업.',tip:'3루 송구가 빠지면 바로 득점이에요. 투수 백업이 마지막 안전장치.'}}
-    roles['3B']={tag:'3루 커버',text:'3루 베이스에서 송구 받을 준비. 슬라이딩하는 주자 발 쪽으로 태그.'};
-    roles.C={tag:'홈 + 콜',text:target==='H'?'홈을 지키며 커트맨에게 "컷!" / "놔둬!" 콜.':'홈을 지키며 중계맨에게 "3루!" 방향 콜. 앞 주자들이 홈에 들어와요.'};
-  } else if(target==='H'){
-    roles[cut]=CUT_H(cut);
-    if(cut==='1B'){roles['2B']={tag:'1루 커버',text:'1루수가 홈 커트맨으로 나가서 1루가 비어요. 2루수가 1루 커버.',tip:'"1루수가 비우면 2루수가 채운다" — 사회인 경기에서 제일 잘 안 지켜지는 약속이에요.'};roles.SS={tag:'2루 커버',text:'2루 베이스 커버. 커트맨이 잘라서 2루로 던지면 받기.'};roles['3B']={tag:'3루 커버',text:'3루 베이스 커버. 1루 주자가 3루까지 오면 태그.'}}
-    else{roles.SS={tag:'3루 커버',text:'3루수가 홈 커트맨으로 나가서 유격수가 3루 커버.'};roles['2B']={tag:'2루 커버',text:'2루 베이스 커버. 커트맨이 잘라서 2루로 던지면 받아 타자 주자 태그.',tip:'홈 송구 때 타자 주자가 2루를 노려요. 2루가 비어 있으면 공짜로 줘요.'};roles['1B']={tag:'1루 커버',text:'타자 주자가 1루를 밟는지 확인하고 베이스로.',tip:'타자가 크게 돌면 1루로 송구가 올 수 있어요. 베이스 비우지 않기.'}}
+  if(far)roles[far]={tag:'2루 방향 백업',text:'타구 반대편이어도 2루 쪽으로 들어오기. 2루 송구나 중계 송구가 빠지면 내가 막아요.',tip:'공이 안 온다고 서 있는 외야수가 제일 많아요. 타구가 나오면 한 방향으로라도 움직이기.'};
+  const missTip='중계는 언제든 빠질 수 있어요. 일직선으로 서 있으면 놓친 공이 뒤 사람에게 굴러가요.';
+  const fly1B=()=>({tag:'1루 커버',text:R.r1?'1루 베이스로 돌아가 커버. 1루 주자가 많이 나와 있으면 1루로 송구가 와요.':'1루 베이스 커버. 타자는 뜬공 아웃이라 송구가 빠질 때만 대비.',tip:R.r1?'뜬공 때 1루 주자는 귀루가 늦기 쉬워요. 1루 송구로 더블 아웃 기회.':'아웃이 나도 끝까지 베이스에 있기.'});
+  const hit1B=()=>({tag:'1루 커버',text:'타자 주자가 1루를 밟는지 확인하고 베이스로. 타자가 크게 돌면 1루 송구 받을 준비.',tip:'안타 맞았다고 멈추지 말기. 타자가 오버런하면 1루로 송구가 올 수 있어요.'});
+  const third=()=>({tag:'3루 커버',text:r1to3?'1루 주자가 3루까지 와요. 3루 베이스 지키기.':r2tag?'2루 주자가 태그업으로 와요. 3루 베이스 지키기.':'3루 베이스 커버.'});
+  if(mode==='home'){
+    roles[cut]={tag:'홈 커트맨',main:true,text:`${pName}와 홈을 잇는 일직선 위, 마운드에서 홈 쪽으로 일곱 걸음쯤 내려온 곳에서 양손 들기. 송구가 빗나가면 내가 잡고, 포수가 "컷!" 하면 잘라서 2루로.`,tip:cut==='1B'?(isFly?'뜬공 아웃 뒤에도 1루수 할 일이 있어요. 홈 송구 때는 1루수가 커트맨.':'"안타 맞으면 1루수는 할 일 끝"이 아니에요. 홈 송구 때는 1루수가 커트맨.'):'좌익수 쪽에서 홈으로 올 때는 3루수가 커트맨, 3루 베이스는 유격수가 채워요.'};
+    if(cut==='1B'){
+      roles['2B']={tag:'1루 커버',text:'1루수가 홈 커트맨으로 나가서 1루가 비어요. 2루수가 1루 커버.',tip:'"1루수가 비우면 2루수가 채운다" — 사회인 경기에서 제일 잘 안 지켜지는 약속이에요.'};
+      roles.SS={tag:'2루 커버',text:'2루 베이스 커버. 커트맨이 잘라서 2루로 던지면 받기.'};
+      roles['3B']=third();
+    } else {
+      roles.SS={tag:'3루 커버',text:'3루수가 홈 커트맨으로 나가서 유격수가 3루 커버.'};
+      roles['2B']={tag:'2루 커버',text:isFly?'2루 베이스 커버. 홈 송구 사이에 2루로 오는 주자가 있으면 커트맨 송구 받아 태그.':'2루 베이스 커버. 커트맨이 잘라서 2루로 던지면 받아 타자 주자 태그.',tip:'홈 송구 사이에 다른 주자가 한 베이스 더 노려요. 2루가 비어 있으면 공짜로 줘요.'};
+      roles['1B']=isFly?fly1B():hit1B();
+    }
     roles.P={tag:'홈 백업',text:'홈 뒤쪽으로 달려가 송구가 빠질 때 대비.'};
-    roles.C={tag:'홈 승부 + 콜',text:'홈을 지키며 커트맨에게 "컷!" / "놔둬!" 콜. 공이 늦으면 "컷! 2루!"로 타자 주자를 잡기.'};
-  } else if(target==='3B'){
-    roles.SS={tag:'3루 커트맨',main:true,text:`${pName}와 3루를 잇는 일직선 위, 3루 베이스에서 외야 쪽으로 스무 걸음쯤 나간 곳에서 양손 들기. 3루수 콜에 따라 자르거나 흘려보내기.`};
-    roles['2B']={tag:'2루 커버',text:'2루 베이스 커버. 커트맨이 잘라서 2루로 던지면 받아 타자 주자 태그.',tip:'유격수가 커트맨으로 나가면 2루는 2루수 몫. 공만 쳐다보다 2루가 비는 게 초보팀 1순위 실수.'};
-    roles['1B']={tag:'1루 커버',text:'타자 주자가 1루를 밟는지 확인하고 베이스로. 타자가 크게 돌면 1루 송구 받을 준비.',tip:'3루 송구 사이에 타자 주자가 2루를 노려요. 1루수는 타자를 끝까지 보고 "간다!" 콜.'};
-    roles['3B']={tag:'3루 커버 + 콜',text:'3루 베이스에서 송구 받기. 커트맨에게 "놔둬!" / "컷!" 콜은 3루수가.'};
-    roles.P={tag:'3루 백업',text:'3루 뒤쪽 파울 지역으로 달려가 송구 백업.'};
-    roles.C={tag:'홈 + 콜',text:'홈을 지키며 내야 전체에 송구 방향 콜.'};
+    roles.C={tag:'홈 승부 + 콜',text:isFly?'홈을 지키며 커트맨에게 "컷!" / "놔둬!" 콜. 늦으면 "컷!" 해서 다른 주자 진루 막기.':'홈을 지키며 커트맨에게 "컷!" / "놔둬!" 콜. 늦으면 "컷! 2루!"로 타자 주자를 잡기.'};
+  } else if(mode==='direct'){
+    roles[first]={tag:isFly?'나갔다가 비켜 서기':'타구 따라가기 → 비켜 앉기',main:true,text:isFly?`타구 쪽으로 몇 걸음 나갔다가, ${pName}가 잡으면 송구 길에서 한두 걸음 옆으로 비켜 자세 낮추기. 송구는 2루로 그냥 지나가게 하고, 빗나가면 바로 쫓아가 막기.`:`타구가 옆으로 빠질 수 있으니 공을 따라 외야 쪽으로 나가기. ${pName}가 금방 잡으면 송구 길에서 한두 걸음 옆으로 비켜 앉기. 송구는 2루로 그냥 지나가게 하고, 빗나가면 바로 쫓아가 막기.`,tip:`${pName}가 공을 놓치거나 뒤로 빠뜨리면 그대로 내가 중계맨이 돼요. 2루는 ${NAME[second]}에게 맡기기.`};
+    roles[second]={tag:'2루 커버',main:true,text:`${fName}가 타구를 따라 나가니까 2루 베이스는 내가. ${pName} 송구를 2루에서 받고, 받으면 ${isFly?'주자들을 멈춰 세우기':'타자 주자 태그 준비'}.`,tip:first==='2B'?'오른쪽 타구면 2루수가 따라가고 유격수가 2루 커버. 미리 정해두기.':'왼쪽·가운데 타구면 유격수가 따라가고 2루수가 2루 커버. 미리 정해두기.'};
+    roles['1B']=isFly?fly1B():hit1B();roles['3B']=third();
+    roles.P={tag:'2루 백업',text:'2루 뒤쪽(송구 반대편)으로 가서 2루 송구가 빠질 때 대비.'};
+    roles.C={tag:'홈 + 콜',text:`홈을 지키며 "2루!" 하고 송구 방향 콜.${isFly&&R.r3?' 3루 주자 태그업은 들여보내도 OK.':''}`};
+  } else if(target==='2B'){
+    roles[first]={tag:'중계맨',main:true,text:`외야 쪽으로 나가 ${pName}와 2루를 잇는 일직선에 서기. ${pName}에게서 한 베이스 거리 안까지 다가가 양손 크게 흔들며 "여기!" → 받으면 몸을 돌려 2루로.`,tip:missTip+' 받은 뒤 홈·3루로 무리하게 던지지 않기.'};
+    roles[second]={tag:'2루 커버',main:true,text:`2루 베이스에서 중계맨(${fName})과 일직선으로 서기. 중계맨이 놓치면 공이 나에게 굴러와요. 송구 받으면 ${isFly?'주자들을 멈춰 세우기':'타자 주자 태그 준비'}.`,tip:`${fName}가 중계로 나가면 2루는 내 몫. 공만 쳐다보다 2루가 비는 게 초보팀 1순위 실수.`};
+    roles.P={tag:'2루 백업',text:'2루 뒤쪽(중계 송구 반대편)으로 가서 2루 송구가 빠질 때 대비.'};
+    roles.C={tag:'홈 + 콜',text:`홈을 지키며 중계맨에게 "2루!" 콜. ${isFly?'태그업 주자를 보고 송구 방향 알려주기.':'타자가 1루를 크게 돌면 "1루!"'}`};
+    roles['3B']=third();roles['1B']=isFly?fly1B():hit1B();
   } else {
-    const cover=goer==='SS'?'2B':'SS';
-    roles[goer]={tag:'나가서 받기',text:'외야 잔디가 시작되는 곳까지 나가 외야수와 2루를 잇는 선 위에 서기. 외야수가 던질 목표가 되어 주기.',tip:goer==='2B'?'오른쪽 타구면 2루수가 나가는 사람. 유격수에게 "커버!" 외치고 나가기.':''};
-    roles[cover]={tag:'2루 커버',text:'2루 베이스로 가서 송구 받기. 타자 주자가 2루를 노리면 태그.',tip:cover==='2B'?'왼쪽 타구면 유격수가 나가고 2루수가 2루 커버. 공 방향 보고 "내가 커버" 미리 정하기.':''};
-    roles['1B']={tag:'1루 커버',text:'타자 주자가 1루를 밟는지 확인하고 베이스로 돌아가기.',tip:'타자가 오버런하면 1루 송구로 잡을 수 있어요. 안타 맞았다고 멈추지 말기.'};
-    roles['3B']={tag:'3루 커버',text:R.r3?'3루 주자는 들어가요. 3루 베이스로 돌아가 추가 진루 대비.':'3루 베이스 커버.'};
-    roles.P={tag:'마운드 뒤 대기',text:'마운드 뒤쪽에서 2루 송구 방향 확인. 공이 내야로 들어오면 백업.'};
-    roles.C={tag:'홈 + 콜',text:'홈을 지키며 "2루!" 하고 송구 방향 콜.'};
+    roles[first]={tag:relays.length>1?'1번 중계맨':'중계맨',main:true,text:`외야 깊숙이 나가 ${pName}와 3루를 잇는 일직선, ${pName}에게서 한 베이스 거리 안에 서기. 양손 흔들며 "여기!" → 받으면 몸을 돌려 ${relays.length>1?'2번 중계맨('+NAME[second]+')에게':'3루로'}.`,tip:missTip};
+    if(relays.length>1)roles[second]={tag:'2번 중계맨',main:true,text:`1번 중계맨(${fName})과 3루 사이 일직선, 양쪽에서 한 베이스 거리 안에 서기. 받으면 3루로. 1번 중계 송구가 빠지면 내가 막는 자리이기도 해요.`,tip:'두 번째 중계는 3루수의 "3루!" 콜을 듣고 던지기. 늦었으면 공을 들고 내야로 달려와도 돼요.'};
+    else roles[trailer]={tag:'중계 백업 (트레일러)',text:`중계맨(${fName})과 같은 일직선 위, 중계맨 바로 뒤 대여섯 걸음. 중계가 빠지면 내가 받아 3루로. 중계맨에게 "3루!" 하고 방향 불러주기.`,tip:'트레일러의 핵심은 목소리. 중계맨은 공만 보고 있어서 주자가 안 보여요.'};
+    roles['1B']={tag:'2루 커버 (타자 따라가기)',text:'타자 주자 뒤를 따라 2루로 가서 커버. 중계 송구가 빗나가면 2루에서 막기.',tip:'2루수·유격수가 모두 외야로 나가면 2루가 비어요. 그 자리를 1루수가 채워요.'};
+    roles['3B']={tag:'3루 커버 + 콜',text:'3루 베이스에서 마지막 송구 받기. 중계맨에게 "3루!" / "들고 있어!" 콜.'};
+    roles.P={tag:'3루 백업',text:'3루 뒤쪽 파울 지역으로 달려가 송구 백업.'};
+    roles.C={tag:'홈 + 콜',text:'홈을 지키며 중계맨에게 "3루!" 방향 콜. 앞 주자들은 홈에 들어와요.'};
   }
   // summary
-  const runTxt=RUNS.find(r=>r[0]===(sc.runKey))||null;
-  let head,flow,miss;
-  const via=[pName];
-  if(type==='extra'){via.push(NAME[relay]+' (중계)');if(target==='H')via.push('1루수 (커트)');via.push(tName)}
-  else if(cut){via.push(NAME[cut]+' (커트)');via.push(tName)}
-  else via.push('2루');
-  flow=via;
-  if(type==='single'){
-    head=target==='H'?`2루 주자는 홈을 노려요. 커트맨(${NAME[cut]})을 거쳐 홈 승부, 늦으면 잘라서 타자 주자의 2루 진루를 막기.`
-      :target==='3B'?'1루 주자가 3루까지 가요. 커트맨(유격수)을 거쳐 3루 승부, 애매하면 2루로 던져 타자를 1루에 묶기.'
-      :(R.r1?'좌익수 쪽 안타는 3루가 가까워 1루 주자가 2루에서 멈추는 경우가 많아요. 2루로 빠르게 돌려 추가 진루 막기.':'추가 진루만 막으면 되는 상황. 2루로 빠르고 정확하게.');
-    miss=['외야수가 공을 뒤로 빠뜨림 → 백업이 없어서 단타가 장타가 됨','홈·3루로 무리하게 던진 송구가 높이 날아가 타자 주자까지 진루','내야수가 공만 보다가 2루·1루가 비어 있음'];
-  } else if(type==='fly'){
-    head=target==='H'?'3루 주자 태그업. 잡자마자 커트맨을 거쳐 홈으로.'
-      :target==='3B'?'2루 주자가 태그업으로 3루를 노려요. 잡고 유격수(커트)를 거쳐 3루로.'
-      :'아웃 하나 잡고 끝. 공을 바로 내야로 돌려 주자를 묶기.';
-    miss=['잡고 나서 공을 들고 서 있음 → 주자가 한 베이스 더 감','중간 타구에서 아무도 콜을 안 해 둘 다 멈추거나 충돌','1루 주자가 너무 많이 나와 있는데 1루 송구를 안 봄'];
+  if(mode==='home')sc.flow=[pName,NAME[cut]+' (커트, 빠짐 대비)','홈'];
+  else if(mode==='direct')sc.flow=[pName,fName+' (비켜 앉기)','2루 ('+NAME[second]+')'];
+  else sc.flow=[pName,...relays.map((p,i)=>NAME[p]+(relays.length>1?` (${i+1}번 중계)`:' (중계)')),tName];
+  if(mode==='home'){
+    sc.head=isFly?'짧은 뜬공 + 3루 주자 태그업 → 홈 승부. 잡자마자 홈으로 바로.':'짧은 안타 + 2루 주자 → 홈 승부. 외야수가 홈으로 바로, 늦으면 커트맨이 잘라서 2루로.';
+    sc.miss=['송구가 높이 떠서 포수 키를 넘김 → 원바운드가 차라리 나아요','커트맨이 일직선에 없어서 빗나간 송구를 아무도 못 막음','홈 승부만 보다가 타자 주자 2루 진루를 공짜로 줌'];
+  } else if(mode==='direct'){
+    sc.head=(isFly?'잡았으면 중계 없이 2루로 바로.':'보통 깊이 안타는 중계 없이 2루로 바로. 타자 주자를 1루에 묶기.')+(type==='single'&&(R.r2||R.r3)?' 앞 주자 득점은 줘도 괜찮아요.':isFly&&R.r3?' 3루 주자 태그업 득점은 줘도 괜찮아요.':r2tag?' 2루 주자의 태그업 3루 진루는 허용.':'');
+    sc.miss=isFly?['잡고 나서 공을 들고 서 있음 → 주자가 한 베이스 더 감','중간 타구에서 아무도 콜을 안 해 둘 다 멈추거나 충돌','2루 커버 뒤에 아무도 없어서 송구가 빠지면 외야까지 굴러감']:['외야수가 공을 뒤로 빠뜨림 → 백업이 없어서 단타가 장타가 됨','홈·3루로 무리하게 던진 송구가 중간에 떨어짐','2루 커버 뒤에 아무도 없어서 송구가 빠지면 추가 진루'];
+  } else if(type==='extra'){
+    sc.head=`중계 플레이. ${sc.flow.join(' → ')}. 짧게 이어 던져 ${R.r1?'타자 주자를 2루에 묶기':'타자 주자의 3루 진루 막기'}.`;
+    sc.miss=['외야수가 한 번에 내야까지 던지려다 원바운드 여러 번','중계맨이 외야 쪽으로 충분히 안 나감','중계가 빠졌는데 뒤에서 막는 사람이 없음'];
   } else {
-    head=target==='H'?'중계 플레이. 1루 주자가 홈까지 와요. 외야수 → 중계맨 → (1루수 컷) → 홈.':'중계 플레이. 타자 주자가 3루를 노려요. 외야수 → 중계맨 → 3루.';
-    miss=['외야수가 한 번에 내야까지 던지려다 원바운드 여러 번','중계맨이 외야 쪽으로 충분히 안 나감','아무도 2루를 안 채워 타자 주자가 편하게 진루'];
+    sc.head=(isFly?'깊게 잡은 뜬공은 중계맨을 거쳐 2루로.':'깊은 타구는 중계. 외야수 → 중계맨 → 2루로 타자 주자를 1루에 묶기.')+(isFly&&R.r3?' 3루 주자 태그업 득점은 막기 어려워요.':r2tag?' 2루 주자의 태그업 3루 진루는 허용.':'');
+    sc.miss=['외야수가 2루까지 바로 던지려다 송구가 중간에 떨어짐','중계맨이 충분히 안 나와서 외야수 송구가 닿지 않음','중계가 빠졌는데 뒤 2루 커버가 일직선에 없음'];
   }
-  sc.head=head;sc.flow=flow;sc.miss=miss;sc.sit=label+' · '+TYPES.find(t=>t[0]===type)[1];
+  const DL={short:'짧게',mid:'보통',deep:'깊게'};
+  sc.sit=label+' · '+TYPES.find(t=>t[0]===type)[1]+(type==='extra'?'':' · '+DL[depth]);
 }
 
 // ---------- infield ----------
@@ -429,7 +431,7 @@ function buildIF(sc,R,inf){
   else if(R.r1&&R.r2)plays=F==='3B'?['s3B','1B']:['2B','1B'];
   else if(R.r1)plays=['2B','1B'];
   else if(!R.r2&&!R.r3)plays=F==='1B'?['s1B']:['1B'];
-  else{plays=F==='1B'?['s1B']:['1B'];look=true}
+  else{plays=F==='1B'?['s1B']:['1B'];look=R.r3||!(F==='2B'||F==='1B')}
   const forcedTo={'2B':R.R1,'3B':R.R2,H:R.R3,'1B':R.BAT};
   // move base coverers first (for timing)
   const need=new Set(plays.filter(p=>p[0]!=='s'));
@@ -476,7 +478,7 @@ function buildIF(sc,R,inf){
   const forced={R1:!!R.r1,R2:R.r1&&R.r2,R3:R.r1&&R.r2&&R.r3};
   if(R.R1)runTo(R.R1.tr,'1B','2B',.1,30);
   if(R.R2){if(forced.R2)runTo(R.R2.tr,'2B','3B',.1,30);
-    else if(F==='2B'||F==='1B')runTo(R.R2.tr,'2B','3B',.55,30);
+    else if((F==='2B'||F==='1B')&&!R.r3)runTo(R.R2.tr,'2B','3B',.55,30);
     else R.R2.tr.go(add(B['2B'],unit(B['2B'],B['3B']),15),12,.1).go(B['2B'],12,1.6)}
   if(R.R3){if(forced.R3)runTo(R.R3.tr,'3B','H',.1,30);
     else R.R3.tr.go(add(B['3B'],unit(B['3B'],B.H),15),12,.1).go(B['3B'],12,1.5)}
@@ -486,9 +488,10 @@ function buildIF(sc,R,inf){
   const roles=sc.roles;
   const chain=flow.slice(1).join(' → ');
   const fTag='타구 처리 → '+(plays[0][0]==='s'?BN[plays[0].slice(1)]+' 밟기':BN[plays[0]]);
-  let fText=`정면으로 들어가며 잡고 `+(look?`${R.r3?'3루':'2루'} 주자를 한 번 쳐다봐 묶어 둔 뒤 `:'')+`${chain}.`;
+  let fText=`정면으로 들어가며 잡고 `+(look?`${R.r3?'3루':'2루'} 주자를 한 번 쳐다봐 묶어 둔 뒤 `:(R.r2&&!forced.R2?'2루 주자는 3루로 보내 주고 ':''))+`${chain}.`;
   const fTipBase={P:'잡고 나서 서두르지 말기. 투수 송구 실책이 제일 아까워요.','1B':plays[0]==='s1B'?'베이스가 가까우면 직접 밟고, 멀면 투수에게 가슴 높이로 언더핸드 토스.':'2루로 던진 뒤 1루로 못 돌아오면 투수가 1루 커버. 투수에게 "커버!" 콜.','2B':plays[0]==='2B'?'유격수에게 가슴 높이로 짧게 토스. 세게 던지면 못 받아요.':'급하지 않아요. 발을 1루 쪽으로 정렬하고 던지기.',SS:plays[0]==='2B'?'2루수가 베이스 밟을 때 가슴 높이로. 병살은 첫 송구 정확도가 전부.':'멀면 원바운드도 OK. 높이 날아가는 송구가 제일 위험.','3B':plays[0]==='s3B'?'3루 베이스가 바로 옆이면 직접 밟는 게 제일 확실. 그다음 1루.':'강하게 던지되 1루수 가슴 높이로. 대충 던지면 우익수 쪽으로 빠져요.'};
-  roles[F]={tag:fTag,main:true,text:fText,tip:fTipBase[F]};
+  const fTipHome={P:'홈까지 짧으니 포수 가슴 높이로 가볍게. 서두르다 높게 던지는 게 제일 위험해요.','1B':'홈은 가까워요. 포수 가슴 높이로 정확하게 던지고, 1루는 투수가 커버해요. 던지면서 투수에게 "커버!" 콜.','3B':'홈은 가까워요. 세게 말고 포수 가슴 높이로 정확하게. 포수가 홈 밟고 1루로 던져 병살.'};
+  roles[F]={tag:fTag,main:true,text:fText,tip:(plays[0]==='H'&&fTipHome[F])?fTipHome[F]:fTipBase[F]};
   // 1B
   if(F!=='1B')roles['1B']={tag:'1루 커버 · 포구',main:plays.includes('1B'),text:'땅볼이 나오면 바로 1루 베이스로. 베이스 모서리에 발을 대고, 송구 방향으로 몸을 뻗어 받기.',tip:'송구가 빗나가면 발을 떼고 공부터 잡기. 공이 파울 지역으로 빠지면 타자가 2루까지 가요.'};
   // P
@@ -511,26 +514,26 @@ function buildIF(sc,R,inf){
   // C
   roles.C=usesH?{tag:'홈 포스아웃 → 1루',main:true,text:'홈 베이스를 밟고 받기(포스라 태그 필요 없음) → 바로 1루로 던져 병살.'}
     :(!R.r2&&!R.r3)?{tag:'1루 백업',text:'주자가 2·3루에 없으면 포수도 1루 라인 따라 달려가 1루 송구 백업.'}
-    :{tag:'홈 + 콜',text:`홈을 지키며 "${plays.includes('2B')?'2루!':'1루!'}" 송구 방향 콜. 3루 주자가 뛰면 "홈!"`};
+    :{tag:'홈 + 콜',text:`홈을 지키며 "${plays.includes('2B')?'2루!':'1루!'}" 송구 방향 콜.${R.r3?' 3루 주자가 뛰면 "홈!"':''}`};
   roles.RF={tag:'1루 뒤 백업',text:'내야 땅볼이 나오면 1루 뒤쪽(파울 지역 방향)으로 달려가기. 1루 송구가 빠지면 내가 막기.',tip:'내야 땅볼마다 1루 뒤로 뛰는 게 우익수 기본기. 악송구 하나가 2루타가 되는 걸 막아요.'};
   roles.CF={tag:'2루 뒤 백업',text:'2루 베이스 뒤쪽으로 들어오기. 땅볼이 내야를 빠져나오거나 2루 송구가 빠지면 처리.',tip:'내야 땅볼도 외야수 일이에요. 공이 안 와도 움직이기.'};
   roles.LF=(F==='3B'||uses3)?{tag:'3루 쪽 백업',text:'3루 뒤쪽으로 들어와 3루 송구·타구가 빠질 때 대비.',tip:'왼쪽 타구는 좌익수가 마지막 수비. 빠지면 바로 내야로 던지기.'}
     :{tag:'2루 방향 백업',text:'2루 쪽으로 들어와 2루 송구가 빠질 때 대비.',tip:'타구가 반대편이어도 서 있지 말고 2루 쪽으로 출발.'};
-  if(R.r2&&!forced.R2&&(F==='2B'||F==='1B'))roles['3B'].text='2루 주자 뒤쪽(오른쪽) 타구라 3루 진루는 허용. 3루 베이스로 돌아가 커버.';
+  if(R.r2&&!R.r3&&!forced.R2&&(F==='2B'||F==='1B'))roles['3B'].text='2루 주자 뒤쪽(오른쪽) 타구라 3루 진루는 허용. 3루 베이스로 돌아가 커버.';
   // summary
   let head;
   if(R.r1&&R.r2&&R.r3)head=usesH?'만루는 모든 베이스가 포스. 가까운 홈에서 확실히 아웃 하나 → 여유 있으면 1루로 병살.':'2루-1루 병살 노리기 (그 사이 1점은 줘요). 홈이 가까우면 홈 포스가 더 확실해요.';
   else if(R.r1&&R.r2&&F==='3B')head='3루 베이스가 바로 옆이면 직접 밟는 게 제일 확실. 그다음 1루.';
   else if(R.r1)head='병살 상황. 하지만 1순위는 "아웃 하나 확실히". 2루가 늦으면 바로 1루.'+(R.r3?' 3루 주자가 들어와도 병살이면 이득이에요.':'');
   else if(!R.r2&&!R.r3)head='확실하게 1루 아웃. 내야수 송구 → 1루수 포구, 우익수·포수는 1루 백업.';
-  else head='포스가 아닌 주자는 "눈으로 묶고" 1루. 주자가 뛰면 그쪽으로 승부.'+(R.r2&&(F==='2B'||F==='1B')?' 2루 주자 뒤쪽 타구라 3루 진루는 허용해요.':'');
+  else head='포스가 아닌 주자는 "눈으로 묶고" 1루. 주자가 뛰면 그쪽으로 승부.'+(R.r2&&!R.r3&&(F==='2B'||F==='1B')?' 2루 주자 뒤쪽 타구라 3루 진루는 허용해요.':'');
   sc.head=head;sc.flow=flow;
   sc.miss=['두 번째 아웃 욕심내다 첫 번째 아웃도 놓침','1루 쪽 땅볼에 투수가 1루 커버를 안 가서 1루가 빔','우익수가 "내야 땅볼이니까" 하고 안 움직임 → 1루 악송구 때 타자가 2루까지'];
   sc.sit=label;
 }
 
 // ---------- UI ----------
-const state={run:'1',hit:'R',type:'single',t:0,playing:false,speed:1,sel:null};
+const state={run:'1',hit:'R',type:'single',depth:'mid',t:0,playing:false,speed:1,sel:null};
 const $=id=>document.getElementById(id);
 function miniDiamond(k){
   const on=b=>k.includes(b);
@@ -542,12 +545,15 @@ function chips(){
   $('cHit').innerHTML=`<div class="grp"><span class="gl">외야</span>${OF.map(([k,l])=>`<button type="button" class="chip" id="hit-${k}" data-hit="${k}" aria-pressed="${state.hit===k}">${l}</button>`).join('')}</div><div class="grp"><span class="gl">내야</span>${IF.map(([k,l])=>`<button type="button" class="chip" id="hit-${k}" data-hit="${k}" aria-pressed="${state.hit===k}">${l}</button>`).join('')}</div>`;
   const isIF=state.hit[0]==='g';
   $('cType').innerHTML=TYPES.map(([k,l])=>`<button type="button" class="chip" id="type-${k}" data-type="${k}" aria-pressed="${!isIF&&state.type===k}" ${isIF?'disabled':''}>${l}</button>`).join('')+(isIF?'<span class="note" style="align-self:center">내야 타구는 땅볼 기준</span>':'');
+  const noD=isIF||state.type==='extra';
+  $('cDepth').innerHTML=DEPTHS.map(([k,l])=>`<button type="button" class="chip" id="depth-${k}" data-depth="${k}" aria-pressed="${!noD&&state.depth===k}" ${noD?'disabled':''}>${l}</button>`).join('')+(noD?`<span class="note" style="align-self:center">${isIF?'내야 타구는 해당 없음':'장타는 항상 깊은 타구'}</span>`:'<span class="note" style="align-self:center">짧게 = 홈 승부 · 보통 = 2루로 바로 · 깊게 = 중계</span>');
 }
 document.addEventListener('click',e=>{
   const b=e.target.closest('button.chip');if(!b||b.disabled)return;
   if(b.dataset.run)state.run=b.dataset.run;
   if(b.dataset.hit)state.hit=b.dataset.hit;
   if(b.dataset.type)state.type=b.dataset.type;
+  if(b.dataset.depth)state.depth=b.dataset.depth;
   chips();load(true);
 });
 
@@ -687,7 +693,7 @@ $('speed').addEventListener('click',()=>{state.speed=state.speed===1?.5:state.sp
 
 function load(autoplay){
   stop();
-  sc=build(state.run,state.hit,state.hit[0]==='g'?'ground':state.type);
+  sc=build(state.run,state.hit,state.hit[0]==='g'?'ground':state.type,state.depth);
   drawScene();panel();
   if(autoplay&&!reduce){state.t=0;render(0);play()}else{state.t=sc.dur;render(sc.dur);$('play').textContent='↺ 다시 보기'}
 }
