@@ -186,7 +186,9 @@ const FSPD=28, RSPD=33, TSPD=85, ISPD=100;
 
 const RUNS=[['0','주자 없음'],['1','1루'],['2','2루'],['3','3루'],['12','1·2루'],['23','2·3루'],['13','1·3루'],['123','만루']];
 const OF=[['LL','좌측 선상',-41],['L','좌익수 정면',-28],['LC','좌중간',-14],['C','중견수 정면',0],['RC','우중간',14],['R','우익수 정면',28],['RL','우측 선상',41]];
-const IF=[['g3B','3루 땅볼','3B'],['gSS','유격수 땅볼','SS'],['gP','투수 앞 땅볼','P'],['g2B','2루 땅볼','2B'],['g1B','1루 땅볼','1B']];
+const IF=[['g3B','3루 쪽','3B'],['gSS','유격수 쪽','SS'],['gP','투수 앞','P'],['g2B','2루 쪽','2B'],['g1B','1루 쪽','1B']];
+const PK=[['p1B','1루 견제','1B'],['p2B','2루 견제','2B'],['p3B','3루 견제','3B']];
+const IFTYPES=[['ground','땅볼'],['ifly','뜬공']];
 const DEPTHS=[['short','짧게'],['mid','보통'],['deep','깊게']];
 const TYPES=[['single','앞에 떨어짐 (안타)'],['fly','잡음 (뜬공)'],['extra','키 넘김 (장타)']];
 const ORDER=['H','1B','2B','3B','H'];
@@ -219,6 +221,13 @@ function basesBetween(from,to){ // from index to index along ORDER
 }
 function runTo(tr,from,to,t0,spd){tr.wait(t0);basesBetween(from,to).forEach(p=>tr.go(p,spd||RSPD));return tr}
 
+const EXTRA_TIPS={
+  '2B':{'1루 쪽 백업':'투수 앞 땅볼도 1루 송구가 빠질 수 있어요. 1루 뒤 라인 쪽으로 몇 걸음 움직여 두기.'},
+  '3B':{'3루 커버':'외야 공이 나오면 3루 베이스부터. 주자가 오면 슬라이딩하는 발 쪽으로 글러브를 내려 태그.','3루 커버 + 콜':'중계맨은 주자를 못 봐요. 주자가 멈추면 "들고 있어!", 3루를 노리면 "3루!". 3루수 목소리가 중계의 눈이에요.'},
+  SS:{'2루 커버':'2루 베이스 모서리에 발을 대고 송구 오는 쪽을 보고 서기. 빗나가면 베이스보다 공이 먼저.','2루 커버 (병살 피벗)':'병살보다 2루 아웃 하나가 먼저. 밟고 받은 뒤 1루가 늦으면 그냥 들고 있기.','3루 커버':'3루수가 홈 커트맨으로 나가면 3루는 유격수 몫. 3루가 비면 주자들이 한 베이스씩 더 가요.','3루수 뒤 백업':'3루 땅볼이 글러브 맞고 튀면 내가 처리. 3루수 뒤 대각선이 내 자리.'},
+  P:{'1루 쪽으로 출발':'1루수가 공을 쫓아가면 1루가 비어요. 일단 출발하고, 1루수가 베이스에 있으면 멈추면 돼요.','1루 커버!':'1루 라인과 나란히 뛰어야 타자와 안 부딪혀요. 토스 받고 베이스 안쪽 모서리 밟기.','2루 백업':'공 던지고 끝이 아니에요. 외야 송구가 2루에서 빠지면 투수가 마지막으로 막아요.','3루 백업':'3루 송구가 빠지면 바로 득점이에요. 3루 뒤 파울 지역 깊숙이, 펜스 쪽으로.','홈 백업':'홈 송구가 빠지면 주자 전원이 진루해요. 포수 뒤 펜스 쪽으로 깊게 가서 서기.','마운드 대기':'멍하니 서 있지 말고 공 방향으로 몸을 돌려 두기. 내야 송구가 빠지면 바로 쫓아가기.'},
+  C:{'1루 백업':'주자 없을 때 내야 땅볼이면 포수도 1루 라인을 따라 뛰어요. 악송구가 파울 지역으로 빠지면 내가 막기.','홈 + 콜':'포수는 경기장 전체가 보이는 유일한 사람. 공이 오기 전에 크게, 한 단어로 콜하기.','홈 승부 + 콜':'홈 승부 때는 베이스 앞쪽에서 받고 주자 발 쪽으로 태그. 송구가 늦으면 망설이지 말고 "컷!"','홈 포스아웃 → 1루':'만루 홈 포스는 태그 필요 없어요. 베이스 밟고 받기만 하면 아웃. 1루 송구는 여유 있을 때만.'}
+};
 // ---------- scenario ----------
 function build(runKey,hitId,type,depth){
   const r1=runKey.includes('1'),r2=runKey.includes('2'),r3=runKey.includes('3');
@@ -227,7 +236,9 @@ function build(runKey,hitId,type,depth){
   const mk=(label,base)=>{const t=track(base==='bat'?[-4,1]:B[base]);const o={label,tr:t,outAt:null,base};sc.runners.push(o);return o};
   const R1=r1?mk('1',"1B"):null,R2=r2?mk('2','2B'):null,R3=r3?mk('3','3B'):null,BAT=mk('타','bat');
   const of=OF.find(o=>o[0]===hitId);
-  if(of) buildOF(sc,{r1,r2,r3,R1,R2,R3,BAT},of,type,depth||'mid'); else buildIF(sc,{r1,r2,r3,R1,R2,R3,BAT},IF.find(o=>o[0]===hitId));
+  const pk=PK.find(o=>o[0]===hitId);
+  if(pk)buildPick(sc,{r1,r2,r3,R1,R2,R3,BAT},pk); else if(of) buildOF(sc,{r1,r2,r3,R1,R2,R3,BAT},of,type,depth||'mid'); else if(type==='ifly')buildIFly(sc,{r1,r2,r3,R1,R2,R3,BAT},IF.find(o=>o[0]===hitId)); else buildIF(sc,{r1,r2,r3,R1,R2,R3,BAT},IF.find(o=>o[0]===hitId));
+  Object.keys(EXTRA_TIPS).forEach(p=>{const r=sc.roles[p];if(r&&!r.tip&&EXTRA_TIPS[p][r.tag])r.tip=EXTRA_TIPS[p][r.tag]});
   let dur=0;
   POS.forEach(p=>dur=Math.max(dur,sc.tracks[p].time()));
   sc.runners.forEach(r=>dur=Math.max(dur,r.tr.time()));
@@ -529,11 +540,109 @@ function buildIF(sc,R,inf){
   else head='포스가 아닌 주자는 "눈으로 묶고" 1루. 주자가 뛰면 그쪽으로 승부.'+(R.r2&&!R.r3&&(F==='2B'||F==='1B')?' 2루 주자 뒤쪽 타구라 3루 진루는 허용해요.':'');
   sc.head=head;sc.flow=flow;
   sc.miss=['두 번째 아웃 욕심내다 첫 번째 아웃도 놓침','1루 쪽 땅볼에 투수가 1루 커버를 안 가서 1루가 빔','우익수가 "내야 땅볼이니까" 하고 안 움직임 → 1루 악송구 때 타자가 2루까지'];
+  sc.sit=label+' · 땅볼';
+}
+
+// ---------- pickoff ----------
+function buildPick(sc,R,pk){
+  const [id,label,base]=pk;const T=sc.tracks;
+  const PP=[0,58];
+  const cover={'1B':'1B','2B':'2B','3B':'3B'}[base];
+  const ifBk={'1B':'2B','2B':'SS','3B':'SS'}[base];
+  const ofBk={'1B':'RF','2B':'CF','3B':'LF'}[base];
+  const cp=COVER[base], dir=unit(PP,B[base]);
+  // 수비 위치: 1루수는 주자를 붙잡고 베이스에 붙어 있다
+  T.P.goBy(PP,0,.2);
+  T[cover].goBy(cp,.05,base==='1B'?.4:1.0);
+  T[ifBk].go(add(B[base],dir,24),FSPD,.5);
+  T[ofBk].go(add(B[base],dir,70),FSPD,.5);
+  T.C.go(COVER.H,FSPD,.1);
+  const tThrow=1.25;
+  sc.hitLine=[PP,PP];
+  sc.ball.push({t0:0,t1:tThrow,a:PP,b:PP,h:0,kind:'carry'});
+  const t1=throwSeg(sc,PP,cp,tThrow,75,6);
+  sc.events.push({t:t1,at:B[base],text:'태그!'});
+  // 주자: 리드 → 견제 송구에 귀루. 다른 주자는 리드 후 제자리
+  const nxt={'1B':'2B','2B':'3B','3B':'H'};
+  [['R1','1B'],['R2','2B'],['R3','3B']].forEach(([k,b0])=>{
+    if(!R[k])return;const lead=add(B[b0],unit(B[b0],B[nxt[b0]]),b0===base?14:10);
+    R[k].tr.go(lead,10,.1);
+    if(b0===base)R[k].tr.go(B[b0],18,tThrow+.15);else R[k].tr.go(add(B[b0],unit(B[b0],B[nxt[b0]]),6),10,tThrow+.4);
+  });
+  R.BAT.tr.go([-4,1],1,0);
+  const roles=sc.roles;const cName=NAME[cover];const bn=BN[base];
+  const first3=base==='1B'&&R.r3;
+  roles.P={tag:bn+' 견제',main:true,text:`투구판에서 발을 뒤로 빼고 돌아서 ${cName}에게 가슴 높이로 짧게. 세게 말고 정확하게.`,tip:'견제는 아웃보다 주자 리드를 줄이는 게 목적이에요. 송구가 빠지면 공짜 진루라 여러 번 무리하지 않기.'+(base!=='1B'?` ${bn} 견제는 ${cName}와 사인이 맞았을 때만.`:'')};
+  roles[cover]={tag:'견제 받기 · 태그',main:true,text:base==='1B'?'1루 주자가 있으면 베이스 앞쪽 모서리에 붙어 서기(주자 붙잡기). 공을 받으면 베이스 앞 땅바닥, 주자 손이 들어오는 자리에 바로 태그.':base==='2B'?'투수와 사인을 맞추고 2루로 들어가기. 우타자는 당겨치는 타구가 많아서 유격수는 자리를 지키고 2루수가 들어가요. 받으면 베이스 앞 땅에 글러브를 내려 태그.':'3루 베이스에 붙어서 받고, 바로 아래로 태그.',tip:'주자를 쫓아가지 말고 베이스 앞에 글러브를 내려놓고 기다리기. 주자가 손으로 들어와요.'+(first3?' 1·3루에서는 받자마자 3루 주자부터 보기.':'')};
+  roles[ifBk]={tag:'견제 백업',text:`${bn} 뒤, 투수 송구 연장선으로 몇 걸음. 견제 송구가 빠지면 바로 막기.`,tip:'견제 악송구는 주자 공짜 진루예요. 백업이 있으면 한 베이스로 막을 수 있어요.'};
+  roles[ofBk]={tag:'견제 백업 (외야)',text:`투수가 ${bn}로 견제하면 ${bn} 뒤쪽으로 들어오기. 송구가 외야까지 빠지면 내가 처리.`,tip:'견제 때 외야수가 가만히 있으면 악송구 하나로 두 베이스를 줘요.'};
+  roles.C={tag:'주자 보기 + 콜',text:`주자 리드가 크면 투수에게 알려주기. 견제 송구가 빠지면 "간다!" 콜.${first3?' 1·3루 1루 견제 때는 3루 주자 홈 스틸 조심.':''}`,tip:'포수가 경기장 전체를 보고 있어야 견제 빠짐에 바로 반응할 수 있어요.'};
+  if(first3&&!roles['3B'])roles['3B']={tag:'3루 주자 붙잡기',text:'3루 베이스 가까이 서서 3루 주자 리드 줄이기. 1루 견제 사이에 홈으로 뛰면 "간다!" 크게.',tip:'1·3루에서 1루 견제가 나오면 3루 주자가 홈을 노려요. 3루수가 베이스를 비우면 안 돼요.'};
+  const stay={'1B':'1루 베이스','2B':'2루 쪽','SS':'유격수 자리','3B':'3루 베이스','LF':'좌익수 자리','CF':'중견수 자리','RF':'우익수 자리'};
+  POS.forEach(p=>{if(!roles[p])roles[p]={tag:'자리 지키기',text:`${stay[p]}에서 다른 주자 움직임 보기. 견제 송구가 빠지면 가까운 베이스로.`,tip:'견제는 짧은 순간이라 다들 공만 보기 쉬워요. 내 쪽 주자가 뛰는지 보기.'}});
+  sc.flow=['투수',bn+' ('+cName+')'];
+  sc.head=`${bn} 견제: 투수 → ${cName}. 목적은 아웃보다 리드 줄이기. 송구가 빠질 때를 대비해 ${NAME[ifBk]}·${NAME[ofBk]}가 뒤에서 백업.`+(first3?' 1·3루라면 1루 견제 사이에 3루 주자 홈 스틸 조심.':'');
+  sc.miss=['견제 송구가 높거나 세서 빠짐 → 주자 공짜 진루','베이스 커버가 늦어서 투수가 던질 곳이 없음','백업이 없어서 악송구가 외야까지 굴러감'];
+  sc.primary=null;sc.target=null;
   sc.sit=label;
 }
 
+// ---------- infield fly ----------
+function buildIFly(sc,R,inf){
+  const [id,label,area]=inf;const T=sc.tracks;
+  // 잡는 사람: 마운드 근처 뜬공은 투수가 빠지고 1루수가 잡는다
+  const F=area==='P'?'1B':area;
+  const SPOT={'3B':[-72,98],SS:[-40,146],P:[10,64],'2B':[40,146],'1B':[72,98]};
+  const spot=SPOT[area];
+  const tc=2.6;
+  sc.ball.push({t0:0,t1:tc,a:B.H,b:spot,h:120,kind:'air'});
+  sc.hitLine=[B.H,spot];
+  T[F].goBy(spot,.1,tc-.4);
+  const roles=sc.roles;
+  const bk=area==='P'?null:{'3B':'SS',SS:'LF','2B':'RF','1B':'2B'}[F];
+  // backups & coverage
+  const behind=(p,k)=>add(spot,unit(B.H,spot),k);
+  if(area==='P'){T.P.go(add(spot,[-14,-6],1),FSPD,.2)}
+  if(bk){const bp=bk==='LF'||bk==='RF'?behind(bk,40):add(behind(bk,22),unit(spot,START[bk]),10);T[bk].go(bp,FSPD,.2)}
+  const cover2B=(F==='2B'||F==='1B')?'SS':'2B';
+  if(F!=='1B')T['1B'].go(COVER['1B'],FSPD,.2);
+  if(cover2B!==bk)T[cover2B].go(COVER['2B'],FSPD,.25);
+  if(F!=='3B'&&bk!=='3B')T['3B'].go(COVER['3B'],FSPD,.2);
+  if(F==='3B'&&bk!=='SS')T.SS.go(COVER['3B'],FSPD,.25);
+  if(F==='1B'&&area!=='P')T.P.go(COVER['1B'],30,.2);
+  if(F==='1B'&&area==='P')T['2B'].go(COVER['1B'],FSPD,.25);
+  T.C.go(COVER.H,FSPD,.1);
+  ['LF','CF','RF'].forEach(o=>{if(o!==bk)T[o].go(lerp(START[o],o==='LF'?B['3B']:o==='CF'?B['2B']:B['1B'],.35),FSPD,.3)});
+  sc.events.push({t:tc,at:spot,text:'OUT'});
+  // runners: small lead and back to base; batter runs then out
+  [['R1','1B','2B'],['R2','2B','3B'],['R3','3B','H']].forEach(([k,b0,b1])=>{if(R[k])R[k].tr.go(add(B[b0],unit(B[b0],B[b1]),12),10,.2).go(B[b0],10,tc-.8)});
+  R.BAT.tr.wait(.3).go(lerp(B.H,B['1B'],.85),RSPD*.8);R.BAT.outAt=tc;
+  const IFR=(R.r1&&R.r2);
+  const pName=NAME[F];
+  roles[F]={tag:'포구',main:true,text:`타구 밑으로 빨리 가서 "마이!"를 크게 세 번. 이마 앞에서 두 손으로 잡기. 잡은 뒤에는 주자들을 보고, 베이스에서 멀리 나온 주자가 있으면 그 베이스로 송구.`,tip:area==='P'?'마운드 근처 뜬공은 투수가 잡지 않아요. 투수가 "1루!" 하고 불러주면 1루수가 들어가서 잡기.':'공이 햇빛·조명에 안 보이면 바로 "몰라!" 외치고 옆 사람에게 넘기기.'};
+  if(area==='P')roles.P={tag:'콜 + 비키기',main:true,text:'뜬공은 내가 잡지 않고, 가장 가까운 내야수 이름을 크게 불러주기("1루!"). 잡는 사람 옆에 비켜 서서 놓치면 줍기.',tip:'투수가 잡으러 가면 내야수와 부딪히기 쉬워요. 투수는 뜬공에서 빠지는 게 우리 팀 약속.'};
+  if(bk){
+    const bkTxt=(bk==='LF'||bk==='RF')?`내야 뜬공도 외야수가 들어와요. ${pName} 뒤쪽 외야 잔디로 달려와서 놓치거나 뒤로 넘어가는 공 처리.`:`${pName} 옆·뒤로 달려가 백업. ${pName}가 "마이!" 하면 비켜 주고, 놓치면 내가 바로 줍기.`;
+    roles[bk]={tag:'뜬공 백업',text:bkTxt,tip:(bk==='SS'||bk==='2B')?`둘 다 잡을 수 있는 공이면 ${NAME[bk]}가 우선. 옆으로 움직이는 사람이 뒤로 뛰는 사람보다 잡기 쉬워요.`:'잡을 수 있으면 외야수 우선. "마이!" 하면서 들어오면 내야수가 비켜요.'};
+  }
+  if(F!=='1B')roles['1B']={tag:'1루 커버',text:R.r1?'1루 베이스로. 1루 주자가 많이 나와 있으면 1루로 송구가 와요.':'1루 베이스 커버. 공이 떨어지면 타자가 1루까지 와요.',tip:'뜬공이 올라가면 일단 베이스로. 잡고 나서 귀루 늦은 주자를 잡는 게 보너스 아웃.'};
+  if(cover2B!==bk&&cover2B!==F)roles[cover2B]={tag:'2루 커버',text:R.r1||R.r2?'2루 베이스로. 주자가 귀루 늦으면 송구 받아 태그·포스.':'2루 베이스 커버.',tip:'공을 보면서도 발은 베이스로. 내야 뜬공은 다 같이 공만 쳐다보다 베이스가 비기 쉬워요.'};
+  if(!roles['3B'])roles['3B']={tag:'3루 커버',text:R.r2?'3루 베이스로. 2루 주자가 너무 나오면 송구 받기.':'3루 베이스 커버.',tip:'내 쪽이 아니면 바로 베이스. 공이 떨어지면 주자들이 뛰기 시작해요.'};
+  if(F==='3B'&&!roles.SS)roles.SS={tag:'3루 커버',text:'3루수가 뜬공을 잡으러 가서 3루가 비어요. 유격수가 3루 커버.',tip:'3루수가 파울 쪽으로 쫓아가면 3루는 유격수 몫.'};
+  if(!roles.P)roles.P=F==='1B'?{tag:'1루 커버',text:'1루수가 뜬공을 잡으러 가서 1루가 비어요. 투수가 1루 커버.',tip:'1루 쪽은 땅볼이든 뜬공이든 1루수가 공을 쫓으면 투수가 1루.'}:{tag:'마운드 대기',text:'잡을 사람 이름을 불러주고 마운드 근처에서 송구 빠짐 대비.',tip:'"유격!" "3루!" 처럼 이름 한 단어로 콜.'};
+  if(!roles['2B'])roles['2B']={tag:'1루 커버',text:'1루수가 마운드 쪽 뜬공을 잡으러 가서 1루가 비어요. 2루수가 1루 커버.',tip:'1루수가 비우면 2루수가 채운다.'};
+  roles.C={tag:'홈 + 콜',text:`홈을 지키며 잡을 사람 이름을 크게 콜("${pName.replace('수','')}!").${R.r3?' 3루 주자가 너무 나오면 홈으로 송구 받기.':''}`,tip:'뜬공은 포수 자리에서 제일 잘 보여요. 둘이 머뭇거리면 포수가 정해주기.'};
+  ['LF','CF','RF'].forEach(o=>{if(!roles[o])roles[o]={tag:'내야 쪽으로 들어오기',text:'내야 뜬공도 외야수가 몇 걸음 들어와요. 공이 떨어져서 외야로 굴러오면 바로 처리.',tip:'공이 안 와도 움직이기. 떨어진 공이 굴러오는 걸 막는 게 외야수 일.'}});
+  sc.flow=[pName+' 포구','주자 귀루 확인'];
+  sc.head='내야 뜬공은 먼저 "마이!" 외친 사람이 잡고, 나머지는 비켜서 백업. 우선순위는 유격수·2루수 > 1·3루수 > 투수.'+(IFR?' 1·2루·만루 0~1아웃이면 인필드 플라이라 타자는 자동 아웃, 주자는 무리하게 뛰지 않기.':' 주자는 귀루, 잡은 뒤 멀리 나온 주자를 잡기.');
+  sc.miss=['둘 다 "마이!"를 안 해서 사이에 공이 떨어짐','투수가 잡으러 가다 내야수와 충돌','잡고 나서 멍하니 있다가 귀루 늦은 주자를 놓침'];
+  sc.primary=null;sc.target=null;
+  sc.sit=label+' · 뜬공';
+}
+
+
 // ---------- UI ----------
-const state={run:'1',hit:'R',type:'single',depth:'mid',t:0,playing:false,speed:1,sel:null};
+const state={run:'1',hit:'R',type:'single',ifType:'ground',depth:'mid',t:0,playing:false,speed:1,sel:null};
 const $=id=>document.getElementById(id);
 function miniDiamond(k){
   const on=b=>k.includes(b);
@@ -542,18 +651,20 @@ function miniDiamond(k){
 }
 function chips(){
   $('cRun').innerHTML=RUNS.map(([k,l])=>`<button type="button" class="chip" id="run-${k}" data-run="${k}" aria-pressed="${state.run===k}">${miniDiamond(k)}${l}</button>`).join('');
-  $('cHit').innerHTML=`<div class="grp"><span class="gl">외야</span>${OF.map(([k,l])=>`<button type="button" class="chip" id="hit-${k}" data-hit="${k}" aria-pressed="${state.hit===k}">${l}</button>`).join('')}</div><div class="grp"><span class="gl">내야</span>${IF.map(([k,l])=>`<button type="button" class="chip" id="hit-${k}" data-hit="${k}" aria-pressed="${state.hit===k}">${l}</button>`).join('')}</div>`;
-  const isIF=state.hit[0]==='g';
-  $('cType').innerHTML=TYPES.map(([k,l])=>`<button type="button" class="chip" id="type-${k}" data-type="${k}" aria-pressed="${!isIF&&state.type===k}" ${isIF?'disabled':''}>${l}</button>`).join('')+(isIF?'<span class="note" style="align-self:center">내야 타구는 땅볼 기준</span>':'');
-  const noD=isIF||state.type==='extra';
-  $('cDepth').innerHTML=DEPTHS.map(([k,l])=>`<button type="button" class="chip" id="depth-${k}" data-depth="${k}" aria-pressed="${!noD&&state.depth===k}" ${noD?'disabled':''}>${l}</button>`).join('')+(noD?`<span class="note" style="align-self:center">${isIF?'내야 타구는 해당 없음':'장타는 항상 깊은 타구'}</span>`:'<span class="note" style="align-self:center">짧게 = 홈 승부 · 보통 = 2루로 바로 · 깊게 = 중계</span>');
+  $('cHit').innerHTML=`<div class="grp"><span class="gl">외야</span>${OF.map(([k,l])=>`<button type="button" class="chip" id="hit-${k}" data-hit="${k}" aria-pressed="${state.hit===k}">${l}</button>`).join('')}</div><div class="grp"><span class="gl">내야</span>${IF.map(([k,l])=>`<button type="button" class="chip" id="hit-${k}" data-hit="${k}" aria-pressed="${state.hit===k}">${l}</button>`).join('')}</div><div class="grp"><span class="gl">견제</span>${PK.map(([k,l])=>`<button type="button" class="chip" id="hit-${k}" data-hit="${k}" aria-pressed="${state.hit===k}" ${state.run.includes(k[1])?'':'disabled title="그 베이스에 주자가 없어요"'}>${l}</button>`).join('')}</div>`;
+  const isIF=state.hit[0]==='g',isPK=state.hit[0]==='p';
+  $('cType').innerHTML=isPK?'<span class="note" style="align-self:center">견제는 타구가 없어요</span>':isIF?IFTYPES.map(([k,l])=>`<button type="button" class="chip" id="iftype-${k}" data-iftype="${k}" aria-pressed="${state.ifType===k}">${l}</button>`).join(''):TYPES.map(([k,l])=>`<button type="button" class="chip" id="type-${k}" data-type="${k}" aria-pressed="${state.type===k}">${l}</button>`).join('');
+  const noD=isPK||isIF||state.type==='extra';
+  $('cDepth').innerHTML=DEPTHS.map(([k,l])=>`<button type="button" class="chip" id="depth-${k}" data-depth="${k}" aria-pressed="${!noD&&state.depth===k}" ${noD?'disabled':''}>${l}</button>`).join('')+(noD?`<span class="note" style="align-self:center">${isPK?'견제는 해당 없음':isIF?'내야 타구는 해당 없음':'장타는 항상 깊은 타구'}</span>`:'<span class="note" style="align-self:center">짧게 = 홈 승부 · 보통 = 2루로 바로 · 깊게 = 중계</span>');
 }
 document.addEventListener('click',e=>{
   const b=e.target.closest('button.chip');if(!b||b.disabled)return;
   if(b.dataset.run)state.run=b.dataset.run;
   if(b.dataset.hit)state.hit=b.dataset.hit;
   if(b.dataset.type)state.type=b.dataset.type;
+  if(b.dataset.iftype)state.ifType=b.dataset.iftype;
   if(b.dataset.depth)state.depth=b.dataset.depth;
+  if(state.hit[0]==='p'&&!state.run.includes(state.hit[1])){const ok=PK.find(([k])=>state.run.includes(k[1]));state.hit=ok?ok[0]:'R'}
   chips();load(true);
 });
 
@@ -668,7 +779,7 @@ function panel(){
   $('headline').textContent=sc.head;
   $('flow').innerHTML='<span style="font-size:12px;color:var(--muted);font-weight:700;margin-right:4px">공의 흐름</span>'+sc.flow.map(s=>`<span class="st">${s}</span>`).join('<span class="ar">→</span>');
   $('focusCards').innerHTML=FOCUS.map(p=>cardHTML(p,false)).join('');
-  $('otherCards').innerHTML=['SS','3B','P','C'].map(p=>cardHTML(p,true)).join('');
+  $('otherCards').innerHTML=['SS','3B','P','C'].map(p=>cardHTML(p,false)).join('');
   $('miss').innerHTML=sc.miss.map(m=>`<li>${m}</li>`).join('');
 }
 function select(p){state.sel=state.sel===p?null:p;panel();render(state.t)}
@@ -693,7 +804,7 @@ $('speed').addEventListener('click',()=>{state.speed=state.speed===1?.5:state.sp
 
 function load(autoplay){
   stop();
-  sc=build(state.run,state.hit,state.hit[0]==='g'?'ground':state.type,state.depth);
+  sc=build(state.run,state.hit,state.hit[0]==='p'?'pick':state.hit[0]==='g'?state.ifType:state.type,state.depth);
   drawScene();panel();
   if(autoplay&&!reduce){state.t=0;render(0);play()}else{state.t=sc.dur;render(sc.dur);$('play').textContent='↺ 다시 보기'}
 }
