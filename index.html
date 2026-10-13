@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
-<title>우리팀 수비 상황판</title>
+<title>우리팀 수비 교실</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@500;700;900&display=swap">
 <style>
 /* Layout: control strip on top, field diagram (left) + role cards (right); stacks on phones */
 :root{
@@ -16,7 +16,7 @@
   --navy:#1f3561; --navy-ink:#ffffff; --runner:#f0ad2c; --runner-ink:#2a1d00;
   --grass:#4d8a3a; --grass2:#579643; --foul:#3f7631; --dirt:#c48a57; --dirt2:#b97d4b; --chalk:#ffffff; --track:#a8754b;
   --chip:#e4ebe2; --chip-on:#16211a; --chip-on-ink:#ffffff;
-  --tip:#fff6dc; --tip-line:#ecd28a; --tip-ink:#5b4500;
+  --good:#1f8a4c; --good-soft:#e2f4e8; --tip:#fff6dc; --tip-line:#ecd28a; --tip-ink:#5b4500;
   --f-display:"Black Han Sans","Noto Sans KR",system-ui,sans-serif;
   --f-body:"Noto Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;
 }
@@ -26,14 +26,14 @@
   --navy:#3b5fa8; --navy-ink:#ffffff; --runner:#f4b941; --runner-ink:#2a1d00;
   --grass:#3c7230; --grass2:#447d37; --foul:#305f27; --dirt:#a87448; --dirt2:#9c6b41; --chalk:#f1f1f1; --track:#8a613e;
   --chip:#243028; --chip-on:#e8eee8; --chip-on-ink:#111711;
-  --tip:#2d2817; --tip-line:#6b5a25; --tip-ink:#f1dc9a; color-scheme:dark}}
+  --good:#3fbf74; --good-soft:#173322; --tip:#2d2817; --tip-line:#6b5a25; --tip-ink:#f1dc9a; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f1511; --surface:#18211b; --surface2:#1d2821; --ink:#e8eee8; --muted:#9db0a2; --line:#2c3a30;
   --accent:#ef5a4c; --accent-ink:#ffffff; --accent-soft:#3a1d1a;
   --navy:#3b5fa8; --navy-ink:#ffffff; --runner:#f4b941; --runner-ink:#2a1d00;
   --grass:#3c7230; --grass2:#447d37; --foul:#305f27; --dirt:#a87448; --dirt2:#9c6b41; --chalk:#f1f1f1; --track:#8a613e;
   --chip:#243028; --chip-on:#e8eee8; --chip-on-ink:#111711;
-  --tip:#2d2817; --tip-line:#6b5a25; --tip-ink:#f1dc9a; color-scheme:dark}
+  --good:#3fbf74; --good-soft:#173322; --tip:#2d2817; --tip-line:#6b5a25; --tip-ink:#f1dc9a; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
 .wrap{max-width:1320px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
@@ -101,25 +101,179 @@ input[type=range]{flex:1;min-width:120px;accent-color:var(--accent)}
 .cc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
 .cc b{display:block;font-size:15px;margin-bottom:4px}
 .cc p{margin:0;font-size:14px;color:var(--muted)}
+.tabs{display:inline-flex;background:var(--chip);border-radius:12px;padding:4px;gap:4px;margin-bottom:12px}
+button.tab{font:inherit;font-weight:700;font-size:15px;border:0;background:transparent;color:var(--muted);padding:8px 18px;border-radius:9px;cursor:pointer}
+button.tab[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px #0002}
+button.tab:focus-visible,button.opt:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.qtop{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px;font-variant-numeric:tabular-nums}
+.qbar{height:6px;border-radius:3px;background:var(--chip);overflow:hidden;margin-bottom:12px}
+.qbar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.opts{display:grid;gap:8px;margin-top:6px}
+button.opt{font:inherit;font-size:15px;font-weight:700;text-align:left;border:1.5px solid var(--line);background:var(--surface2);color:var(--ink);padding:12px 14px;border-radius:10px;cursor:pointer;display:flex;gap:10px;align-items:center}
+button.opt:hover:not(:disabled){border-color:var(--muted)}
+button.opt .k{width:24px;height:24px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-size:13px;flex:none}
+button.opt:disabled{cursor:default}
+button.opt.right{border-color:var(--good);background:var(--good-soft)}
+button.opt.right .k{background:var(--good);color:#fff}
+button.opt.wrong{border-color:var(--accent);background:var(--accent-soft)}
+button.opt.wrong .k{background:var(--accent);color:#fff}
+.fb{margin-top:12px;font-size:14px;display:grid;gap:6px}
+.fb .v{font-weight:900;font-size:16px}
+.fb .v.ok{color:var(--good)}.fb .v.no{color:var(--accent)}
+.qnav{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.qend{text-align:center;padding:10px 0}
+.qend .big{font-family:var(--f-display);font-size:56px;line-height:1}
+.qend p{color:var(--muted);margin:8px 0 0}
+.qlist{display:grid;gap:6px;margin-top:14px;text-align:left;font-size:13px}
+.qlist div{padding:8px 10px;border-radius:8px;background:var(--surface2);border:1px solid var(--line)}
+/* ---- app shell: left menu ---- */
+.app{display:grid;grid-template-columns:210px minmax(0,1fr);min-height:100%}
+.side{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;height:100vh;background:var(--surface);border-right:1px solid var(--line);padding:22px 12px;display:flex;flex-direction:column;gap:4px}
+.side .brand{font-family:var(--f-display);font-size:24px;line-height:1.15;padding:0 10px 18px}
+.side button{font:inherit;font-size:15px;font-weight:700;text-align:left;border:0;background:transparent;color:var(--muted);padding:11px 12px;border-radius:10px;cursor:pointer}
+.side button:hover{background:var(--chip);color:var(--ink)}
+.side button[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.side button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.app .wrap{max-width:1320px;width:100%}
+@media (max-width:920px){
+  .app{grid-template-columns:1fr}
+  .side{height:auto;flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:8px 12px;z-index:20;gap:6px}
+  .side .brand{display:none}
+  .side button{white-space:nowrap;padding:8px 12px}
+}
+#secPos .controls,#secExam .controls{margin-bottom:16px}
+#secPos .main{margin-top:0}
+/* ---- 이것만 보자 (scoped cheat sheet) ---- */
+.sumsheet .sub{color:var(--muted);font-size:14px;margin:0 0 18px}
+.sumsheet .sub b{color:var(--ink)}
+.sumsheet .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:22px}
+@media (max-width:760px){.sumsheet .steps{grid-template-columns:1fr}}
+.sumsheet .step{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:36px 1fr;gap:4px 12px}
+.sumsheet .step .n{width:36px;height:36px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-family:var(--f-display);font-size:18px;grid-row:span 2}
+.sumsheet .step b{font-size:16px}
+.sumsheet .step p{margin:0;font-size:14px;color:var(--muted);min-width:0}
+.sumsheet .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
+@media (max-width:420px){.sumsheet .grid{grid-template-columns:1fr}}
+.sumsheet .pos{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+.sumsheet .pos header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sumsheet .badge{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:900;background:var(--accent);color:var(--accent-ink);flex:none;grid-row:auto}
+.sumsheet .pos.other .badge{background:var(--navy);color:var(--navy-ink)}
+.sumsheet .pos h2{margin:0;font-size:18px}
+.sumsheet .motto{font-family:var(--f-display);font-weight:400;font-size:21px;line-height:1.3;margin:4px 0 12px;text-wrap:balance}
+.sumsheet .rules{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.sumsheet .rules li{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr);gap:10px;align-items:start;padding:7px 10px;border-radius:8px;background:var(--surface2);font-size:14px}
+@media (max-width:420px){.sumsheet .rules li{grid-template-columns:1fr;gap:2px}}
+.sumsheet .rules .if{font-weight:700}
+.sumsheet .rules li.ex{background:var(--accent-soft)}
+.sumsheet .rules li.ex .if::before{content:"예외 ";color:var(--accent);font-weight:900}
+.sumsheet .sec{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.08em;margin:24px 2px 10px}
+.sumsheet .tip{margin-top:10px}
+.sumsheet .note{margin-top:22px}
+/* ---- 야수 모의고사 ---- */
+.expaper{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:36px clamp(16px,4vw,48px) 28px;box-shadow:0 2px 0 var(--line);position:relative}
+.exhdr{text-align:center;border-bottom:4px double var(--ink);padding-bottom:14px;position:relative;font-family:"Noto Serif KR","Noto Sans KR",serif}
+.exhdr .y{font-size:14px;letter-spacing:.08em}
+.exhdr .t{font-size:clamp(30px,5vw,46px);font-weight:900;letter-spacing:.05em;margin:4px 0}
+.exhdr .s{font-size:14px;color:var(--muted)}
+.stamp{position:absolute;right:0;top:-6px;width:110px;height:110px;border:5px solid var(--accent);color:var(--accent);border-radius:50%;display:grid;place-items:center;font-size:44px;font-weight:900;transform:rotate(-12deg);font-family:"Noto Serif KR",serif;line-height:1}
+.stamp small{font-size:16px;display:block}
+@media (max-width:600px){.stamp{width:78px;height:78px;font-size:30px;top:-20px;right:-6px}}
+.exnote{font-size:13px;color:var(--muted);margin:12px 0 16px}
+.excols{columns:2 360px;column-gap:44px;column-rule:1.5px solid var(--line)}
+.exq{break-inside:avoid;display:grid;grid-template-columns:40px minmax(0,1fr);gap:4px;margin-bottom:22px}
+.exn{font-family:"Noto Serif KR",serif;font-weight:900;font-size:22px;position:relative;line-height:1.3}
+.mark{position:absolute;left:14px;top:14px;transform:translate(-50%,-50%);font-size:54px;font-weight:400;line-height:1;pointer-events:none;font-family:"Noto Sans KR",sans-serif}
+.mark.ok{color:var(--accent)}
+.mark.no{color:var(--accent);font-weight:700}
+.extag{display:inline-block;font-size:12px;font-weight:700;border:1.5px solid var(--ink);padding:0 6px;margin-right:6px;vertical-align:2px}
+.extag.call{background:var(--ink);color:var(--bg)}
+.exp{font-weight:500;line-height:1.5}
+.exsit{display:flex;gap:10px;align-items:center;margin:8px 0 6px;font-size:13px;color:var(--muted);line-height:1.4}
+.exsit b{color:var(--ink)}
+.exd{color:var(--ink);flex:none}
+.exopts{display:grid;gap:6px}
+.exopts.oxrow{grid-template-columns:repeat(2,64px)}
+.exo{font:inherit;font-size:14.5px;text-align:left;border:1.5px solid var(--line);background:var(--surface2);color:var(--ink);padding:8px 10px;border-radius:8px;cursor:pointer;display:flex;gap:8px;align-items:flex-start;line-height:1.45}
+.exo .n{flex:none;font-weight:700}
+.exo.ox{justify-content:center;font-size:20px;font-weight:900;padding:6px 0}
+.exo:hover:not(:disabled){border-color:var(--muted)}
+.exo.on{border-color:var(--ink);background:var(--chip);font-weight:700}
+.exo:disabled{cursor:default}
+.exo:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.exexp{margin-top:8px;font-size:14px;background:var(--tip);border:1px solid var(--tip-line);color:var(--tip-ink);border-radius:8px;padding:8px 10px;line-height:1.5}
+.calls{border:2px solid var(--ink);border-radius:6px;padding:14px 16px;margin:6px 0 18px;break-inside:avoid}
+.calls h3{margin:0 0 8px;font-size:16px}
+.calls .cl{display:grid;grid-template-columns:minmax(0,9em) minmax(0,1fr);gap:10px;padding:5px 0;border-top:1px solid var(--line);font-size:14px}
+.exbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end;border-top:1.5px solid var(--ink);padding-top:14px;margin-top:6px}
+.exres{font-weight:900;font-size:18px;margin-right:auto;color:var(--accent)}
+.pw{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pw input{font:inherit;font-size:15px;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;width:120px;background:var(--surface);color:var(--ink)}
+/* ---- 수비 팁 / 이렇게 뛰자 ---- */
+.guide .gsub{color:var(--muted);font-size:14px;margin:0 0 6px;max-width:70ch}
+.guide .gsec{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.08em;margin:22px 2px 10px}
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+@media (max-width:420px){.ggrid{grid-template-columns:1fr}}
+.gcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;position:relative;min-width:0}
+.gcard.key{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.gcard .gn{position:absolute;top:14px;right:16px;font-family:var(--f-display);font-size:22px;color:var(--line)}
+.gcard.key .gn{color:var(--accent)}
+.gcard h3{margin:0 30px 6px 0;font-size:18px;line-height:1.35;text-wrap:balance}
+.gcard .gl{margin:0 0 6px;font-weight:500}
+.gcard ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px;display:grid;gap:3px}
+/* tip art */
+.gart{display:block;width:100%;height:auto;max-height:130px;margin:-4px 0 10px;background:var(--surface2);border-radius:10px}
+.gart .gnd{stroke:var(--line);stroke-width:2}
+.gart .fa circle,.gart .fa{fill:var(--accent)}.gart .fa path{stroke:var(--accent)}
+.gart .fn circle,.gart .fn{fill:var(--navy)}.gart .fn path{stroke:var(--navy)}
+.gart .lb{stroke-width:9;stroke-linecap:round;fill:none}
+.gart .la{stroke-width:4;stroke-linecap:round;fill:none}
+.gart .glove{fill:#8a5a2b!important}
+.gart .ball{fill:#fff;stroke:#c8352a;stroke-width:1.5}
+.gart .bat{stroke:var(--muted);stroke-width:4;stroke-linecap:round}
+.gart .pop{font:900 16px var(--f-body);fill:var(--accent)}
+.gart .pop2{font:900 15px var(--f-body);fill:var(--accent)}
+.gart .cap{font:700 12px var(--f-body);fill:var(--muted)}
+.gart .arw{stroke:var(--accent);stroke-width:3;stroke-linecap:round}
+.gart .hot{fill:var(--accent);opacity:.6}
+.gart .base0{fill:var(--dirt);opacity:.5}
+.gart .b1{fill:#fff;stroke:var(--muted)}
+.gart .b2{fill:var(--accent)}
+.gart .bub{fill:var(--accent)}.gart .bt{font:900 13px var(--f-body);fill:#fff}
+.gart .bub2{fill:var(--navy)}.gart .bt2{font:900 12px var(--f-body);fill:#fff}
+.gart .dash{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-dasharray:6 5;stroke-dashoffset:0}
+.gart .fld{fill:var(--grass);opacity:.35}
+.gart .dot{fill:var(--navy)}
+.gart .fr circle{fill:var(--runner)}.gart .rt{font:900 9px var(--f-body);fill:var(--runner-ink)}
+.gcard .gart~.gn,.gcard:has(.gart) .gn{display:none}
+.gart .rdia{fill:var(--dirt);opacity:.35;stroke:var(--chalk);stroke-width:1.5}
+.gart .rbase{fill:#fff;stroke:var(--muted);stroke-width:1}
+.gart .rmound{fill:var(--dirt2);opacity:.7}
+.gart .rr circle{fill:var(--runner);stroke:#00000044;stroke-width:1.5}
+.gart .dash2{fill:none;stroke:var(--runner);stroke-width:2.5;stroke-dasharray:5 5}
+
+#quiz .qbar,#qScore{display:none}
+
 @media (prefers-reduced-motion: reduce){button.chip,.card{transition:none}}
 </style>
 </head>
 <body>
 
+<div class="app"><nav class="side" aria-label="메뉴"><div class="brand">우리팀<br>수비 교실</div><button type="button" data-sec="sim" aria-current="false">수비 상황판</button><button type="button" data-sec="pos" aria-current="false">기본 수비 위치</button><button type="button" data-sec="sum" aria-current="false">이것만 보자</button><button type="button" data-sec="tips" aria-current="false">수비 팁!</button><button type="button" data-sec="run" aria-current="false">이렇게 뛰자</button><button type="button" data-sec="quiz" aria-current="false">랜덤 퀴즈!</button><button type="button" data-sec="exam" aria-current="false">모의고사!</button></nav>
 <div class="wrap">
   <header class="top">
-    <h1>우리팀 수비 상황판<small>주자 상황 · 타구 방향 · 타구 종류를 고르면 9명이 어디로 가야 하는지 움직여서 보여줘요</small></h1>
+    <h1><span id="pageTitle">수비 상황판</span><small id="pageSub"></small></h1>
     <div class="note"><b>여자 사회인야구 · 0~1아웃 기준</b> · 2아웃이면 뜬공은 그대로 이닝 종료, 땅볼은 가장 쉬운 아웃 하나</div>
   </header>
+  <div class="tabs" hidden role="group" aria-label="모드"><button type="button" class="tab" id="tabStudy" aria-pressed="true">상황판</button><button type="button" class="tab" id="tabQuiz" aria-pressed="false">퀴즈</button></div>
 
-  <section class="controls" aria-label="상황 선택">
+  <section class="controls" id="controls" aria-label="상황 선택">
     <div class="crow"><div class="lab">주자</div><div class="chips" id="cRun"></div></div>
     <div class="crow"><div class="lab">타구 방향</div><div class="chips" id="cHit"></div></div>
     <div class="crow"><div class="lab">타구 종류</div><div class="chips" id="cType"></div></div>
     <div class="crow"><div class="lab">타구 깊이</div><div class="chips" id="cDepth"></div></div>
   </section>
 
-  <div class="main">
+  <div class="main" id="mainBlock">
     <div class="fieldbox">
       <svg class="field" id="field" viewBox="20 165 1060 812" role="img" aria-label="야구장 수비 위치 애니메이션"></svg>
       <div class="bar">
@@ -135,7 +289,18 @@ input[type=range]{flex:1;min-width:120px;accent-color:var(--accent)}
       </div>
     </div>
 
-    <div class="panel">
+    <div class="panel" id="quiz" hidden>
+      <div class="sum" id="qCard">
+        <div class="qtop"><span id="qProg"></span><span id="qScore"></span></div>
+        <div class="qbar"><i id="qBarFill" style="width:0"></i></div>
+        <div id="qBody"></div>
+      </div>
+      <div class="sum">
+        <div class="sec-t" style="margin:0 0 8px">야수 선택</div>
+        <div class="chips" id="qPos"></div>
+      </div>
+    </div>
+    <div class="panel" id="study">
       <div class="sum" aria-live="polite">
         <div class="sit" id="sit"></div>
         <h2 id="headline"></h2>
@@ -149,7 +314,7 @@ input[type=range]{flex:1;min-width:120px;accent-color:var(--accent)}
     </div>
   </div>
 
-  <section class="concepts">
+  <section class="concepts" id="concepts">
     <h3>먼저 알아둘 말</h3>
     <div class="cgrid">
       <div class="cc"><b>외야 송구 원칙</b><p>짧은 타구는 홈으로 오는 주자가 있으면 홈 승부. 보통 깊이는 중계 없이 2루로 바로. 깊은 타구와 장타는 한 베이스 거리 안까지 나온 중계맨에게. 송구는 언제든 빠질 수 있으니 받는 사람 뒤에는 항상 백업이 일직선으로.</p></div>
@@ -160,8 +325,242 @@ input[type=range]{flex:1;min-width:120px;accent-color:var(--accent)}
       <div class="cc"><b>투수의 1루 커버</b><p>1루 쪽(1루수·2루수 방향) 땅볼이면 투수는 생각하지 말고 1루로 출발. 1루수가 공을 잡으러 가면 1루가 비어요.</p></div>
     </div>
   </section>
+
+  <section id="secPos" hidden>
+    <div class="controls"><div class="crow"><div class="lab">상황</div><div class="chips" id="posVar"></div></div></div>
+    <div class="main">
+      <div class="fieldbox"><div class="bar" id="posZoom" style="border-top:0;border-bottom:1px solid var(--line)"><span class="note">보기</span><button type="button" class="chip" data-pz="in" aria-pressed="true">내야 확대</button><button type="button" class="chip" data-pz="all" aria-pressed="false">전체 보기</button><span class="note">외야수 위치는 전체 보기에서 확인</span></div><svg class="field" id="posField" viewBox="20 165 1060 812" role="img" aria-label="상황별 기본 수비 위치"></svg>
+        <div class="legend" style="padding-top:10px"><span>◌ 기본 위치 → 이 상황에서 옮기는 자리</span><span>걸음 = 보통 걸음 한 발(약 75cm)</span><span>선수나 카드를 누르면 강조돼요</span></div></div>
+      <div class="panel"><div class="sum"><div class="sit" id="posSit"></div><h2 id="posHead" style="font-size:20px;line-height:1.4"></h2><div class="note">상황판 애니메이션은 "기본" 위치에서 출발해요.</div></div><div class="cards" id="posCards"></div></div>
+    </div>
+  </section>
+  <section id="secSum" class="sumsheet" hidden>
+  <p class="sub"><b>여자 사회인야구 · 0~1아웃 기준</b> · 우리팀 수비 상황판과 같은 규칙을 포지션마다 짧게 정리했어요. 애매하면 위에 있는 규칙이 먼저예요.</p>
+
+  <div class="steps">
+    <div class="step"><span class="n">1</span><b>공이 어디로 갔나</b><p>내 쪽 → 내가 처리하거나 따라간다. 옆 → 뒤 백업. 반대편 → 2루 방향으로 움직인다.</p></div>
+    <div class="step"><span class="n">2</span><b>주자는 어디 있나</b><p>1루 주자가 있으면 땅볼은 2루 포스부터 생각. 2루 주자(안타)·3루 주자(뜬공)가 있으면 홈 커트맨이 생길 수 있다.</p></div>
+    <div class="step"><span class="n">3</span><b>외야 공은 얼마나 깊나</b><p>짧고 홈으로 오는 주자 있음 → 홈 승부. 보통 → 2루로 바로. 깊게·장타 → 중계.</p></div>
+  </div>
+
+  <div class="sec">집중 포지션</div>
+  <div class="grid">
+
+    <section class="pos">
+      <header><span class="badge">2루</span><h2>2루수</h2></header>
+      <div class="motto">오른쪽 공은 무조건 따라가고, 왼쪽·가운데 공은 무조건 2루로.</div>
+      <ul class="rules">
+        <li><span class="if">우중간·우익수·우측 선상</span><span>공을 따라 나간다. 우익수가 금방 잡으면 송구 길 옆으로 비켜 앉기. 깊으면 내가 중계맨.</span></li>
+        <li><span class="if">좌측·중견수 정면 쪽</span><span>2루 베이스로 들어간다. 유격수가 따라 나가고, 송구는 내가 2루에서 받는다.</span></li>
+        <li><span class="if">유격수·3루 땅볼</span><span>2루 베이스로. 1루 주자가 있으면 받고 밟고 1루(병살), 늦으면 1루는 안 던진다. 1·2루 3루 땅볼은 3루수가 3루를 직접 밟는다.</span></li>
+        <li><span class="if">내 앞 땅볼</span><span>1루 주자 있으면 유격수에게 짧게 토스(2루). 없으면 발 정렬하고 1루.</span></li>
+        <li><span class="if">1루·투수 땅볼</span><span>1루 쪽으로 움직여 커버 지원. 투수가 늦으면 내가 1루.</span></li>
+        <li><span class="if">내야 뜬공</span><span>2루 쪽은 "마이!" 하고 내가. 1루 쪽 뜬공은 1루수 뒤 백업(둘 다 되면 내가 우선). 투수 앞 뜬공이면 1루 커버.</span></li>
+        <li class="ex"><span class="if">1루수가 홈 커트맨</span><span>짧은 안타 + 2루 주자(좌익수 쪽 빼고)면 1루가 빈다 → 내가 1루 커버.</span></li>
+        <li class="ex"><span class="if">장타</span><span>오른쪽이면 1번 중계, 왼쪽·가운데면 2번 중계나 트레일러로 유격수 뒤에 선다.</span></li>
+      </ul>
+      <div class="tip"><b>사회인 팁</b> · 공 방향을 보고 유격수와 "내가 갈게" / "커버!"를 미리 정해두기. 2루가 비는 게 초보팀 1순위 실수.</div>
+    </section>
+
+    <section class="pos">
+      <header><span class="badge">1루</span><h2>1루수</h2></header>
+      <div class="motto">땅볼이 나오면 무조건 1루 베이스. 외야 안타도 기본은 1루.</div>
+      <ul class="rules">
+        <li><span class="if">내야 땅볼 (남이 잡음)</span><span>바로 1루 베이스로 가서 모서리에 발 대고 받기. 빗나가면 발 떼고 공부터.</span></li>
+        <li><span class="if">내 앞 땅볼</span><span>주자 없음·포스 없음 → 가까우면 직접 밟기. 1루 주자 있음 → 2루로 던지고 1루는 투수가.</span></li>
+        <li><span class="if">외야 안타·뜬공</span><span>1루 커버. 타자가 1루를 밟는지 보고, 크게 돌면 송구 받을 준비. 뜬공이면 1루 주자 귀루 확인.</span></li>
+        <li><span class="if">내야 뜬공</span><span>1루 쪽·투수 앞 뜬공은 내가 잡기(투수는 안 잡아요). 나머지는 1루 베이스.</span></li>
+        <li class="ex"><span class="if">짧은 안타 + 2루 주자</span><span>좌익수 쪽만 빼고 내가 홈 커트맨. 마운드에서 홈 쪽 일곱 걸음, 외야수–홈 일직선.</span></li>
+        <li class="ex"><span class="if">짧은 뜬공 + 3루 주자</span><span>태그업 홈 승부. 위와 똑같이 홈 커트맨.</span></li>
+        <li class="ex"><span class="if">만루 + 내 앞 땅볼</span><span>홈(포수)으로. 1루는 투수가 커버.</span></li>
+        <li class="ex"><span class="if">장타</span><span>타자 주자를 따라 2루로 가서 커버.</span></li>
+      </ul>
+      <div class="tip"><b>사회인 팁</b> · 안타 맞았다고 멈추지 말기. 송구가 빗나가면 베이스에서 발 떼고 공부터.</div>
+    </section>
+
+    <section class="pos">
+      <header><span class="badge">우</span><h2>우익수</h2></header>
+      <div class="motto">내야 땅볼은 1루 뒤, 내 공은 깊이 보고 던질 곳 정하기.</div>
+      <ul class="rules">
+        <li><span class="if">내야 땅볼</span><span>무조건 1루 뒤(파울 지역 쪽)로 달려간다. 1루 송구가 빠지면 내가 막는다.</span></li>
+        <li><span class="if">내 공 · 짧음</span><span>홈으로 오는 주자 있으면 홈으로 바로(커트맨 머리 높이, 원바운드 OK). 없으면 2루.</span></li>
+        <li><span class="if">내 공 · 보통</span><span>2루(유격수)로 바로. 비켜 앉은 2루수 옆으로 낮게.</span></li>
+        <li><span class="if">내 공 · 깊음 / 장타</span><span>나와 있는 중계맨(2루수) 가슴까지만.</span></li>
+        <li><span class="if">중견수 공</span><span>홈–중견수 선을 펜스 쪽으로 늘린 곳, 중견수 등 뒤 대각선 열 걸음.</span></li>
+        <li><span class="if">왼쪽 공</span><span>2루 방향으로 들어와 송구 빠짐 대비.</span></li>
+      <li><span class="if">2루 쪽 내야 뜬공</span><span>2루수 뒤 외야 잔디로 들어와 놓친 공 대비.</span></li>
+        </ul>
+      <div class="tip"><b>사회인 팁</b> · 내야 땅볼마다 1루 뒤로 뛰는 게 우익수 기본기. 악송구 하나가 2루타가 되는 걸 막아요.</div>
+    </section>
+
+    <section class="pos">
+      <header><span class="badge">중</span><h2>중견수</h2></header>
+      <div class="motto">외야 리더. 중간 공은 내 공, 옆 공은 무조건 뒤 백업.</div>
+      <ul class="rules">
+        <li><span class="if">내야 땅볼</span><span>2루 뒤로 들어온다. 빠져나온 땅볼·2루 송구 빠짐 처리.</span></li>
+        <li><span class="if">좌중간·우중간·정면</span><span>내가 잡는다. "마이!" 먼저 크게. 던질 곳은 깊이로 정하기(짧음 홈 / 보통 2루 / 깊음 중계).</span></li>
+        <li><span class="if">좌익수·우익수 공</span><span>그 외야수 등 뒤 대각선 열 걸음. 코너가 잡을 수 있으면 콜만 하고 뒤로.</span></li>
+        <li><span class="if">장타 (코너 쪽)</span><span>같이 쫓아가서 중계맨 쪽을 가리키며 "중계!" 콜.</span></li>
+      <li><span class="if">내야 뜬공</span><span>몇 걸음 들어와서 떨어진 공이 굴러오면 처리.</span></li>
+        </ul>
+      <div class="tip"><b>사회인 팁</b> · "마이!"는 잡기 전에 크게. 둘이 같이 손 뻗으면 충돌해요.</div>
+    </section>
+
+    <section class="pos">
+      <header><span class="badge">좌</span><h2>좌익수</h2></header>
+      <div class="motto">3루 땅볼은 3루 뒤, 나머지 내야 땅볼은 2루 방향.</div>
+      <ul class="rules">
+        <li><span class="if">3루 땅볼</span><span>3루 뒤로 들어와 송구·타구 빠짐 대비.</span></li>
+        <li><span class="if">그 밖의 내야 땅볼</span><span>2루 방향으로 출발.</span></li>
+        <li><span class="if">내 공</span><span>짧음 + 홈으로 오는 주자 → 홈(커트맨은 3루수). 보통 → 2루(2루수)로 바로. 깊음·장타 → 중계맨(유격수).</span></li>
+        <li><span class="if">중견수 공</span><span>중견수 등 뒤 대각선 열 걸음. 중견수가 "마이!" 하면 무조건 양보.</span></li>
+        <li><span class="if">오른쪽 공</span><span>2루 방향으로 들어와 송구 빠짐 대비.</span></li>
+      <li><span class="if">유격수 쪽 내야 뜬공</span><span>유격수 뒤 외야 잔디로 들어와 놓친 공 대비.</span></li>
+        </ul>
+      <div class="tip"><b>사회인 팁</b> · 왼쪽 타구는 좌익수가 마지막 수비. 빠지면 바로 내야로 던지기.</div>
+    </section>
+  </div>
+
+  <div class="sec">나머지 포지션</div>
+  <div class="grid">
+    <section class="pos other">
+      <header><span class="badge">유</span><h2>유격수</h2></header>
+      <div class="motto">왼쪽·가운데 공은 따라가고, 오른쪽 공은 2루로.</div>
+      <ul class="rules">
+        <li><span class="if">좌측·좌중간·중견수 쪽</span><span>공을 따라 나간다. 금방 잡으면 송구 길 옆으로 비켜 앉기. 깊으면 내가 중계맨.</span></li>
+        <li><span class="if">우중간·우익수 쪽</span><span>2루 베이스로. 2루수가 따라 나가고, 송구는 내가 2루에서 받는다.</span></li>
+        <li><span class="if">2루·1루·투수 땅볼</span><span>2루 커버. 1루 주자가 있으면 받고 밟고 1루(병살), 늦으면 들고 있기.</span></li>
+        <li><span class="if">내 앞 땅볼</span><span>1루 주자 있으면 2루(2루수)로. 없으면 1루. 멀면 원바운드도 OK.</span></li>
+        <li><span class="if">3루 땅볼</span><span>3루수 뒤 대각선으로 백업.</span></li>
+        <li><span class="if">내야 뜬공</span><span>유격수 쪽은 내가. 3루 쪽 뜬공은 3루수 뒤 백업(둘 다 되면 내가 우선).</span></li>
+        <li class="ex"><span class="if">3루수가 홈 커트맨</span><span>좌익수 짧은 안타·뜬공 홈 승부 때 내가 3루 커버.</span></li>
+        <li class="ex"><span class="if">장타</span><span>왼쪽·가운데면 1번 중계, 오른쪽이면 2번 중계나 트레일러로 2루수 뒤에 선다.</span></li>
+      </ul>
+      <div class="tip"><b>사회인 팁</b> · 첫 송구 정확도가 전부. 멀면 원바운드가 높이 뜬 송구보다 나아요.</div>
+    </section>
+    <section class="pos other">
+      <header><span class="badge">3루</span><h2>3루수</h2></header>
+      <div class="motto">외야 공이면 3루 베이스, 내 앞 땅볼은 가장 확실한 아웃부터.</div>
+      <ul class="rules">
+        <li><span class="if">외야 안타·뜬공</span><span>3루 베이스 커버. 깊은 안타의 1루 주자, 태그업한 2루 주자가 오면 태그.</span></li>
+        <li><span class="if">내 앞 땅볼</span><span>주자 없음·포스 없음 → 1루. 1루 주자 → 2루. 1·2루 → 3루 직접 밟고 1루. 만루 → 홈.</span></li>
+        <li><span class="if">다른 내야 땅볼</span><span>3루 베이스로 돌아가 커버.</span></li>
+        <li><span class="if">장타</span><span>3루에서 마지막 송구 받기. 중계맨에게 "3루!" / "들고 있어!" 콜.</span></li>
+        <li><span class="if">내야 뜬공</span><span>3루 쪽은 "마이!" 하고 내가. 나머지는 3루 베이스.</span></li>
+        <li class="ex"><span class="if">좌익수 짧은 공 + 홈 승부</span><span>내가 홈 커트맨. 3루는 유격수가 채운다.</span></li>
+      </ul>
+      <div class="tip"><b>사회인 팁</b> · 3루 땅볼은 세게보다 1루수 가슴 높이로. 대충 던지면 우익수 쪽으로 빠져요.</div>
+    </section>
+    <section class="pos other">
+      <header><span class="badge">투</span><h2>투수</h2></header>
+      <div class="motto">1루 쪽 땅볼은 1루로, 외야 공은 송구 받는 베이스 뒤로.</div>
+      <ul class="rules">
+        <li><span class="if">1루 땅볼</span><span>무조건 1루 커버. 1루 라인과 나란히 뛰며 토스 받고 베이스 밟기.</span></li>
+        <li><span class="if">2루 땅볼</span><span>1루 쪽으로 출발. 1루수가 공을 쫓아가면 내가 커버.</span></li>
+        <li><span class="if">내 앞 땅볼</span><span>1루 주자 있으면 2루(유격수), 만루면 홈, 그 밖에는 1루.</span></li>
+        <li><span class="if">3루·유격수 땅볼</span><span>마운드 근처에서 송구 빠짐 대비.</span></li>
+        <li><span class="if">외야 공</span><span>홈 승부 → 홈 뒤. 2루로 → 2루 뒤. 장타 → 3루 뒤 파울 지역.</span></li>
+      <li><span class="if">내야 뜬공</span><span>잡지 않고 잡을 사람 이름을 콜("1루!"). 1루 쪽 뜬공이면 1루 커버.</span></li>
+        </ul>
+      <div class="tip"><b>사회인 팁</b> · 공 던지고 끝이 아니에요. 1루 쪽 땅볼은 1루, 외야 공은 송구 받는 베이스 뒤가 투수 자리.</div>
+    </section>
+    <section class="pos other">
+      <header><span class="badge">포</span><h2>포수</h2></header>
+      <div class="motto">홈을 지키고, 던질 곳을 소리로 알려주기.</div>
+      <ul class="rules">
+        <li><span class="if">2·3루 주자 없음 + 땅볼</span><span>1루 라인 따라 달려가 1루 송구 백업.</span></li>
+        <li><span class="if">2·3루 주자 있음 + 땅볼</span><span>홈 지키며 "1루!" / "2루!" 콜. 3루 주자가 뛰면 "홈!"</span></li>
+        <li><span class="if">내야 뜬공</span><span>둘이 머뭇거리면 잡을 사람 이름을 크게 정해주기.</span></li>
+        <li class="ex"><span class="if">만루 + 투수·1루·3루 땅볼</span><span>홈 밟고 받기(태그 필요 없음) → 1루.</span></li>
+        <li><span class="if">외야 짧은 공 홈 승부</span><span>커트맨에게 "컷!" / "놔둬!". 늦으면 "컷! 2루!"</span></li>
+        <li><span class="if">외야 보통·깊은 공 / 장타</span><span>"2루!" 콜. 장타는 "3루!"</span></li>
+      </ul>
+      <div class="tip"><b>사회인 팁</b> · 포수는 경기장 전체가 보이는 유일한 사람. 공이 오기 전에 크게, 한 단어로 콜하기.</div>
+    </section>
+  </div>
+
+  <p class="note">0~1아웃 기준이에요. 2아웃이면 뜬공은 그대로 이닝 종료, 땅볼은 가장 쉬운 아웃 하나만 잡으면 돼요.</p>
+</section>
+  <section id="secTips" class="guide" hidden>
+    <p class="gsub">매 투구마다 몸이 먼저 반응하게 만드는 습관들이에요. 위에서부터 순서대로 몸에 붙이면 돼요.</p>
+    <div class="gsec">투구 전</div>
+    <div class="ggrid">
+      <div class="gcard key"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="투구가 타자 앞에 올 때 수비수가 가볍게 뛰는 모습"><line x1="10" y1="96" x2="230" y2="96" class="gnd"/><g class="fn" transform="translate(38 96)"><circle cx="0" cy="-38" r="7"/><path d="M0 -30 L0 -12" class="lb"/><path d="M0 -26 L-9 -16 M0 -26 L9 -16" class="la"/><path d="M0 -12 L-7 0 M0 -12 L7 0" class="la"/></g><circle r="4" cy="66" class="ball"><animate attributeName="cx" values="48;150;150" keyTimes="0;.5;1" dur="2.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;1;0;0" keyTimes="0;.5;.52;1" dur="2.4s" repeatCount="indefinite"/></circle>
+<line x1="150" y1="50" x2="150" y2="96" class="bat"/>
+<g><animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 -12;0 0;0 0" keyTimes="0;.40;.47;.54;1" dur="2.4s" repeatCount="indefinite"/><g class="fa" transform="translate(200 96)"><circle cx="0" cy="-38" r="7"/><path d="M0 -30 L0 -12" class="lb"/><path d="M0 -26 L-9 -16 M0 -26 L9 -16" class="la"/><path d="M0 -12 L-7 0 M0 -12 L7 0" class="la"/></g></g>
+<text x="200" y="40" text-anchor="middle" class="pop">콩!<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.42;.47;.62;.7" dur="2.4s" repeatCount="indefinite"/></text></svg><span class="gn">1</span><h3>투수가 던질 때 한 번 "콩" 뛰기</h3><p class="gl">공이 타자 앞에 올 때 두 발로 가볍게 뛰어서 착지하기(스플릿 스텝).</p><ul><li>착지하는 순간 공이 맞으면 어느 쪽이든 첫발이 빨라져요.</li><li>높이 뛰지 말고 발뒤꿈치만 살짝 뜰 정도로.</li><li>내야·외야 모두 매 투구마다.</li></ul></div>
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="무릎을 굽힌 준비 자세"><line x1="10" y1="96" x2="230" y2="96" class="gnd"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 2;0 0" dur="2s" repeatCount="indefinite"/><g class="fa" transform="translate(110 96)"><circle cx="2" cy="-30" r="7"/><path d="M0 -23 L-2 -10" class="lb"/><path d="M-2 -10 L-13 -4 L-15 0 M-2 -10 L9 -4 L12 0" class="la"/><path d="M0 -20 L10 -10" class="la"/><circle cx="12" cy="-8" r="5" class="glove"/></g></g>
+<path d="M88 104 L132 104" class="arw"/><text x="160" y="58" class="cap">무릎 굽히고</text><text x="160" y="76" class="cap">앞꿈치에 체중</text>
+<circle cx="122" cy="96" r="4" class="hot"><animate attributeName="r" values="3;6;3" dur="1.2s" repeatCount="indefinite"/></circle></svg><span class="gn">2</span><h3>준비 자세</h3><p class="gl">발은 어깨보다 조금 넓게, 무릎 굽히고, 체중은 발 앞꿈치.</p><ul><li>글러브는 무릎 앞에서 열어 두기.</li><li>뒤꿈치에 체중이 있으면 첫발이 늦어요.</li></ul></div>
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="공이 오면 던질 곳을 미리 정하는 모습"><line x1="10" y1="96" x2="230" y2="96" class="gnd"/><g class="dia"><rect x="60" y="40" width="40" height="40" transform="rotate(45 80 60)" class="base0"/></g>
+<rect x="76" y="26" width="8" height="8" transform="rotate(45 80 30)" class="b2"/><rect x="104" y="56" width="8" height="8" transform="rotate(45 108 60)" class="b1"/><rect x="48" y="56" width="8" height="8" transform="rotate(45 52 60)" class="b1"/>
+<g class="fa" transform="translate(150 96)"><circle cx="0" cy="-38" r="7"/><path d="M0 -30 L0 -12" class="lb"/><path d="M0 -26 L-9 -16 M0 -26 L9 -16" class="la"/><path d="M0 -12 L-7 0 M0 -12 L7 0" class="la"/></g><g><rect x="164" y="18" width="62" height="28" rx="10" class="bub"/><text x="195" y="37" text-anchor="middle" class="bt">2루!</text><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.2;.8;1" dur="3s" repeatCount="indefinite"/></g>
+<path d="M140 52 Q110 30 84 32" class="dash"><animate attributeName="stroke-dashoffset" values="80;0;0" keyTimes="0;.5;1" dur="3s" repeatCount="indefinite"/></path></svg><span class="gn">3</span><h3>"공 오면 어디로?" 미리 정하기</h3><p class="gl">투수 콜을 듣고, 공이 나에게 오면 어디로 던질지 매 투구 전에 한 번 생각하기.</p><ul><li>아웃 카운트와 주자를 확인하고 손가락으로 서로 알려주기.</li><li>정해 두면 잡은 뒤 멈칫하지 않아요.</li></ul></div>
+    </div>
+    <div class="gsec">공이 맞은 뒤</div>
+    <div class="ggrid">
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="타구가 나오면 모두 움직이는 모습"><line x1="10" y1="96" x2="230" y2="96" class="gnd"/><path d="M120 100 L40 30 A110 110 0 0 1 200 30 Z" class="fld"/>
+<circle r="4" class="ball"><animate attributeName="cx" values="120;185;185" keyTimes="0;.4;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="96;45;45" keyTimes="0;.4;1" dur="3s" repeatCount="indefinite"/></circle>
+<circle r="6" class="dot"><animate attributeName="cx" values="70;70;96" keyTimes="0;.15;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="40;40;60" keyTimes="0;.15;1" dur="3s" repeatCount="indefinite"/></circle><circle r="6" class="dot"><animate attributeName="cx" values="120;120;165" keyTimes="0;.15;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="24;24;38" keyTimes="0;.15;1" dur="3s" repeatCount="indefinite"/></circle><circle r="6" class="dot"><animate attributeName="cx" values="170;170;192" keyTimes="0;.15;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="40;40;62" keyTimes="0;.15;1" dur="3s" repeatCount="indefinite"/></circle><circle r="6" class="dot"><animate attributeName="cx" values="105;105;134" keyTimes="0;.15;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="66;66;72" keyTimes="0;.15;1" dur="3s" repeatCount="indefinite"/></circle><circle r="6" class="dot"><animate attributeName="cx" values="140;140;152" keyTimes="0;.15;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="70;70;84" keyTimes="0;.15;1" dur="3s" repeatCount="indefinite"/></circle></svg><span class="gn">4</span><h3>공이 안 와도 움직이기</h3><p class="gl">타구가 나오면 9명 모두 한 방향으로라도 움직이기.</p><ul><li>베이스 커버, 백업, 콜 중 하나는 꼭 할 일이 있어요.</li><li>상황판에서 내 포지션만 따라가 보세요.</li></ul></div>
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="머리 넘는 뜬공에 몸을 돌려 뒤로 뛰는 모습"><line x1="10" y1="96" x2="230" y2="96" class="gnd"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 0;48 0;48 0" keyTimes="0;.2;.7;1" dur="2.8s" repeatCount="indefinite"/><g class="fa" transform="translate(120 96)"><circle cx="0" cy="-38" r="7"/><path d="M0 -30 L0 -12" class="lb"/><path d="M0 -26 L-9 -16 M0 -26 L9 -16" class="la"/><path d="M0 -12 L-7 0 M0 -12 L7 0" class="la"/></g></g>
+<circle r="4" class="ball"><animateMotion dur="2.8s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;.1;.75;1" calcMode="linear" path="M30 80 Q110 -20 172 62"/></circle>
+<path d="M120 104 L160 104" class="arw"/><text x="40" y="104" class="cap">첫발은 뒤로</text></svg><span class="gn">5</span><h3>뜬공 첫발은 뒤로</h3><p class="gl">외야 뜬공 판단이 어려우면 일단 한 걸음 뒤로.</p><ul><li>앞으로 떨어지는 공은 쫓아가면 되지만, 머리를 넘는 공은 장타가 돼요.</li><li>뒷걸음질 말고 몸을 돌려서 뛰기.</li><li>낙구 지점에 먼저 가서 기다렸다가 이마 앞에서 두 손으로.</li></ul></div>
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="마이 세 번, 다른 선수는 오케이 하고 비키는 모습"><line x1="10" y1="96" x2="230" y2="96" class="gnd"/><g class="fa" transform="translate(95 96)"><circle cx="0" cy="-38" r="7"/><path d="M0 -30 L0 -12" class="lb"/><path d="M0 -26 L-9 -16 M0 -26 L9 -16" class="la"/><path d="M0 -12 L-7 0 M0 -12 L7 0" class="la"/></g><g><animateTransform attributeName="transform" type="translate" values="0 0;0 0;34 0" keyTimes="0;.7;1" dur="3s" repeatCount="indefinite"/><g class="fn" transform="translate(140 96)"><circle cx="0" cy="-38" r="7"/><path d="M0 -30 L0 -12" class="lb"/><path d="M0 -26 L-9 -16 M0 -26 L9 -16" class="la"/><path d="M0 -12 L-7 0 M0 -12 L7 0" class="la"/></g><g><rect x="125" y="30" width="44" height="22" rx="8" class="bub2"/><text x="147" y="45" text-anchor="middle" class="bt2">오케이</text><animate attributeName="opacity" values="0;0;1;1" keyTimes="0;.68;.72;1" dur="3s" repeatCount="indefinite"/></g></g>
+<g><rect x="56" y="22" width="52" height="24" rx="8" class="bub"/><text x="82" y="39" text-anchor="middle" class="bt">마이!</text><animate attributeName="opacity" values="0;1;0;1;0;1;1" keyTimes="0;.1;.2;.3;.4;.5;1" dur="3s" repeatCount="indefinite"/></g></svg><span class="gn">6</span><h3>"마이!"는 크게 세 번</h3><p class="gl">잡을 사람은 "마이! 마이! 마이!", 들은 사람은 "오케이!" 하고 비키기.</p><ul><li>우선순위: 중견수 &gt; 코너 외야 &gt; 내야수, 유격수·2루수 &gt; 1·3루수 &gt; 투수.</li><li>콜 없이 둘이 손 뻗으면 충돌해요.</li></ul></div>
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="땅볼을 정면에서 글러브를 땅에 대고 잡는 모습"><line x1="10" y1="96" x2="230" y2="96" class="gnd"/><circle r="4" cy="92" class="ball"><animate attributeName="cx" values="20;128;128" keyTimes="0;.6;1" dur="2.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;1;0;0" keyTimes="0;.6;.62;1" dur="2.6s" repeatCount="indefinite"/></circle>
+<g class="fa" transform="translate(138 96)"><circle cx="0" cy="-30" r="7"/><path d="M0 -23 L-4 -10" class="lb"/><path d="M-4 -10 L-14 -2 L-16 0 M-4 -10 L6 -3 L8 0" class="la"/><path d="M-2 -20 L-10 -6" class="la"/>
+<circle cx="-11" cy="-4" r="5" class="glove"><animate attributeName="cy" values="-4;-4;-14;-14" keyTimes="0;.62;.75;1" dur="2.6s" repeatCount="indefinite"/></circle></g>
+<text x="40" y="60" class="cap">글러브는 땅부터</text></svg><span class="gn">7</span><h3>땅볼은 정면으로, 글러브는 땅부터</h3><p class="gl">공 정면으로 들어가서 글러브를 땅에 먼저 대고 아래에서 위로.</p><ul><li>몸 앞에서 두 손으로 잡기.</li><li>못 잡아도 몸으로 공을 앞에 세우면 1루 송구는 늦지 않아요.</li></ul></div>
+    </div>
+    <div class="gsec">잡은 뒤</div>
+    <div class="ggrid">
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="던지기 전에 목표를 먼저 보는 모습"><line x1="10" y1="96" x2="230" y2="96" class="gnd"/><g class="fa" transform="translate(60 96)"><circle cx="0" cy="-38" r="7"/><path d="M0 -30 L0 -12" class="lb"/><path d="M0 -26 L-9 -16 M0 -26 L9 -16" class="la"/><path d="M0 -12 L-7 0 M0 -12 L7 0" class="la"/></g><rect x="186" y="80" width="12" height="12" transform="rotate(45 192 86)" class="b2"/>
+<path d="M66 60 L186 82" class="dash"><animate attributeName="stroke-dashoffset" values="130;0;0;0" keyTimes="0;.35;.9;1" dur="3s" repeatCount="indefinite"/></path>
+<circle r="4" class="ball"><animateMotion dur="3s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;.45;.8;1" calcMode="linear" path="M70 66 Q130 40 190 80"/></circle>
+<text x="100" y="30" class="cap">① 목표 보기 ② 던지기</text></svg><span class="gn">8</span><h3>던지기 전에 목표 먼저 보기</h3><p class="gl">잡으면 던질 곳을 먼저 보고, 발을 그쪽으로 향한 뒤 가슴 높이로.</p><ul><li>멀면 원바운드가 높이 뜬 송구보다 나아요.</li><li>우리 리그는 한 베이스 거리 송구가 기본. 멀면 중계맨에게.</li></ul></div>
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="놓친 공을 침착하게 먼저 줍는 모습"><line x1="10" y1="96" x2="230" y2="96" class="gnd"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 6;0 6;0 0" keyTimes="0;.3;.4;.6;.7" dur="3s" repeatCount="indefinite"/><g class="fa" transform="translate(110 96)"><circle cx="0" cy="-38" r="7"/><path d="M0 -30 L0 -12" class="lb"/><path d="M0 -26 L-9 -16 M0 -26 L9 -16" class="la"/><path d="M0 -12 L-7 0 M0 -12 L7 0" class="la"/></g></g>
+<circle r="4" class="ball"><animate attributeName="cx" values="118;132;140;122;122" keyTimes="0;.15;.3;.45;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="70;92;86;92;92" keyTimes="0;.15;.3;.45;1" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;1;1;1;0;0" keyTimes="0;.15;.3;.5;.52;1" dur="3s" repeatCount="indefinite"/></circle>
+<text x="150" y="40" class="pop2">공부터!<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.2;.3;.7;.8" dur="3s" repeatCount="indefinite"/></text></svg><span class="gn">9</span><h3>놓쳤으면 공부터 줍기</h3><p class="gl">당황해서 급하게 던지지 말고, 공을 확실히 잡고 주자를 본 다음 던지기.</p><ul><li>실책 하나보다 악송구까지 이어지는 게 더 큰 손해예요.</li></ul></div>
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="공이 투수에게 돌아갈 때까지 주자를 보는 모습"><line x1="10" y1="96" x2="230" y2="96" class="gnd"/><g class="fa" transform="translate(40 96)"><circle cx="0" cy="-38" r="7"/><path d="M0 -30 L0 -12" class="lb"/><path d="M0 -26 L-9 -16 M0 -26 L9 -16" class="la"/><path d="M0 -12 L-7 0 M0 -12 L7 0" class="la"/></g><g class="fn" transform="translate(200 96)"><circle cx="0" cy="-38" r="7"/><path d="M0 -30 L0 -12" class="lb"/><path d="M0 -26 L-9 -16 M0 -26 L9 -16" class="la"/><path d="M0 -12 L-7 0 M0 -12 L7 0" class="la"/></g><circle r="4" class="ball"><animateMotion dur="2.8s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;.6;1" calcMode="linear" path="M48 66 Q120 30 194 66"/></circle>
+<g class="fr"><animateTransform attributeName="transform" type="translate" values="0 0;10 0;0 0;0 0" keyTimes="0;.3;.6;1" dur="2.8s" repeatCount="indefinite"/><circle cx="125" cy="88" r="7"/><text x="125" y="92" text-anchor="middle" class="rt">주</text></g>
+<text x="96" y="30" class="cap">투수에게 갈 때까지</text></svg><span class="gn">10</span><h3>공이 투수에게 갈 때까지 끝이 아니다</h3><p class="gl">플레이가 끝난 것 같아도 공이 투수 손에 들어갈 때까지 주자를 보기.</p><ul><li>멍하니 있으면 주자가 한 베이스 더 가요.</li><li>공을 들고 내야로 빠르게 돌려주기.</li></ul></div>
+    </div>
+  </section>
+  <section id="secRun" class="guide" hidden>
+    <p class="gsub">수비 공식의 반대편이에요. 수비가 어디로 던지는지 알면 주자는 언제 뛰고 언제 멈출지 보여요. 리드·도루 같은 규칙은 리그마다 다르니 먼저 확인하세요.</p>
+    <div class="gsec">타자 주자</div>
+    <div class="ggrid">
+      <div class="gcard key"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="타자가 1루까지 끝까지 뛰어 지나가는 모습"><polygon points="120,100 165,60 120,20 75,60" class="rdia"/><rect x="160" y="55" width="10" height="10" transform="rotate(45 165 60)" class="rbase"/><rect x="115" y="15" width="10" height="10" transform="rotate(45 120 20)" class="rbase"/><rect x="70" y="55" width="10" height="10" transform="rotate(45 75 60)" class="rbase"/><path d="M114 96 h12 v5 l-6 5 l-6 -5 z" class="rbase"/><circle cx="120" cy="62" r="5" class="rmound"/><g class="rr"><circle r="7"><animate attributeName="cx" values="120;165;182;182" keyTimes="0;.6;.75;1" dur="2.8s" repeatCount="indefinite"/><animate attributeName="cy" values="100;60;46;46" keyTimes="0;.6;.75;1" dur="2.8s" repeatCount="indefinite"/></circle></g><circle r="3.5" class="ball"><animate attributeName="cx" values="120;88;88;165;165" keyTimes="0;.2;.35;.68;1" dur="2.8s" repeatCount="indefinite"/><animate attributeName="cy" values="100;44;44;60;60" keyTimes="0;.2;.35;.68;1" dur="2.8s" repeatCount="indefinite"/></circle><text x="186" y="40" class="pop2">끝까지!<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.6;.65;.9;1" dur="2.8s" repeatCount="indefinite"/></text></svg><span class="gn">1</span><h3>치면 1루까지 무조건 전력</h3><p class="gl">땅볼이든 뜬공이든 1루까지 끝까지 뛰기.</p><ul><li>수비 실책이 많은 리그라 뛰기만 해도 살아요.</li><li>1루 베이스는 앞쪽 끝을 밟고 그대로 지나가기(파울 지역 쪽으로).</li></ul></div>
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="1루를 크게 도는 모습"><polygon points="120,100 165,60 120,20 75,60" class="rdia"/><rect x="160" y="55" width="10" height="10" transform="rotate(45 165 60)" class="rbase"/><rect x="115" y="15" width="10" height="10" transform="rotate(45 120 20)" class="rbase"/><rect x="70" y="55" width="10" height="10" transform="rotate(45 75 60)" class="rbase"/><path d="M114 96 h12 v5 l-6 5 l-6 -5 z" class="rbase"/><circle cx="120" cy="62" r="5" class="rmound"/><path d="M120 100 Q186 96 165 60 L150 44" class="dash2"/><g class="rr"><circle r="7"><animateMotion dur="3s" repeatCount="indefinite" keyPoints="0;1;1;0.8;0.8" keyTimes="0;.55;.7;.85;1" calcMode="linear" path="M120 100 Q186 96 165 60 L150 44"/></circle></g><text x="158" y="98" class="cap">바깥으로 크게</text></svg><span class="gn">2</span><h3>외야 안타면 1루를 크게 돌기</h3><p class="gl">1루 앞에서 바깥으로 살짝 돌아 들어가서 2루를 볼 수 있게.</p><ul><li>외야수가 공을 뒤로 빠뜨리면 바로 2루로.</li><li>공이 내야로 돌아오면 1루로 귀루.</li></ul></div>
+    </div>
+    <div class="gsec">땅볼일 때</div>
+    <div class="ggrid">
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="땅볼 때 1루 주자가 무조건 2루로 뛰는 모습"><polygon points="120,100 165,60 120,20 75,60" class="rdia"/><rect x="160" y="55" width="10" height="10" transform="rotate(45 165 60)" class="rbase"/><rect x="115" y="15" width="10" height="10" transform="rotate(45 120 20)" class="rbase"/><rect x="70" y="55" width="10" height="10" transform="rotate(45 75 60)" class="rbase"/><path d="M114 96 h12 v5 l-6 5 l-6 -5 z" class="rbase"/><circle cx="120" cy="62" r="5" class="rmound"/><g class="rr"><circle r="7"><animate attributeName="cx" values="165;165;120;120" keyTimes="0;.1;.7;1" dur="2.8s" repeatCount="indefinite"/><animate attributeName="cy" values="60;60;20;20" keyTimes="0;.1;.7;1" dur="2.8s" repeatCount="indefinite"/></circle></g><g class="rr"><circle r="7"><animate attributeName="cx" values="120;120;165;165" keyTimes="0;.15;.8;1" dur="2.8s" repeatCount="indefinite"/><animate attributeName="cy" values="100;100;60;60" keyTimes="0;.15;.8;1" dur="2.8s" repeatCount="indefinite"/></circle></g><circle r="3.5" class="ball"><animate attributeName="cx" values="120;92;92" keyTimes="0;.25;1" dur="2.8s" repeatCount="indefinite"/><animate attributeName="cy" values="100;40;40" keyTimes="0;.25;1" dur="2.8s" repeatCount="indefinite"/></circle><text x="6" y="104" class="pop2">포스 → 무조건!</text></svg><span class="gn">3</span><h3>뒤 주자 때문에 가야 하면 무조건 뛴다</h3><p class="gl">1루 주자, 1·2루의 2루 주자, 만루의 모든 주자는 땅볼이면 무조건 다음 베이스로(포스).</p><ul><li>망설이면 병살이 돼요.</li></ul></div>
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="2루 주자가 타구 방향에 따라 멈추거나 진루하는 모습"><polygon points="120,100 165,60 120,20 75,60" class="rdia"/><rect x="160" y="55" width="10" height="10" transform="rotate(45 165 60)" class="rbase"/><rect x="115" y="15" width="10" height="10" transform="rotate(45 120 20)" class="rbase"/><rect x="70" y="55" width="10" height="10" transform="rotate(45 75 60)" class="rbase"/><path d="M114 96 h12 v5 l-6 5 l-6 -5 z" class="rbase"/><circle cx="120" cy="62" r="5" class="rmound"/><g class="rr"><circle r="7"><animate attributeName="cx" values="120;128;120;120;120;75;75" keyTimes="0;.15;.35;.5;.55;.85;1" dur="5s" repeatCount="indefinite"/><animate attributeName="cy" values="20;27;20;20;20;60;60" keyTimes="0;.15;.35;.5;.55;.85;1" dur="5s" repeatCount="indefinite"/></circle></g><circle r="3.5" class="ball"><animate attributeName="cx" values="120;92;92;120;148;148" keyTimes="0;.12;.45;.5;.62;1" dur="5s" repeatCount="indefinite"/><animate attributeName="cy" values="100;40;40;100;40;40" keyTimes="0;.12;.45;.5;.62;1" dur="5s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;1;0;1;1;0" keyTimes="0;.44;.46;.5;.95;1" dur="5s" repeatCount="indefinite"/></circle><text x="6" y="104" class="pop2">앞 공 → 멈춤<animate attributeName="opacity" values="1;1;0;0" keyTimes="0;.45;.5;1" dur="5s" repeatCount="indefinite"/></text><text x="6" y="104" class="pop2">뒤 공 → 3루로<animate attributeName="opacity" values="0;0;1;1" keyTimes="0;.5;.52;1" dur="5s" repeatCount="indefinite"/></text></svg><span class="gn">4</span><h3>2루 주자: 공이 내 앞이면 멈춤, 뒤면 진루</h3><p class="gl">유격수·3루·투수 쪽 땅볼은 2루에 멈추고, 2루·1루 쪽 땅볼은 3루로.</p><ul><li>뒤쪽 타구는 수비가 3루로 던지기 어려워요.</li></ul></div>
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="3루 주자가 수비가 1루로 던지는 걸 보고 홈으로 뛰는 모습"><polygon points="120,100 165,60 120,20 75,60" class="rdia"/><rect x="160" y="55" width="10" height="10" transform="rotate(45 165 60)" class="rbase"/><rect x="115" y="15" width="10" height="10" transform="rotate(45 120 20)" class="rbase"/><rect x="70" y="55" width="10" height="10" transform="rotate(45 75 60)" class="rbase"/><path d="M114 96 h12 v5 l-6 5 l-6 -5 z" class="rbase"/><circle cx="120" cy="62" r="5" class="rmound"/><g class="rr"><circle r="7"><animate attributeName="cx" values="75;84;84;120;120" keyTimes="0;.15;.45;.8;1" dur="3.2s" repeatCount="indefinite"/><animate attributeName="cy" values="60;70;70;100;100" keyTimes="0;.15;.45;.8;1" dur="3.2s" repeatCount="indefinite"/></circle></g><circle r="3.5" class="ball"><animate attributeName="cx" values="120;90;90;165;165" keyTimes="0;.2;.3;.5;1" dur="3.2s" repeatCount="indefinite"/><animate attributeName="cy" values="100;44;44;60;60" keyTimes="0;.2;.3;.5;1" dur="3.2s" repeatCount="indefinite"/></circle><text x="6" y="104" class="pop2">1루 송구 → 홈!<animate attributeName="opacity" values="0;0;1;1" keyTimes="0;.42;.46;1" dur="3.2s" repeatCount="indefinite"/></text></svg><span class="gn">5</span><h3>3루 주자: 수비가 1루로 던지면 홈</h3><p class="gl">내야 땅볼이면 일단 멈춰서 수비를 보고, 공이 1루로 가면 홈으로.</p><ul><li>수비가 쳐다보고 있을 때 뛰면 홈에서 잡혀요.</li></ul></div>
+    </div>
+    <div class="gsec">뜬공일 때</div>
+    <div class="ggrid">
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="3루 주자가 공이 잡히는 순간 홈으로 뛰는 태그업"><polygon points="120,100 165,60 120,20 75,60" class="rdia"/><rect x="160" y="55" width="10" height="10" transform="rotate(45 165 60)" class="rbase"/><rect x="115" y="15" width="10" height="10" transform="rotate(45 120 20)" class="rbase"/><rect x="70" y="55" width="10" height="10" transform="rotate(45 75 60)" class="rbase"/><path d="M114 96 h12 v5 l-6 5 l-6 -5 z" class="rbase"/><circle cx="120" cy="62" r="5" class="rmound"/><g class="rr"><circle r="7"><animate attributeName="cx" values="75;75;120;120" keyTimes="0;.5;.85;1" dur="3.4s" repeatCount="indefinite"/><animate attributeName="cy" values="60;60;100;100" keyTimes="0;.5;.85;1" dur="3.4s" repeatCount="indefinite"/></circle></g><circle r="3.5" class="ball"><animate attributeName="cx" values="120;30;30" keyTimes="0;.48;1" dur="3.4s" repeatCount="indefinite"/><animate attributeName="cy" values="100;12;12" keyTimes="0;.48;1" dur="3.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;1;0" keyTimes="0;.95;1" dur="3.4s" repeatCount="indefinite"/></circle><text x="22" y="30" class="pop2">잡힘<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.47;.5;.8;.9" dur="3.4s" repeatCount="indefinite"/></text><text x="130" y="104" class="cap">잡히는 순간 출발</text></svg><span class="gn">6</span><h3>3루 주자는 태그업</h3><p class="gl">베이스에 발을 붙이고, 공이 글러브에 닿는 순간 홈으로.</p><ul><li>잡히기 전에 출발하면 어필 아웃이에요.</li><li>짧은 뜬공은 수비가 홈 승부를 해요. 3루 코치를 보고 판단.</li></ul></div>
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="1루 주자가 중간까지 갔다가 뜬공이 잡히자 돌아오는 모습"><polygon points="120,100 165,60 120,20 75,60" class="rdia"/><rect x="160" y="55" width="10" height="10" transform="rotate(45 165 60)" class="rbase"/><rect x="115" y="15" width="10" height="10" transform="rotate(45 120 20)" class="rbase"/><rect x="70" y="55" width="10" height="10" transform="rotate(45 75 60)" class="rbase"/><path d="M114 96 h12 v5 l-6 5 l-6 -5 z" class="rbase"/><circle cx="120" cy="62" r="5" class="rmound"/><g class="rr"><circle r="7"><animate attributeName="cx" values="165;142;142;165;165" keyTimes="0;.3;.55;.75;1" dur="3.4s" repeatCount="indefinite"/><animate attributeName="cy" values="60;40;40;60;60" keyTimes="0;.3;.55;.75;1" dur="3.4s" repeatCount="indefinite"/></circle></g><circle r="3.5" class="ball"><animate attributeName="cx" values="120;208;208" keyTimes="0;.55;1" dur="3.4s" repeatCount="indefinite"/><animate attributeName="cy" values="100;12;12" keyTimes="0;.55;1" dur="3.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;1;0" keyTimes="0;.95;1" dur="3.4s" repeatCount="indefinite"/></circle><text x="6" y="22" class="pop2">잡힘 → 귀루<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.53;.56;.85;.9" dur="3.4s" repeatCount="indefinite"/></text></svg><span class="gn">7</span><h3>1·2루 주자는 중간까지</h3><p class="gl">1·2루 사이(또는 2·3루 사이) 중간쯤 가서 기다리기.</p><ul><li>떨어지면 다음 베이스, 잡히면 귀루.</li><li>깊게 잡힌 뜬공이면 2루 주자는 태그업으로 3루도 가능.</li></ul></div>
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="인필드 플라이 때 주자들이 베이스로 돌아가는 모습"><polygon points="120,100 165,60 120,20 75,60" class="rdia"/><rect x="160" y="55" width="10" height="10" transform="rotate(45 165 60)" class="rbase"/><rect x="115" y="15" width="10" height="10" transform="rotate(45 120 20)" class="rbase"/><rect x="70" y="55" width="10" height="10" transform="rotate(45 75 60)" class="rbase"/><path d="M114 96 h12 v5 l-6 5 l-6 -5 z" class="rbase"/><circle cx="120" cy="62" r="5" class="rmound"/><g class="rr"><circle r="7"><animate attributeName="cx" values="165;158;165;165" keyTimes="0;.3;.6;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="60;54;60;60" keyTimes="0;.3;.6;1" dur="3s" repeatCount="indefinite"/></circle></g><g class="rr"><circle r="7"><animate attributeName="cx" values="120;114;120;120" keyTimes="0;.3;.6;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="20;26;20;20" keyTimes="0;.3;.6;1" dur="3s" repeatCount="indefinite"/></circle></g><circle r="3.5" class="ball"><animate attributeName="cx" values="120;110;110" keyTimes="0;.6;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="100;48;48" keyTimes="0;.6;1" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;1;0" keyTimes="0;.95;1" dur="3s" repeatCount="indefinite"/></circle><text x="160" y="104" class="cap">타자 자동 아웃</text><text x="10" y="20" class="pop2">베이스로!</text></svg><span class="gn">8</span><h3>인필드 플라이면 베이스로</h3><p class="gl">1·2루나 만루에서 0~1아웃 내야 뜬공이면 타자는 자동 아웃. 주자는 무리하게 뛰지 않기.</p></div>
+    </div>
+    <div class="gsec">언제나</div>
+    <div class="ggrid">
+      <div class="gcard key"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="2아웃에 2루 주자가 맞는 순간 출발하는 모습"><polygon points="120,100 165,60 120,20 75,60" class="rdia"/><rect x="160" y="55" width="10" height="10" transform="rotate(45 165 60)" class="rbase"/><rect x="115" y="15" width="10" height="10" transform="rotate(45 120 20)" class="rbase"/><rect x="70" y="55" width="10" height="10" transform="rotate(45 75 60)" class="rbase"/><path d="M114 96 h12 v5 l-6 5 l-6 -5 z" class="rbase"/><circle cx="120" cy="62" r="5" class="rmound"/><g class="rr"><circle r="7"><animate attributeName="cx" values="120;75;120;120" keyTimes="0;.45;.85;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="20;60;100;100" keyTimes="0;.45;.85;1" dur="3s" repeatCount="indefinite"/></circle></g><circle r="3.5" class="ball"><animate attributeName="cx" values="120;40;40" keyTimes="0;.4;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="100;30;30" keyTimes="0;.4;1" dur="3s" repeatCount="indefinite"/></circle><text x="6" y="104" class="pop2">2아웃 = 바로 출발</text></svg><span class="gn">9</span><h3>2아웃이면 맞는 순간 무조건 출발</h3><p class="gl">아웃 하나로 이닝이 끝나니까 망설일 이유가 없어요.</p><ul><li>외야 안타면 2루 주자는 홈까지 노려 보기.</li></ul></div>
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="견제가 오면 몸을 낮춰 손으로 귀루하는 모습"><polygon points="120,100 165,60 120,20 75,60" class="rdia"/><rect x="160" y="55" width="10" height="10" transform="rotate(45 165 60)" class="rbase"/><rect x="115" y="15" width="10" height="10" transform="rotate(45 120 20)" class="rbase"/><rect x="70" y="55" width="10" height="10" transform="rotate(45 75 60)" class="rbase"/><path d="M114 96 h12 v5 l-6 5 l-6 -5 z" class="rbase"/><circle cx="120" cy="62" r="5" class="rmound"/><g class="rr"><circle r="7"><animate attributeName="cx" values="165;150;150;163;163" keyTimes="0;.2;.45;.6;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="60;48;48;58;58" keyTimes="0;.2;.45;.6;1" dur="3s" repeatCount="indefinite"/></circle></g><circle r="3.5" class="ball"><animate attributeName="cx" values="120;120;161;161" keyTimes="0;.45;.6;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="62;62;58;58" keyTimes="0;.45;.6;1" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;1;1;0" keyTimes="0;.6;.9;1" dur="3s" repeatCount="indefinite"/></circle><text x="6" y="22" class="pop2">몸 낮춰 손으로<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.5;.55;.9;1" dur="3s" repeatCount="indefinite"/></text></svg><span class="gn">10</span><h3>견제가 오면 몸 낮춰 손으로 귀루</h3><p class="gl">서서 걸어 들어가지 말고 몸을 낮춰 손부터 베이스로.</p><ul><li>수비는 베이스 앞에서 태그를 기다리고 있어요.</li></ul></div>
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="주자가 3루 코치의 손짓을 보며 달리는 모습"><polygon points="120,100 165,60 120,20 75,60" class="rdia"/><rect x="160" y="55" width="10" height="10" transform="rotate(45 165 60)" class="rbase"/><rect x="115" y="15" width="10" height="10" transform="rotate(45 120 20)" class="rbase"/><rect x="70" y="55" width="10" height="10" transform="rotate(45 75 60)" class="rbase"/><path d="M114 96 h12 v5 l-6 5 l-6 -5 z" class="rbase"/><circle cx="120" cy="62" r="5" class="rmound"/><g class="rr"><circle r="7"><animate attributeName="cx" values="120;75;75;75" keyTimes="0;.6;.8;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="20;60;60;60" keyTimes="0;.6;.8;1" dur="3s" repeatCount="indefinite"/></circle></g><g class="fn"><circle cx="58" cy="78" r="6"/><path d="M58 84 L58 98" class="lb"/><path d="M58 88 L46 80" class="la"><animateTransform attributeName="transform" type="rotate" values="0 58 88;40 58 88;0 58 88" dur=".6s" repeatCount="indefinite"/></path></g><text x="10" y="104" class="cap">3루 코치</text><text x="150" y="104" class="pop2">코치 보기!</text></svg><span class="gn">11</span><h3>공이 뒤에 있으면 코치를 보기</h3><p class="gl">내 뒤쪽 타구는 공을 보려고 고개 돌리지 말고 1·3루 코치의 손짓을 따르기.</p><ul><li>앞 주자를 추월하면 아웃이에요. 앞 주자를 보면서 뛰기.</li></ul></div>
+      <div class="gcard"><svg class="gart" viewBox="0 0 240 110" role="img" aria-label="주자가 무리한 슬라이딩 없이 서서 베이스에 들어가는 모습"><polygon points="120,100 165,60 120,20 75,60" class="rdia"/><rect x="160" y="55" width="10" height="10" transform="rotate(45 165 60)" class="rbase"/><rect x="115" y="15" width="10" height="10" transform="rotate(45 120 20)" class="rbase"/><rect x="70" y="55" width="10" height="10" transform="rotate(45 75 60)" class="rbase"/><path d="M114 96 h12 v5 l-6 5 l-6 -5 z" class="rbase"/><circle cx="120" cy="62" r="5" class="rmound"/><g class="rr"><circle r="7"><animate attributeName="cx" values="120;160;165;165" keyTimes="0;.6;.7;1" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="20;54;60;60" keyTimes="0;.6;.7;1" dur="3s" repeatCount="indefinite"/></circle></g><text x="6" y="104" class="pop2">서서 들어가도 OK<animate attributeName="opacity" values="0;0;1;1" keyTimes="0;.65;.7;1" dur="3s" repeatCount="indefinite"/></text></svg><span class="gn">12</span><h3>슬라이딩은 안전하게</h3><p class="gl">익숙하지 않으면 머리부터 들어가는 슬라이딩은 하지 않기.</p><ul><li>부상이 제일 큰 손해예요. 서서 들어가도 괜찮아요.</li></ul></div>
+    </div>
+  </section>
+  <section id="secExam" hidden>
+    <div class="controls"><div class="crow"><div class="lab">시험지</div><div class="chips" id="exSel"></div></div></div>
+    <div class="expaper" id="exPaper"></div>
+  </section>
+</div>
 </div>
 
+<script type="application/json" id="examData">{"exams": [{"name": "우익수", "code": "RF", "qs": [{"typ": "상황", "run": "0", "outs": 0, "sit": "유격수 땅볼", "prompt": "우익수는 어떻게 움직여야 할까?", "opts": ["2루 뒤로 들어온다", "제자리에서 지켜본다", "1루 뒤(파울 지역 쪽)로 달려간다", "중견수 쪽으로 이동한다"]}, {"typ": "상황", "run": "1", "outs": 0, "sit": "우익수 정면 · 보통 깊이 안타", "prompt": "공을 잡은 우익수는 어디로 던질까?", "opts": ["2루(유격수)로 바로", "홈으로 바로", "3루로 바로", "1루로"]}, {"typ": "상황", "run": "2", "outs": 1, "sit": "우익수 앞 · 짧은 안타", "prompt": "우익수는 어떻게 해야 할까?", "opts": ["홈으로 바로 던진다(커트맨 1루수 머리 높이)", "3루로 던진다", "중계맨에게 던진다", "공을 들고 내야로 뛴다"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "우측 선상 · 깊은 안타", "prompt": "공을 잡은 우익수는?", "opts": ["2루로 바로 던진다", "3루로 바로 던진다", "홈으로 던진다", "나와 있는 중계맨(2루수) 가슴까지 던진다"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "중견수 정면 뜬공", "prompt": "우익수는 어디로 가야 할까?", "opts": ["1루 베이스", "중견수 등 뒤 대각선, 열 걸음쯤 뒤", "그 자리에서 콜만 한다", "2루 베이스"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "좌익수 쪽 안타", "prompt": "우익수는 어떻게 움직일까?", "opts": ["1루 베이스로 간다", "좌익수 뒤로 백업 간다", "움직이지 않는다", "2루 방향으로 들어와 송구 빠짐에 대비한다"]}, {"typ": "상황", "run": "3", "outs": 1, "sit": "우익수 정면 · 보통 깊이 뜬공", "prompt": "잡은 뒤 우익수는 어디로 던질까?", "opts": ["홈으로 바로", "3루로", "중계맨에게", "2루로 바로 (태그업 득점은 줘도 OK)"]}, {"typ": "OX", "run": "0", "outs": 0, "sit": "우익수 키를 넘긴 장타", "prompt": "우익수 키를 넘긴 장타는 한 번에 3루까지 던진다.", "opts": null}, {"typ": "투수 콜", "run": "1", "outs": 0, "sit": "투구 전", "prompt": "0아웃 주자 1루. 투수가 투구 전에 외칠 말로 맞는 것은?", "opts": ["내야 1루! 외야 홈!", "내야 3루! 외야 3루!", "내야 2루! 외야 2루!", "내야 홈! 외야 2루!"]}, {"typ": "투수 콜", "run": "12", "outs": 2, "sit": "우익수 앞 안타", "prompt": "2아웃 주자 1·2루. 투수가 \"투아웃! 내야 가까운 베이스, 외야는 홈!\"이라고 외쳤다. 우익수 앞 안타가 나오면?", "opts": ["1루로 던진다", "홈으로 던진다", "2루로 던진다", "3루로 던진다"]}]}, {"name": "2루수", "code": "2B", "qs": [{"typ": "상황", "run": "0", "outs": 0, "sit": "우익수 정면 · 보통 깊이 안타", "prompt": "2루수는 어떻게 움직일까?", "opts": ["2루 베이스로 들어간다", "타구를 따라 나가고, 우익수가 금방 잡으면 송구 길 옆으로 비켜 앉는다", "제자리에서 본다", "1루 베이스로 간다"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "좌익수 쪽 안타", "prompt": "2루수는?", "opts": ["타구를 따라 나간다", "3루 커버를 간다", "1루 커버를 간다", "2루 베이스로 들어가 송구를 받는다"]}, {"typ": "상황", "run": "1", "outs": 0, "sit": "유격수 땅볼", "prompt": "2루수는 어떻게 해야 할까?", "opts": ["3루 커버를 간다", "1루 커버를 간다", "2루로 가서 받고 밟고 1루(늦으면 1루는 생략)", "공을 쫓아간다"]}, {"typ": "투수 콜", "run": "1", "outs": 1, "sit": "2루 땅볼(내 앞)", "prompt": "1아웃 주자 1루. 투수가 \"내야 2루! 외야 2루!\"라고 외쳤다. 2루 앞 땅볼을 잡은 2루수는?", "opts": ["유격수에게 가슴 높이로 짧게 토스(2루)", "1루로 세게 던진다", "직접 2루까지 뛰어간다", "3루로 던진다"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "1루 땅볼", "prompt": "2루수는?", "opts": ["2루 베이스로 간다", "1루 쪽으로 움직여 커버 지원, 투수가 늦으면 내가 1루", "제자리", "우익수 앞까지 나간다"]}, {"typ": "상황", "run": "2", "outs": 1, "sit": "중견수 앞 · 짧은 안타", "prompt": "1루수가 홈 커트맨으로 나갔다. 2루수는?", "opts": ["타구를 따라간다", "홈 백업", "2루 커버", "1루 커버"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "우측 선상 장타", "prompt": "2루수의 역할은?", "opts": ["1루 커버", "2루 베이스 커버", "3루 백업", "1번 중계맨 (외야 깊숙이, 우익수에게서 한 베이스 거리 안)"]}, {"typ": "상황", "run": "12", "outs": 1, "sit": "2루 견제", "prompt": "우리 팀 약속으로 2루 견제는 누가 받을까?", "opts": ["유격수", "2루수 (유격수는 뒤 백업)", "중견수", "3루수"]}, {"typ": "OX", "run": "2", "outs": 0, "sit": "2루 땅볼(내 앞)", "prompt": "주자 2루에서 내 앞 땅볼이면, 2루 주자의 3루 진루는 허용하고 1루로 던진다.", "opts": null}, {"typ": "투수 콜", "run": "123", "outs": 1, "sit": "투구 전", "prompt": "1아웃 만루. 투수가 투구 전에 외칠 말로 맞는 것은?", "opts": ["내야 홈! 멀면 2루! 외야 짧으면 홈!", "내야 3루! 외야 3루!", "투아웃! 내야 가까운 베이스!", "내야 1루! 외야 2루!"]}]}, {"name": "좌익수", "code": "LF", "qs": [{"typ": "상황", "run": "0", "outs": 0, "sit": "3루 땅볼", "prompt": "좌익수는 어디로 갈까?", "opts": ["1루 뒤", "2루 방향", "제자리", "3루 뒤로 들어와 송구·타구 빠짐 대비"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "유격수 땅볼", "prompt": "좌익수는?", "opts": ["3루 뒤", "제자리", "2루 방향으로 출발", "1루 뒤"]}, {"typ": "상황", "run": "2", "outs": 1, "sit": "좌익수 앞 · 짧은 안타", "prompt": "좌익수는 어떻게 할까?", "opts": ["중계맨에게", "3루로", "홈으로 바로 (커트맨은 3루수)", "2루로 바로"]}, {"typ": "상황", "run": "1", "outs": 0, "sit": "좌익수 정면 · 보통 깊이 안타", "prompt": "좌익수는 어디로 던질까?", "opts": ["3루로 바로", "홈으로", "2루(2루수)로 바로", "중계맨에게"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "좌측 선상 장타", "prompt": "펜스까지 쫓아간 좌익수는?", "opts": ["홈으로", "중계맨(유격수) 가슴까지 던진다", "3루로 바로", "2루로 바로"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "중견수 정면 뜬공", "prompt": "좌익수는?", "opts": ["내가 잡으러 간다", "2루 커버", "3루 커버", "중견수 등 뒤 대각선 백업, 중견수가 \"마이!\" 하면 양보"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "우익수 쪽 안타", "prompt": "좌익수는?", "opts": ["제자리", "우익수 백업", "2루 방향으로 들어와 송구 빠짐 대비", "3루 커버"]}, {"typ": "OX", "run": "0", "outs": 0, "sit": "좌중간 뜬공", "prompt": "좌중간 뜬공은 좌익수가 우선이다.", "opts": null}, {"typ": "투수 콜", "run": "0", "outs": 0, "sit": "투구 전", "prompt": "0아웃 주자 없음. 투수가 투구 전에 외칠 말로 맞는 것은?", "opts": ["내야 3루! 외야 1루!", "내야 홈! 외야 홈!", "내야 1루! 외야 2루!", "내야 2루! 외야 홈!"]}, {"typ": "투수 콜", "run": "3", "outs": 1, "sit": "좌익수 앞 · 짧은 뜬공", "prompt": "1아웃 주자 3루. 투수가 \"내야 주자 묶고 1루! 외야 뜬공 짧으면 홈!\"이라고 외쳤다. 좌익수 앞 짧은 뜬공을 잡으면?", "opts": ["공을 들고 있는다", "2루로 바로", "중계맨에게", "홈으로 바로 (커트맨 3루수)"]}]}, {"name": "중견수", "code": "CF", "qs": [{"typ": "상황", "run": "0", "outs": 0, "sit": "내야 땅볼", "prompt": "중견수는 어디로 갈까?", "opts": ["제자리", "1루 뒤", "3루 뒤", "2루 뒤로 들어온다"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "좌중간 뜬공", "prompt": "누가 잡을까?", "opts": ["유격수가 잡는다", "중견수가 \"마이!\" 먼저 외치고 잡는다", "좌익수가 잡는다", "둘 다 잡으러 간다"]}, {"typ": "상황", "run": "1", "outs": 0, "sit": "중견수 정면 · 보통 깊이 안타", "prompt": "중견수는 어디로 던질까?", "opts": ["홈으로", "3루로 바로", "2루(2루수)로 바로", "중계맨에게"]}, {"typ": "상황", "run": "2", "outs": 0, "sit": "중견수 앞 · 짧은 안타", "prompt": "중견수는?", "opts": ["홈으로 바로 (커트맨 1루수)", "3루로", "중계맨에게", "2루로"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "우익수 정면 뜬공", "prompt": "중견수는?", "opts": ["제자리", "우익수 등 뒤 대각선, 열 걸음쯤 뒤 백업", "2루 커버", "내가 잡으러 간다"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "중견수 정면 · 깊은 뜬공", "prompt": "깊게 잡은 중견수는?", "opts": ["3루로", "2루로 바로", "중계맨(유격수)에게 던진다", "홈으로"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "우측 선상 장타", "prompt": "중견수는?", "opts": ["2루 커버", "우익수와 같이 쫓아가 중계맨 쪽을 가리키며 \"중계!\" 콜", "1루 커버", "제자리"]}, {"typ": "OX", "run": "12", "outs": 1, "sit": "2루 견제", "prompt": "2루 견제 때 중견수는 제자리에 있어도 된다.", "opts": null}, {"typ": "투수 콜", "run": "12", "outs": 2, "sit": "투구 전", "prompt": "2아웃 주자 1·2루. 투수가 투구 전에 외칠 말로 맞는 것은?", "opts": ["투아웃! 내야 가까운 베이스, 외야는 홈!", "내야 홈! 외야 2루!", "내야 1루! 외야 3루!", "내야 2루! 외야 2루!"]}, {"typ": "투수 콜", "run": "2", "outs": 1, "sit": "투구 전", "prompt": "1아웃 주자 2루. 투수가 투구 전에 외칠 말로 맞는 것은?", "opts": ["내야 2루! 외야 2루!", "투아웃! 내야 가까운 베이스!", "내야 주자 보고 1루! 외야 짧으면 홈, 아니면 2루!", "내야 홈! 외야 홈!"]}]}, {"name": "유격수", "code": "SS", "qs": [{"typ": "상황", "run": "0", "outs": 0, "sit": "좌익수 정면 · 보통 깊이 안타", "prompt": "유격수는?", "opts": ["3루 커버", "제자리", "2루 베이스로 들어간다", "타구를 따라 나가고, 금방 잡으면 송구 길 옆으로 비켜 앉는다"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "우익수 정면 · 보통 깊이 안타", "prompt": "유격수는?", "opts": ["2루 베이스로 들어가 우익수 송구를 받는다", "1루 커버", "3루 커버", "타구를 따라 나간다"]}, {"typ": "상황", "run": "1", "outs": 0, "sit": "2루 땅볼", "prompt": "유격수는?", "opts": ["2루 커버 → 받고 밟고 1루(병살)", "공을 쫓아간다", "1루 커버", "3루 커버"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "3루 땅볼", "prompt": "유격수는?", "opts": ["3루수 뒤 대각선으로 백업", "2루 커버", "제자리", "1루 커버"]}, {"typ": "상황", "run": "2", "outs": 1, "sit": "좌익수 앞 · 짧은 안타", "prompt": "3루수가 홈 커트맨으로 나갔다. 유격수는?", "opts": ["타구를 따라간다", "홈 백업", "2루 커버", "3루 커버"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "좌측 선상 장타", "prompt": "유격수의 역할은?", "opts": ["2번 중계맨", "1번 중계맨", "2루 커버", "3루 커버"]}, {"typ": "투수 콜", "run": "12", "outs": 2, "sit": "유격수 땅볼", "prompt": "2아웃 주자 1·2루. 투수가 \"투아웃! 내야 가까운 베이스, 외야는 홈!\"이라고 외쳤다. 유격수 앞 땅볼이면 가장 쉬운 아웃은?", "opts": ["2루 베이스 (2루수에게 토스·송구)", "1루", "3루로 멀리 던진다", "홈"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "3루 쪽 내야 뜬공", "prompt": "유격수는?", "opts": ["3루수 뒤 백업 (둘 다 잡을 수 있으면 유격수 우선)", "1루 커버", "2루 커버", "제자리"]}, {"typ": "OX", "run": "12", "outs": 1, "sit": "2루 견제", "prompt": "우리 팀은 2루 견제를 유격수가 받는다.", "opts": null}, {"typ": "투수 콜", "run": "1", "outs": 1, "sit": "유격수 땅볼", "prompt": "1아웃 주자 1루. 투수가 \"내야 2루! 외야 2루!\"라고 외쳤다. 유격수 앞 땅볼이면?", "opts": ["3루로 던진다", "직접 2루까지 뛴다", "2루(2루수)로 던지고 여유 있으면 1루 병살", "1루로만 던진다"]}]}, {"name": "3루수", "code": "3B", "qs": [{"typ": "상황", "run": "0", "outs": 0, "sit": "외야 안타", "prompt": "3루수는?", "opts": ["제자리", "2루 커버", "타구를 따라간다", "3루 베이스 커버"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "3루 땅볼(내 앞)", "prompt": "잡은 3루수는?", "opts": ["공을 들고 있는다", "홈으로", "2루로", "1루로 (1루수 가슴 높이)"]}, {"typ": "상황", "run": "1", "outs": 0, "sit": "3루 땅볼(내 앞)", "prompt": "잡은 3루수는?", "opts": ["3루 베이스를 밟는다", "홈으로", "2루(2루수)로 → 여유 있으면 1루", "1루로만"]}, {"typ": "상황", "run": "12", "outs": 1, "sit": "3루 땅볼(내 앞)", "prompt": "잡은 3루수는?", "opts": ["홈으로", "들고 있는다", "3루 베이스를 직접 밟고 1루", "2루로"]}, {"typ": "상황", "run": "123", "outs": 1, "sit": "3루 땅볼(내 앞)", "prompt": "잡은 3루수는?", "opts": ["홈(포수)으로 → 포수가 1루로", "1루로", "2루로", "3루 밟기만"]}, {"typ": "상황", "run": "2", "outs": 1, "sit": "좌익수 앞 · 짧은 안타", "prompt": "3루수의 역할은?", "opts": ["홈 백업", "3루 베이스 커버", "2루 커버", "홈 커트맨 (3루는 유격수가 커버)"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "장타", "prompt": "3루수는?", "opts": ["중계맨으로 나간다", "3루에서 마지막 송구 받기 + \"3루!\" / \"들고 있어!\" 콜", "2루 커버", "홈 백업"]}, {"typ": "상황", "run": "13", "outs": 1, "sit": "1루 견제", "prompt": "1·3루에서 투수가 1루 견제를 했다. 3루수는?", "opts": ["제자리에서 공만 본다", "1루 백업", "2루 커버", "3루 주자 붙잡기, 홈으로 뛰면 \"간다!\""]}, {"typ": "투수 콜", "run": "12", "outs": 2, "sit": "3루 땅볼(내 앞)", "prompt": "2아웃 주자 1·2루. 투수가 \"투아웃! 내야 가까운 베이스, 외야는 홈!\"이라고 외쳤다. 3루 앞 땅볼이면?", "opts": ["1루로 멀리 던진다", "2루로 던진다", "3루 베이스를 직접 밟는다", "홈으로 던진다"]}, {"typ": "투수 콜", "run": "123", "outs": 1, "sit": "투구 전", "prompt": "1아웃 만루. 투수가 투구 전에 외칠 말로 맞는 것은?", "opts": ["내야 2루! 외야 2루!", "투아웃! 내야 가까운 베이스!", "내야 홈! 멀면 2루! 외야 짧으면 홈!", "내야 1루! 외야 2루!"]}]}, {"name": "1루수", "code": "1B", "qs": [{"typ": "상황", "run": "0", "outs": 0, "sit": "유격수 땅볼", "prompt": "1루수는?", "opts": ["공을 쫓아간다", "2루 커버", "바로 1루 베이스로 가서 모서리에 발 대고 받기", "제자리"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "1루 땅볼(내 앞, 베이스 가까움)", "prompt": "잡은 1루수는?", "opts": ["2루로 던진다", "들고 있는다", "직접 1루 베이스를 밟는다", "투수에게 세게 던진다"]}, {"typ": "상황", "run": "1", "outs": 0, "sit": "1루 땅볼(내 앞)", "prompt": "잡은 1루수는?", "opts": ["3루로", "2루(유격수)로 던지고 1루는 투수가 커버", "홈으로", "1루만 밟는다"]}, {"typ": "상황", "run": "2", "outs": 1, "sit": "우익수 앞 · 짧은 안타", "prompt": "1루수의 역할은?", "opts": ["홈 커트맨 (우익수–홈 일직선, 마운드에서 홈 쪽 일곱 걸음)", "1루 커버", "2루 커버", "홈 백업"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "장타", "prompt": "1루수는?", "opts": ["홈 커트맨", "3루 백업", "1루에 그대로", "타자 주자를 따라 2루로 가서 커버"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "투수 앞(마운드 근처) 내야 뜬공", "prompt": "누가 잡을까?", "opts": ["포수", "2루수", "투수", "1루수 (투수는 \"1루!\" 하고 콜)"]}, {"typ": "상황", "run": "1", "outs": 0, "sit": "1루 견제", "prompt": "견제를 받는 1루수는?", "opts": ["베이스 뒤에 서 있는다", "공을 받고 2루로 던진다", "베이스 앞쪽 모서리에 붙어 있다가, 받으면 베이스 앞 땅바닥에 바로 태그", "주자를 쫓아가 태그"]}, {"typ": "OX", "run": "0", "outs": 0, "sit": "1루 송구가 빗나감", "prompt": "송구가 빗나가도 1루 베이스에서 발을 떼면 안 된다.", "opts": null}, {"typ": "투수 콜", "run": "0", "outs": 0, "sit": "투구 전", "prompt": "0아웃 주자 없음. 투수가 투구 전에 외칠 말로 맞는 것은?", "opts": ["내야 홈! 외야 홈!", "투아웃! 내야 가까운 베이스!", "내야 2루! 외야 2루!", "내야 1루! 외야 2루!"]}, {"typ": "투수 콜", "run": "123", "outs": 1, "sit": "1루 땅볼(내 앞)", "prompt": "1아웃 만루. 투수가 \"내야 홈! 멀면 2루! 외야 짧으면 홈!\"이라고 외쳤다. 1루 앞 땅볼을 잡으면?", "opts": ["3루로", "1루만 밟는다", "홈(포수)으로, 1루는 투수가 커버", "2루로"]}]}, {"name": "투수", "code": "P", "qs": [{"typ": "상황", "run": "0", "outs": 0, "sit": "1루 땅볼", "prompt": "투수는 어떻게 해야 할까?", "opts": ["마운드에 그대로 있는다", "무조건 1루 커버, 1루 라인과 나란히 뛰며 토스 받고 밟기", "2루 커버를 간다", "홈 백업을 간다"]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "2루 땅볼", "prompt": "투수는?", "opts": ["마운드에서 본다", "일단 1루 쪽으로 출발한다", "3루 백업", "홈 커버"]}, {"typ": "상황", "run": "1", "outs": 0, "sit": "투수 앞 땅볼", "prompt": "잡은 투수는?", "opts": ["1루로만 던진다", "3루로 던진다", "홈으로 던진다", "2루(유격수)로 던지고 여유 있으면 1루 병살"]}, {"typ": "상황", "run": "123", "outs": 1, "sit": "투수 앞 땅볼", "prompt": "잡은 투수는?", "opts": ["1루로", "2루로", "3루로", "홈(포수)으로 → 포수가 1루로"]}, {"typ": "상황", "run": "2", "outs": 1, "sit": "우익수 앞 · 짧은 안타", "prompt": "외야에서 홈 승부가 났다. 투수는?", "opts": ["2루 커버", "홈 뒤쪽으로 달려가 송구 빠짐 대비", "1루 커버", "마운드에 있는다"]}, {"typ": "OX", "run": "0", "outs": 0, "sit": "외야 장타", "prompt": "장타가 나오면 투수는 마운드에 남아 있는다.", "opts": null}, {"typ": "상황", "run": "0", "outs": 0, "sit": "마운드 근처 내야 뜬공", "prompt": "투수는?", "opts": ["내가 잡는다", "포수에게 맡긴다", "2루 커버를 간다", "잡지 않고 \"1루!\"처럼 잡을 사람 이름을 콜하고 비켜 서기"]}, {"typ": "상황", "run": "1", "outs": 0, "sit": "1루 견제", "prompt": "1루 견제를 할 때 투수는?", "opts": ["여러 번 연속으로 던진다", "투구판에서 발을 뒤로 빼고 1루수 가슴 높이로 짧게", "1루수가 베이스에 없어도 던진다", "있는 힘껏 세게 던진다"]}, {"typ": "투수 콜", "run": "3", "outs": 1, "sit": "투구 전", "prompt": "1아웃 주자 3루. 투수가 투구 전에 외칠 말로 맞는 것은?", "opts": ["내야 2루! 외야 2루!", "내야 주자 묶고 1루! 외야 뜬공 짧으면 홈!", "내야 홈! 외야 홈!", "투아웃! 내야 가까운 베이스!"]}, {"typ": "투수 콜", "run": "12", "outs": 2, "sit": "투구 전", "prompt": "2아웃 주자 1·2루. 투수가 투구 전에 외칠 말로 맞는 것은?", "opts": ["내야 주자 보고 1루!", "내야 홈! 멀면 2루!", "투아웃! 내야 가까운 베이스, 외야는 홈!", "내야 2루! 외야 2루!"]}]}, {"name": "포수", "code": "C", "qs": [{"typ": "상황", "run": "0", "outs": 0, "sit": "유격수 땅볼", "prompt": "포수는 어떻게 움직일까?", "opts": ["홈에 그대로 있는다", "투수 뒤로 간다", "1루 라인을 따라 달려가 1루 송구 백업", "3루 백업"]}, {"typ": "상황", "run": "2", "outs": 1, "sit": "3루 땅볼", "prompt": "포수는?", "opts": ["3루 커버", "홈을 지키며 \"1루!\" 송구 방향 콜", "1루 백업으로 달려간다", "마운드로 간다"]}, {"typ": "상황", "run": "123", "outs": 1, "sit": "3루 땅볼", "prompt": "3루수가 홈으로 던졌다. 포수는?", "opts": ["받고 들고 있는다", "홈 베이스를 밟고 받기 → 1루로", "3루로 다시 던진다", "주자를 쫓아가 태그"]}, {"typ": "상황", "run": "2", "outs": 1, "sit": "중견수 앞 · 짧은 안타", "prompt": "홈 승부. 포수의 콜은?", "opts": ["아무 말 없이 기다린다", "\"1루!\"", "\"3루!\"", "커트맨에게 \"컷!\" / \"놔둬!\", 늦으면 \"컷! 2루!\""]}, {"typ": "투수 콜", "run": "0", "outs": 0, "sit": "중견수 정면 · 보통 깊이 안타", "prompt": "0아웃 주자 없음. 투수가 \"내야 1루! 외야 2루!\"라고 외쳤다. 중견수 앞 보통 깊이 안타면 포수의 콜은?", "opts": ["\"3루!\"", "\"컷!\"", "\"홈!\"", "\"2루!\""]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "장타", "prompt": "포수의 콜은?", "opts": ["\"1루!\"", "콜하지 않는다", "중계맨에게 \"3루!\"", "\"홈!\""]}, {"typ": "상황", "run": "0", "outs": 0, "sit": "내야 뜬공", "prompt": "내야수 둘이 서로 미루고 있다. 포수는?", "opts": ["가만히 본다", "잡을 사람 이름을 크게 정해주기", "내가 잡으러 뛰어간다", "1루 커버를 간다"]}, {"typ": "상황", "run": "13", "outs": 1, "sit": "1루 견제", "prompt": "1·3루에서 투수가 1루 견제를 했다. 포수가 조심할 것은?", "opts": ["아무것도 없다", "2루 주자", "타자", "3루 주자 홈 스틸, 견제가 빠지면 \"간다!\" 콜"]}, {"typ": "OX", "run": "123", "outs": 1, "sit": "홈 포스", "prompt": "만루에서 홈으로 온 송구는 주자를 태그해야 아웃이다.", "opts": null}, {"typ": "투수 콜", "run": "12", "outs": 1, "sit": "투구 전", "prompt": "1아웃 주자 1·2루. 투수가 투구 전에 외칠 말로 맞는 것은?", "opts": ["내야 1루! 외야 2루!", "투아웃! 내야 가까운 베이스!", "내야 2루(3루 땅볼은 3루)! 외야 짧으면 홈!", "내야 홈! 외야 홈!"]}]}, {"name": "주자", "code": "RUN", "qs": [{"typ": "상황", "run": "1", "outs": 0, "sit": "내야 땅볼", "prompt": "1루 주자인 나는?", "opts": ["무조건 2루로 뛴다 (포스)", "3루까지 뛴다", "공을 보고 판단한다", "1루로 돌아간다"]}, {"typ": "상황", "run": "2", "outs": 0, "sit": "유격수 땅볼", "prompt": "2루 주자인 나는?", "opts": ["1루로 돌아간다", "2루에 멈춘다 (내 앞 왼쪽 타구)", "3루로 뛴다", "홈까지 뛴다"]}, {"typ": "상황", "run": "2", "outs": 0, "sit": "2루 땅볼", "prompt": "2루 주자인 나는?", "opts": ["3루로 진루한다 (내 뒤쪽 오른쪽 타구)", "2루로 돌아가 붙는다", "홈까지 뛴다", "2루에 멈춘다"]}, {"typ": "상황", "run": "3", "outs": 1, "sit": "외야 뜬공", "prompt": "3루 주자인 나는?", "opts": ["공이 뜨자마자 홈으로 뛴다", "3루에 그대로 있는다", "절반쯤 나가서 기다린다", "베이스에 붙어 있다가 잡는 순간 홈으로 (태그업)"]}, {"typ": "상황", "run": "1", "outs": 0, "sit": "외야 뜬공", "prompt": "1루 주자인 나는?", "opts": ["무조건 2루까지 뛴다", "잡힐 때까지 1루에 붙어 있는다", "1·2루 중간쯤 가서 보다가, 잡히면 1루로 귀루", "3루까지 뛴다"]}, {"typ": "투수 콜", "run": "2", "outs": 2, "sit": "외야 안타", "prompt": "상대 투수가 \"투아웃!\"이라고 외쳤다. 2루 주자인 나는 외야 안타가 나오면?", "opts": ["공을 확인하고 출발한다", "2루로 돌아간다", "3루에서 무조건 멈춘다", "맞는 순간 출발해서 홈까지 노린다"]}, {"typ": "상황", "run": "12", "outs": 1, "sit": "내야 뜬공", "prompt": "1·2루 1아웃, 내야 뜬공이 떴다(인필드 플라이). 주자인 나는?", "opts": ["무리하게 뛰지 않고 베이스로 돌아간다", "무조건 다음 베이스로 뛴다", "홈까지 뛴다", "절반쯤 나가 있는다"]}, {"typ": "상황", "run": "1", "outs": 0, "sit": "1루 견제", "prompt": "견제가 왔다. 1루 주자인 나는?", "opts": ["서서 천천히 걸어 들어간다", "몸을 낮춰 바로 베이스로 손부터 귀루", "그 자리에 멈춘다", "2루로 뛴다"]}, {"typ": "상황", "run": "1", "outs": 0, "sit": "우익수 앞 · 보통 깊이 안타", "prompt": "1루 주자인 나는?", "opts": ["홈까지 뛴다", "1루로 돌아간다", "2루에서 멈춘다 (외야가 2루로 바로 던져요)", "3루까지 뛴다"]}, {"typ": "OX", "run": "3", "outs": 1, "sit": "외야 뜬공", "prompt": "외야 뜬공이 잡히기 전에 3루 주자가 출발해도 득점이 인정된다.", "opts": null}]}], "ans": "eyJSRiI6IFsyLCAwLCAwLCAzLCAxLCAzLCAzLCAiWCIsIDIsIDFdLCAiMkIiOiBbMSwgMywgMiwgMCwgMSwgMywgMywgMSwgIk8iLCAwXSwgIkxGIjogWzMsIDIsIDIsIDIsIDEsIDMsIDIsICJYIiwgMiwgM10sICJDRiI6IFszLCAxLCAyLCAwLCAxLCAyLCAxLCAiWCIsIDAsIDJdLCAiU1MiOiBbMywgMCwgMCwgMCwgMywgMSwgMCwgMCwgIlgiLCAyXSwgIjNCIjogWzMsIDMsIDIsIDIsIDAsIDMsIDEsIDMsIDIsIDJdLCAiMUIiOiBbMiwgMiwgMSwgMCwgMywgMywgMiwgIlgiLCAzLCAyXSwgIlAiOiBbMSwgMSwgMywgMywgMSwgIlgiLCAzLCAxLCAxLCAyXSwgIkMiOiBbMiwgMSwgMSwgMywgMywgMiwgMSwgMywgIlgiLCAyXSwgIlJVTiI6IFswLCAxLCAwLCAzLCAyLCAzLCAwLCAxLCAyLCAiWCJdfQ==", "sec": "ShBWSBMIE0sTYHUSCxJoSxNREQoREALbkpoT26OWG929vt+qiRLfl7HepJ0R3pmNGNmSrBHZuJzakpfagbbYu5UQHxATVxEKERDYsoXepowR2aa12oGP25a62LuVEgLbkpoT26OW2JGtEtirgdm5pBHYgbwR3qmA3a+G3LmqE9qJgtiDidiLgN2qu9yrph0QANmQmBHetZHbh5/agbIT24iS35ex2ZqEEd6pgN2vhty5qtmAsRLYl7jeprTdp48Q3LGz3K+i2YCxEgHbkprZib3elLAR2ZmLEdiDsN2opx4TTx8QShBQEgsSEQLakZsY3a6T2oOb37ipG9iRrRLYgKXZkqwTHhMSVBAJEBPZgITctIYQ24u53KyGE9ykut6zsdm5pBHel6HbgbcQ3aW13KyGEwLakZvbkK4T24Gm2JGtEti9qd6TiN2opx4RANiTmd67qNq4pxDbgYbcrLYT26WC2K2NEtiyqd6qpNq5l9qBshPct5PZhZ0S2YiJEt+ot96vjNqTrxDai7fcja4T3KS72YORHhMC2pGb27umE9ytktmCmN67qNuCsxDagqjcpLbfqqUcEwHakZsQ3ZGP3K+i2LqlEgHbkprfp6Het6wR2Zq43YSD3KumHRJMHhNLE1ERChEQ3qm53q+M2pOvENqCp9uQrhPbvKrfl7XZuJQZ3oiU3LiL25aaEwHakZvcuaoT25mK2JadEti2o96uhBgQHxATVxEKERDfl5berrAR3qa43LGz3KaiEwLakZsQ3ZGP3K+i2YCxEt6pud6vjNqTrxDdqpfbmIYT3ai6E9y7i9iGsd6ruN2opx4R3oiU3LiL25aaGwHakZvcuaoaENqai9uXnhPbt6DfrYXZkqwR2bGe24C/HBHeqKDagqfcq4bYo63ZvLQR2Ies3YKd3KS236qlHBPbu5Tfp7ner4zam4cQ3YmX3buK2JeZ3q6EEd6tqNqvj9y1rhMC2pGb25CuE9uChtiyhd6ppB8QThwRSRFTEwgTEtqwq9yoshPcr7rYuqUS35Sg2IC02pWbGAPZkJjduqsZEdiDsN24h9qIvt+XsRLYvanelLTauZcSHRIRVRMIExLbi7ncrLIT3bKy2YWd2bmkEQDYk5nYirzdlbMQ3KevENqAu9ymohPcpLoT27qN36W13qmkHxLepa0S2IKR3q6E3biXENuDg9uXnhPcpLrZib3elLAR2bGo3aqbEN2WotqCttiXmRoB25Ka37ipG9+nodiBvBHelJfbgZMQ3ZKm3ain3qWp2IG8HxBOHBFJEVMTCBMS3Zai2oOe37ipEtijgBLYopUS2Lyx2IOx3baTHBHepIQR2IKI3a+/3J6WE9ujlhEcERBWEgsSEdyptBPcqIrfpY3eu6gR2ICF3a+zENqglxDagoLcprffrYXepKDdqKceEd+quN2lo9y1rhPclaPZgp3eu6jal48Q3ay027umE9y1kt+ttRLevq3euZQR3pmN3a6P25CuE9u7qtiWgRLZg4IeE9yVo9mCnd67qNqBh9u6lhPcpoYT2oCK36293pyUEdmhlN2lo9y1rhPcr6LftInZlowR2bGe3YSD3KumHRJMHhNLE1ERChEQAduSmhPbgZveppTer4zak68Q2qGX3KeG36mxEt+2kNiGnBHZipDdlaPcpqIT272y2Im136as2rmXEh0SEVUTCBMS2oKr272y3r6JEtmDhN6uhN2kh9u+thPcta4T3K+636yN2ZqEEd6muBHZvIzdqKceEQDYk5kS35qM3q+M2pOvENqhl9ynht+psd63rBEA2JOZEt+2kNiGnNuCsxDai5PclroT26S+2JWNEti8sdmKtNynh9yrph0STB4TSxNREQoREAHbkprYka0S2ICl2ZKsERres63YhIjdpbYQ2qGu3JGi362xEt+Uqdm8tBF9eBkTHhMSVBAJEBPelJfdr7MQ2q6f2oKH362NEtilvdmUvBHfqrgR3rmJ2oSz3Km636qlHBPbgobetoQS2Ym73q6E2puHENyru9qIvt+XsRLYmbHepYTdtq8cEQHYk5kS35ON3q2gEdmgrd2So9ysshPcko7Zg5ESAduSmtiRrRLYiZHZloTbgL8Q2r+r3JGKE9u6ltiViRLfk43eraDal48Q2p6F3KeG36qlHBFNHRJIElIQCRATahEcERBWEgsSEdyvl96zsdm5pBHfpqwR2YG43aWjENqbs9uXnhPbvKrfl7HelLAR3qa63ae33KumHRDdlqLagrbYl5kaAduSmt+4qRsT2oGy37qF2Iq83ZWz25a+E9yRp96ppN+mqNuAvxDav6vclrLYmYUS35Sg2IC024KzEALZkJjak68Q3a+H3KeG35Sp3qmkHxBOHBFJEVMTCBMS2rCH3KSOEwLakZsR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Ed61kduHn9uzqhPclaPZg7US37aQ2Iac24KzENqLk9yWstiZhRLYl7jeprTdqKceE08fEEoQUBILEhFoEx4TElQQCRAT3peh24K3ENyxs9qEnti6pRLflKDYgZzduqsQ3aiD3LWS362F3qSg3ainHhHZm4zdkrMQbRDYl7neroQQbhEQ3auL3IiuE9yzntiuvd6uhBHerZHbgZMcEd6RvN2vhty5qti6pRLYopXZkqwR2YOB3aW2HhNPHxBKEFASCxIR27OG36WNEgLbkpoSEN2ri9ykjhMC2pGbERMeExJUEAkQE96QjN2so9qBshPcprTfrI3ZmoQR2bGE3aeP27umE92op9+7ld+mrBED2JOZEt+ltd6osx0S36mJ3qaM2rinEAPZkJjak68Q24GG3Ky2E9ubmt+ltRLes7HeraDal48QANmQmN2loxDanoXcp4bfqqUcEU0dEkgSUhAJEBPfqrjdro/bkK4T24Gm2JGtEhvcipbeuonZlJgRAdiTmd67qBgQHxATVxEKERDfl5berrAR2a+c24GGEBoSANuSmhPcko7frqES3rOt2ISI3aW23KyG2JmFEt6puRLfuojZhbDdqrvcq6YdEN20ktqEnhPbgZveppTer4zak68Q2piL3Ky2E92nl96lrRLfgbXZkqwR3q2R24GTENqCp9uQrhPdqLrfrI3ZkqwfEE5tHRIRc3cQCRBqSRFTEwgTEgPZkJgR2aGU2pOvENqhl9ynht+omdm4lBMeExJUEAkQE9mxhN2njxDap7bbgo7frYXZmoQR3peh24Cf3Lmq2LqlEgHbkpoT26OWHRDai5PckYrYsqneq5gR2aa12oGP3KyG2LKpEgHbkpoT3LeT2YWd2IOwEdmKkN2Vs9uYhhPcg6rYlp3fpoTdqKceE08fEEoQUBILEhHclaPZgp3eu6jbgrMQbRDYl7neroQQbhEQ2pqP3JGyE9yoit+JqdiAkBHerZHauKfbupYRHBEQVhILEhHclaPZgp3eu6jbgrMQ3auL3KSOE9uXnti9pRwT3JWj2YC1EtmDhN6usBHel6HbgJ/cuaoT3KuC37SRHhPcr5PZiIES35C13qSgEW4R25a6362FE28S2pePENyzn9qDvh0STB4TSxNREQoREAHbkpobAtqRm9y5qhrbkK4T24Gm2JGtEB8QE1cRChEQ2IOF37WF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2ouP2oKSEwHakZvcuaoT2oGy37qFEti2o96uhNqTrxDdlZTag74RHBEQVhILEhHag57fkK3erqgR2ZmZ3ZKy3KyyE9yktt+rstmAhNq5lxDalJ/boq4T3JW2362F2IuAHxLftInYgbwR2b6o3ZWz25iGE9uIkt+XsdiAkB0S2ImR3pSw2puHEN2Rj9yvohPagoffl60S35e12ZCY3aq73KumHRJMHhNLE1ERChEQ2LKF3qaMEd6QjN2soxDanoXagpITAdqRmxER3qqI3aePENqun9qChxPclpXfrI3ZmoQR36q4EBAfEBNXEQoREADbkpoT3JKO366h2bmkEd+8nN24l9qBshPcpLbYu7nepKDdqKceEdmxhN2nj9u7phPcko7frqHZlowR2bu43a6P25CuE9udhNmDkRIC25KaHxDdq4vcpI7YuqUS35eW3q6wEdmvnNuBhtysjhPbpL7Yl70S3qm5Et+6iNmFsB8QThwRSRFTEwgTEty6n9yktt+rshMT27OG36WNEtmAsdiKvN2ohxDagJPcrIbfupUeE9yoit+ljdm5pBHfqrgQEB8QE1cRChEQAdyktt+rst6uhNqbhxDdp7fcqrET3aSq2LKp2ZKsEd6uhNq5rhDas67crIbYrY0S2LKF3qaM2rinENuCs9yvlxPagbLZib3eqYQR2YGQ3a+H3LuWHRDdkY/cr6LYuqUS2Jev2bmkEd67rNuCtxDaqYPburrZib0S36mJ3qaM2rinENyrux4TT24cERBwEgsSaEsTUREKERAC25KaE9usjt+tid6utBHZp4Dar48Q2rmf25GW2YCxEgLbkpoT3LeT2YWdEtiAgN6ktRMeExJUEAkQEwDxhwLZkJjdpaMQ3ZGP3K+i2YCxEt+nt96vjNqbhxDcq7vcrLYT24i236u92by0Edm8jN2opx4RA9iTmRLfpbTetZHbh5/agbIT3b2+36qJEt+Xsd6knd2uj9uQrhPbiJLfl7HZmoQR37yc3bqr2oGyE9uWu9+ltd6ppB8QThwRSRFTEwgTEtyru9ysthPclrLespXZmoARbhEB2pGbEW0QE9y3k9mFnRLYgJjfpZUR3o6sEx4TElQQCRATANiTmRLfk43eraDbgrMQ3ay73K2O2JmFEt6pud6utBHZirTdqIPbmIYT3KS6E9u+jt+qpRwT3ai63621Et+X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"}</script>
 <script>
 (function(){
 "use strict";
@@ -443,6 +842,7 @@ function buildIF(sc,R,inf){
   else if(R.r1)plays=['2B','1B'];
   else if(!R.r2&&!R.r3)plays=F==='1B'?['s1B']:['1B'];
   else{plays=F==='1B'?['s1B']:['1B'];look=R.r3||!(F==='2B'||F==='1B')}
+  sc.target=plays[0].replace(/^s/,'');sc.primary=F;sc.stepFirst=plays[0][0]==='s';
   const forcedTo={'2B':R.R1,'3B':R.R2,H:R.R3,'1B':R.BAT};
   // move base coverers first (for timing)
   const need=new Set(plays.filter(p=>p[0]!=='s'));
@@ -658,7 +1058,7 @@ function chips(){
   $('cDepth').innerHTML=DEPTHS.map(([k,l])=>`<button type="button" class="chip" id="depth-${k}" data-depth="${k}" aria-pressed="${!noD&&state.depth===k}" ${noD?'disabled':''}>${l}</button>`).join('')+(noD?`<span class="note" style="align-self:center">${isPK?'견제는 해당 없음':isIF?'내야 타구는 해당 없음':'장타는 항상 깊은 타구'}</span>`:'<span class="note" style="align-self:center">짧게 = 홈 승부 · 보통 = 2루로 바로 · 깊게 = 중계</span>');
 }
 document.addEventListener('click',e=>{
-  const b=e.target.closest('button.chip');if(!b||b.disabled)return;
+  const b=e.target.closest('button.chip');if(!b||b.disabled)return;if(!(b.dataset.run||b.dataset.hit||b.dataset.type||b.dataset.depth||b.dataset.iftype))return;
   if(b.dataset.run)state.run=b.dataset.run;
   if(b.dataset.hit)state.hit=b.dataset.hit;
   if(b.dataset.type)state.type=b.dataset.type;
@@ -670,11 +1070,11 @@ document.addEventListener('click',e=>{
 
 // SVG
 const NS='http://www.w3.org/2000/svg';
-const svg=$('field');
-function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs){const v=attrs[k];if(typeof v==='string'&&v.startsWith('var('))e.style.setProperty(k,v);else e.setAttribute(k,v)}(parent||svg).appendChild(e);return e}
+const svg=$('field');let CUR=svg;
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs){const v=attrs[k];if(typeof v==='string'&&v.startsWith('var('))e.style.setProperty(k,v);else e.setAttribute(k,v)}(parent||CUR).appendChild(e);return e}
 const pt=p=>[sx(p[0]),sy(p[1])];
-function drawField(){
-  svg.innerHTML='';
+function drawField(target){target=target||svg;CUR=target;
+  target.innerHTML='';
   const defs=el('defs',{});
   const mkM=(id,color)=>{const m=el('marker',{id,viewBox:'0 0 10 10',refX:'8',refY:'5',markerWidth:'5',markerHeight:'5',orient:'auto-start-reverse'},defs);el('path',{d:'M0,0 L10,5 L0,10 z',fill:color},m)};
   mkM('mF','var(--accent)');mkM('mN','var(--navy)');mkM('mR','var(--runner)');
@@ -705,7 +1105,8 @@ function drawField(){
   const lab=(txt,p,dx,dy)=>{const q=pt(p);const t=el('text',{x:q[0]+dx,y:q[1]+dy,'font-size':15,'font-weight':700,fill:'var(--chalk)','text-anchor':'middle','font-family':'var(--f-body)',opacity:.85});t.textContent=txt};
   lab('1루',B['1B'],26,22);lab('2루',B['2B'],0,-14);lab('3루',B['3B'],-26,22);
   // layers
-  svg._trail=el('g',{});svg._throw=el('g',{});svg._run=el('g',{});svg._pl=el('g',{});svg._ball=el('g',{});svg._ev=el('g',{});
+  target._trail=el('g',{});target._throw=el('g',{});target._run=el('g',{});target._pl=el('g',{});target._ball=el('g',{});target._ev=el('g',{});
+  CUR=svg;
 }
 let sc=null,throwEls=[],hitEl=null,plEls={},runEls=[],ballEl=null,shadowEl=null,evEls=[];
 function drawScene(){
@@ -808,7 +1209,259 @@ function load(autoplay){
   drawScene();panel();
   if(autoplay&&!reduce){state.t=0;render(0);play()}else{state.t=sc.dur;render(sc.dur);$('play').textContent='↺ 다시 보기'}
 }
+// ---------- quiz ----------
+const QN=10;
+const QSCOPE=[['all','전체 (외야·2루·1루)',FOCUS],['of','외야수 전체',['LF','CF','RF']],['LF','좌익수',['LF']],['CF','중견수',['CF']],['RF','우익수',['RF']],['2B','2루수',['2B']],['1B','1루수',['1B']],['SS','유격수',['SS']],['3B','3루수',['3B']],['P','투수',['P']],['C','포수',['C']]];
+const quiz={scope:'all',list:[],i:0,score:0,answered:false,log:[]};
+let POOL=null;
+const norm=t=>t.split(' · ')[0].replace(/\s*\(.*?\)/g,'').replace(/[!]/g,'').trim();
+function combos(){const out=[];RUNS.forEach(([r])=>{OF.forEach(([h])=>{['single','fly'].forEach(t=>DEPTHS.forEach(([d])=>out.push([r,h,t,d])));out.push([r,h,'extra','deep'])});IF.forEach(([h])=>{out.push([r,h,'ground']);out.push([r,h,'ifly'])});PK.forEach(([h])=>{if(r.includes(h[1]))out.push([r,h,'pick'])})});return out}
+function buildPool(){POOL={};POS.forEach(p=>POOL[p]=new Set());combos().forEach(c=>{const s=build(...c);POS.forEach(p=>{const r=s.roles[p];if(r)POOL[p].add(r.tag)})})}
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function makeQ(scope){
+  const poss=QSCOPE.find(q=>q[0]===scope)[2];
+  for(let tries=0;tries<50;tries++){
+    const c=pick(combos());const s=build(...c);
+    // prefer positions with a real job
+    const cand=poss.filter(p=>s.roles[p]&&!/제자리|마운드/.test(s.roles[p].tag));
+    if(!cand.length)continue;
+    const main=cand.filter(p=>s.roles[p].main);
+    const pos=(main.length&&Math.random()<.55)?pick(main):pick(cand);
+    const role=s.roles[pos];
+    const runL=RUNS.find(r=>r[0]===c[0])[1];
+    let q;
+    if(pos===s.primary&&Math.random()<.6){
+      const isOF=c[2]!=='ground';
+      const opts=isOF?['홈','3루','2루','중계맨에게']:['홈','3루','2루','1루'];
+      const ans=s.target==='relay'?'중계맨에게':BN[s.target];
+      q={kind:'throw',prompt:`${NAME[pos]}가 공을 잡았어요. ${s.stepFirst?'아웃은 어디서 먼저 잡을까?':'어디로 던져야 할까?'}`,opts:shuffle(opts.slice()),ans};
+    }else{
+      const others=shuffle([...POOL[pos]].filter(t=>norm(t)!==norm(role.tag)));
+      const ds=[];const seen=new Set([norm(role.tag)]);
+      for(const t of others){if(!seen.has(norm(t))){seen.add(norm(t));ds.push(t)}if(ds.length===3)break}
+      if(ds.length<2)continue;
+      q={kind:'role',prompt:`이 상황에서 ${NAME[pos]}는 어떻게 움직여야 할까?`,opts:shuffle([role.tag,...ds]),ans:role.tag};
+    }
+    return Object.assign(q,{c,s,pos,sit:`주자 ${runL} · ${s.sit}`,role});
+  }
+  return null;
+}
+function startQuiz(){if(!POOL)buildPool();quiz.solved=0;quiz.score=0;quiz.log=[];nextQ()}
+function nextQ(){let q=null;for(let t=0;t<5&&!q;t++)q=makeQ(quiz.scope);quiz.list=[q];quiz.i=0;showQ()}
+const qScoreTxt=()=>`맞힌 문제 ${quiz.score} / 푼 문제 ${quiz.solved}`;
+function qChips(){
+  $('qPos').innerHTML=QSCOPE.map(([k,l])=>`<button type="button" class="chip" id="qs-${k}" data-qs="${k}" aria-pressed="${quiz.scope===k}">${l}</button>`).join('');
+}
+$('qPos').addEventListener('click',e=>{const b=e.target.closest('[data-qs]');if(!b)return;quiz.scope=b.dataset.qs;qChips();startQuiz()});
+function showQ(){
+  const q=quiz.list[quiz.i];quiz.answered=false;
+  $('qProg').textContent='랜덤 문제';
+  $('qScore').textContent=qScoreTxt();
+  $('qBarFill').style.width=(quiz.solved?quiz.score/quiz.solved*100:0)+'%';
+  stop();sc=q.s;state.sel=q.pos;drawScene();
+  svg._trail.style.display='none';
+  state.t=0;render(0);
+  // show where the ball goes, players frozen
+  const ha=pt(sc.hitLine[0]),hb=pt(sc.hitLine[1]);hitEl.setAttribute('x2',hb[0]);hitEl.setAttribute('y2',hb[1]);
+  const lb=pt(sc.ball[0].b);ballEl.setAttribute('cx',lb[0]);ballEl.setAttribute('cy',lb[1]);shadowEl.setAttribute('cx',lb[0]);shadowEl.setAttribute('cy',lb[1]);
+  $('qBody').innerHTML=`<div class="sit">${q.sit}</div><h2>${q.prompt}</h2>
+    <div class="note" style="margin:-4px 0 8px">그림에서 빨간 링이 표시된 선수예요.</div>
+    <div class="opts">${q.opts.map((o,i)=>`<button type="button" class="opt" data-i="${i}"><span class="k">${'ABCD'[i]}</span>${o}</button>`).join('')}</div>
+    <div class="fb" id="qFb" hidden></div>
+    <div class="qnav" id="qNav" hidden><button type="button" class="pb" id="qNext">다음 문제</button><button type="button" class="pb ghost" id="qReplay">↺ 움직임 다시 보기</button></div>`;
+}
+$('qBody').addEventListener('click',e=>{
+  const o=e.target.closest('button.opt');
+  if(o&&!quiz.answered){answer(+o.dataset.i);return}
+  if(e.target.closest('#qNext')){nextQ();return}
+  if(e.target.closest('#qReplay')){state.t=0;play();return}
+  if(e.target.closest('#qRestart')){startQuiz();return}
+});
+function answer(i){
+  const q=quiz.list[quiz.i];quiz.answered=true;
+  const ok=q.opts[i]===q.ans;if(ok)quiz.score++;quiz.solved++;
+  quiz.log.push({q,ok,picked:q.opts[i]});
+  document.querySelectorAll('#qBody button.opt').forEach((b,j)=>{b.disabled=true;if(q.opts[j]===q.ans)b.classList.add('right');else if(j===i)b.classList.add('wrong')});
+  const r=q.role;
+  const fb=$('qFb');fb.hidden=false;
+  fb.innerHTML=`<div class="v ${ok?'ok':'no'}">${ok?'정답이에요!':'아쉬워요. 정답은 "'+q.ans+'"'}</div>
+    <div><b>${NAME[q.pos]} · ${r.tag}</b><br>${r.text}</div>
+    ${q.kind==='throw'?`<div>${sc.head}</div>`:''}
+    ${r.tip?`<div class="tip"><b>사회인 팁</b> · ${r.tip}</div>`:''}`;
+  $('qNav').hidden=false;
+  $('qScore').textContent=qScoreTxt();
+  $('qBarFill').style.width=(quiz.score/quiz.solved*100)+'%';
+  svg._trail.style.display='';
+  state.t=0;if(reduce){state.t=sc.dur;render(sc.dur)}else play();
+  $('qNext').focus({preventScroll:true});
+}
+function endQuiz(){
+  stop();
+  const n=quiz.list.length,sco=quiz.score;
+  const msg=sco===n?'완벽해요. 이제 실전에서 몸이 먼저 움직이면 돼요.':sco>=n*.7?'기본은 잡혔어요. 틀린 상황만 상황판에서 다시 돌려보세요.':'괜찮아요. 아래 틀린 상황을 상황판에서 하나씩 재생해 보세요.';
+  $('qProg').textContent='결과';$('qBarFill').style.width='100%';
+  const wrong=quiz.log.filter(l=>!l.ok);
+  $('qBody').innerHTML=`<div class="qend"><div class="big">${sco} / ${n}</div><p>${msg}</p></div>
+    ${wrong.length?`<div class="sec-t" style="margin:8px 0 0">틀린 문제</div><div class="qlist">${wrong.map(l=>`<div><b>${l.q.sit}</b> · ${NAME[l.q.pos]}<br>정답: ${l.q.ans} <span style="color:var(--muted)">(고른 답: ${l.picked})</span></div>`).join('')}</div>`:''}
+    <div class="qnav"><button type="button" class="pb" id="qRestart">새 문제 10개</button></div>`;
+}
+function setMode(m){
+  state.mode=m;
+  $('tabStudy').setAttribute('aria-pressed',m==='study');$('tabQuiz').setAttribute('aria-pressed',m==='quiz');
+  $('controls').hidden=m==='quiz';$('study').hidden=m==='quiz';$('quiz').hidden=m!=='quiz';
+  if(m==='quiz'){qChips();startQuiz()}
+  else{svg._trail.style.display='';state.sel=null;load(false)}
+}
+$('tabStudy').addEventListener('click',()=>setMode('study'));
+$('tabQuiz').addEventListener('click',()=>setMode('quiz'));
+// ---------- 기본 수비 위치 ----------
+const BASEPOS_TXT={
+  P:'투구판 위. 공을 던진 뒤에는 바로 수비수가 돼요.',
+  C:'홈 플레이트 뒤. 경기장 전체가 보이는 유일한 자리라 콜 담당.',
+  '1B':'1루 베이스에서 외야 쪽으로 일곱 걸음쯤, 파울라인에서 두세 걸음 안쪽.',
+  '2B':'2루 베이스에서 1루 쪽으로 열두 걸음쯤, 내야 흙과 잔디 경계 근처.',
+  SS:'2루 베이스에서 3루 쪽으로 열두 걸음쯤, 내야 흙과 잔디 경계 근처.',
+  '3B':'3루 베이스에서 외야 쪽으로 대여섯 걸음, 파울라인에서 두 걸음 안쪽.',
+  LF:'3루수와 유격수 사이 뒤쪽, 내야 흙 끝에서 마흔 걸음쯤.',
+  CF:'2루 베이스 바로 뒤 일직선, 내야 흙 끝에서 마흔 걸음쯤.',
+  RF:'1루수와 2루수 사이 뒤쪽, 내야 흙 끝에서 마흔 걸음쯤.'
+};
+const inOF=(p,k)=>{const r=Math.hypot(p[0],p[1]);return[p[0]*(r-k)/r,p[1]*(r-k)/r]};
+const VARIANTS=[
+  {id:'base',label:'기본 (주자 없음)',run:'0',head:'모든 수비 위치의 출발점이에요. 타구가 약한 타자면 외야는 열 걸음 앞으로, 강한 타자면 열 걸음 뒤로 조절해요.',mv:{}},
+  {id:'r1',label:'주자 1루 (병살 대비)',run:'1',head:'0~1아웃 주자 1루면 1루수는 주자를 붙잡고, 2루수·유격수는 2루 포스와 병살을 위해 2루 쪽으로 좁혀요.',
+    mv:{'1B':[[61,67],'1루 베이스에 붙어서 주자 붙잡기. 투수 쪽으로 몸을 돌리고, 투구가 되면 두세 걸음 떨어지기.'],
+        '2B':[[26,128],'2루 쪽으로 다섯 걸음, 앞으로 두세 걸음. 2루 포스·병살 위치.'],
+        SS:[[-26,128],'2루 쪽으로 다섯 걸음, 앞으로 두세 걸음. 2루 포스·병살 위치.']}},
+  {id:'r2',label:'주자 2루',run:'2',head:'2루 주자가 있으면 짧은 안타 때 홈 승부를 할 수 있게 외야가 몇 걸음 앞으로. 2루 견제는 2루수가 들어가니까 2루수가 2루 쪽으로.',
+    mv:{'2B':[[28,133],'2루 쪽으로 서너 걸음. 2루 견제가 오면 내가 들어가요(우리 팀 약속).'],
+        SS:[[-33,136],'2루 쪽으로 한두 걸음. 견제 때는 2루 뒤 백업.'],
+        LF:[inOF(START.LF,15),'여섯 걸음 앞으로. 짧은 안타면 홈 승부.'],
+        CF:[inOF(START.CF,15),'여섯 걸음 앞으로. 짧은 안타면 홈 승부.'],
+        RF:[inOF(START.RF,15),'여섯 걸음 앞으로. 짧은 안타면 홈 승부.']}},
+  {id:'r3',label:'주자 3루',run:'3',head:'3루수는 3루 주자 리드를 줄이려고 베이스 쪽으로. 외야는 짧은 뜬공 홈 승부를 위해 몇 걸음 앞으로.',
+    mv:{'3B':[[-63,72],'3루 베이스 쪽으로 서너 걸음. 3루 주자 리드 줄이기.'],
+        LF:[inOF(START.LF,15),'여섯 걸음 앞으로. 짧은 뜬공이면 홈 승부.'],
+        CF:[inOF(START.CF,15),'여섯 걸음 앞으로. 짧은 뜬공이면 홈 승부.'],
+        RF:[inOF(START.RF,15),'여섯 걸음 앞으로. 짧은 뜬공이면 홈 승부.']}},
+  {id:'r123',label:'만루',run:'123',head:'만루는 모든 베이스가 포스예요. 1·3루수는 홈 포스를 위해 몇 걸음 앞으로, 2루수·유격수는 병살 위치, 외야는 짧은 안타 홈 승부 위치.',
+    mv:{'1B':[[66,76],'앞으로 서너 걸음. 1루 땅볼이면 홈 포스.'],
+        '3B':[[-66,73],'앞으로 서너 걸음. 3루 땅볼이면 홈 포스.'],
+        '2B':[[26,128],'2루 쪽으로 다섯 걸음, 앞으로 두세 걸음. 병살 위치.'],
+        SS:[[-26,128],'2루 쪽으로 다섯 걸음, 앞으로 두세 걸음. 병살 위치.'],
+        LF:[inOF(START.LF,15),'여섯 걸음 앞으로.'],CF:[inOF(START.CF,15),'여섯 걸음 앞으로.'],RF:[inOF(START.RF,15),'여섯 걸음 앞으로.']}},
+  {id:'pull',label:'우타자 당겨치기',run:'0',head:'우리 팀 상대는 당겨치는 우타자가 많아요. 전체가 왼쪽(3루 쪽)으로 몇 걸음씩 이동해요.',
+    mv:{SS:[[-46,136],'3루 쪽으로 서너 걸음. 유격수-3루수 사이를 좁히기.'],
+        '3B':[[-73,79],'3루 라인 쪽으로 한 걸음.'],
+        '2B':[[28,136],'2루 쪽으로 네 걸음. 가운데 땅볼 대비.'],
+        LF:[[-140,218],'왼쪽(선상 쪽)으로 여섯 걸음.'],
+        CF:[[-26,260],'왼쪽(좌중간 쪽)으로 열 걸음.'],
+        RF:[[100,224],'가운데 쪽으로 열 걸음.']}},
+  {id:'o2',label:'2아웃 주자 1·2루',run:'12',head:'2아웃이면 병살이 필요 없어서 2루수·유격수는 기본 깊이로. 주자가 맞는 순간 뛰니까 외야는 홈 승부 위치로 몇 걸음 앞으로. 투수 콜: "투아웃! 내야 가까운 베이스, 외야는 홈!"',
+    mv:{'1B':[[61,67],'1루 주자 붙잡기. 투구가 되면 두세 걸음 떨어지기.'],
+        LF:[inOF(START.LF,15),'여섯 걸음 앞으로. 외야는 홈.'],CF:[inOF(START.CF,15),'여섯 걸음 앞으로. 외야는 홈.'],RF:[inOF(START.RF,15),'여섯 걸음 앞으로. 외야는 홈.']}},
+];
+let posVar='base',posSel=null,posZoom='in';
+const ZOOMS={in:'262 470 576 486',all:'20 165 1060 812'};const posSvg=document.getElementById('posField');
+function posChips(){$('posVar').innerHTML=VARIANTS.map(v=>`<button type="button" class="chip" data-pv="${v.id}" aria-pressed="${posVar===v.id}">${miniDiamond(v.run)}${v.label}</button>`).join('')}
+function drawPos(){
+  const v=VARIANTS.find(x=>x.id===posVar);
+  drawField(posSvg);posSvg.setAttribute('viewBox',ZOOMS[posZoom]);
+  document.querySelectorAll('#posZoom [data-pz]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pz===posZoom));
+  const L=posSvg._pl,T=posSvg._trail;
+  // runners
+  [['1','1B'],['2','2B'],['3','3B']].forEach(([k,b])=>{if(v.run.includes(k)){const q=pt(add(B[b],unit(B[b],B[ORDER[ORDER.indexOf(b)+1]]),13));const g=el('g',{transform:`translate(${q[0]},${q[1]})`},posSvg._run);el('circle',{r:13,fill:'var(--runner)',stroke:'#00000055','stroke-width':2},g);const t=el('text',{'text-anchor':'middle',dy:5,'font-size':13,'font-weight':900,fill:'var(--runner-ink)','font-family':'var(--f-body)'},g);t.textContent='주'}});
+  POS.forEach(p=>{
+    const m=v.mv[p];const to=m?m[0]:START[p];const f=FOCUS.includes(p);
+    if(m){const A=pt(START[p]),Bq=pt(to);el('circle',{cx:A[0],cy:A[1],r:15,fill:'none',stroke:f?'var(--accent)':'var(--navy)','stroke-width':2,'stroke-dasharray':'4 4',opacity:.85},T);
+      const Lx=Math.hypot(Bq[0]-A[0],Bq[1]-A[1]);if(Lx>24){const e=[Bq[0]-(Bq[0]-A[0])/Lx*19,Bq[1]-(Bq[1]-A[1])/Lx*19];el('line',{x1:A[0],y1:A[1],x2:e[0],y2:e[1],stroke:f?'var(--accent)':'var(--navy)','stroke-width':3.5,'stroke-linecap':'round','marker-end':`url(#${f?'mF':'mN'})`},T)}}
+    const q=pt(to);const g=el('g',{class:'player',transform:`translate(${q[0]},${q[1]})`,tabindex:'0',role:'button','aria-label':NAME[p]},L);
+    el('circle',{r:27,fill:'none',stroke:'var(--accent)','stroke-width':4,opacity:posSel===p?1:0},g);
+    el('circle',{r:19,fill:f?'var(--accent)':'var(--navy)',stroke:'#ffffff','stroke-width':2.5},g);
+    const t=el('text',{'text-anchor':'middle',dy:5.5,fill:'#ffffff'},g);t.textContent=SHORT[p];
+    g.addEventListener('click',()=>{posSel=posSel===p?null:p;drawPos()});
+  });
+  $('posHead').textContent=v.head;$('posSit').textContent=v.label;
+  const card=p=>{const m=v.mv[p];const f=FOCUS.includes(p);
+    return `<div class="card${f?' focus':''}${m?' main-actor':''}${posSel===p?' sel':''}" data-pp="${p}" tabindex="0" role="button"><div class="badge">${SHORT[p]}</div><div class="nm">${NAME[p]} <span class="tag">${m?'이동':'기본 위치'}</span></div><div class="tx">${m?m[1]:BASEPOS_TXT[p]}</div>${m?`<div class="tx" style="color:var(--muted);font-size:13px">기본: ${BASEPOS_TXT[p]}</div>`:''}</div>`};
+  $('posCards').innerHTML=['LF','CF','RF','2B','1B','SS','3B','P','C'].map(card).join('');
+}
+$('posZoom').addEventListener('click',e=>{const b=e.target.closest('[data-pz]');if(!b)return;posZoom=b.dataset.pz;drawPos()});
+$('posVar').addEventListener('click',e=>{const b=e.target.closest('[data-pv]');if(!b)return;posVar=b.dataset.pv;posChips();drawPos()});
+$('posCards').addEventListener('click',e=>{const c=e.target.closest('[data-pp]');if(!c)return;posSel=posSel===c.dataset.pp?null:c.dataset.pp;drawPos()});
+
+// ---------- 야수 모의고사 ----------
+const EXAM=JSON.parse(document.getElementById('examData').textContent);
+const EXANS=JSON.parse(atob(EXAM.ans));
+const NUMC='①②③④';
+let exCode=EXAM.exams[0].code,exPick={},exGraded=false,exSecret=null;
+function exDiamond(run,outs){
+  const sq=(x,y,b)=>`<rect x="${x-7}" y="${y-7}" width="14" height="14" transform="rotate(45 ${x} ${y})" fill="${run.includes(b)?'currentColor':'none'}" stroke="currentColor" stroke-width="2"/>`;
+  const dots=[0,1].map(i=>`<circle cx="${14+i*15}" cy="58" r="5" fill="${i<outs?'var(--accent)':'none'}" stroke="currentColor" stroke-width="1.6"/>`).join('');
+  return `<svg class="exd" width="48" height="53" viewBox="0 0 60 66" aria-hidden="true">${sq(46,24,'1')}${sq(30,9,'2')}${sq(14,24,'3')}${dots}</svg>`;
+}
+const RUNNAME={'0':'주자 없음','1':'주자 1루','2':'주자 2루','3':'주자 3루','12':'주자 1·2루','23':'주자 2·3루','13':'주자 1·3루','123':'만루'};
+function decodeSecret(pw){
+  try{const raw=atob(EXAM.sec);const k=new TextEncoder().encode(pw);const b=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)b[i]=raw.charCodeAt(i)^k[i%k.length];return JSON.parse(new TextDecoder().decode(b))}catch(e){return null}
+}
+function exChips(){$('exSel').innerHTML=EXAM.exams.map((x,i)=>`<button type="button" class="chip" data-ex="${x.code}" aria-pressed="${exCode===x.code}">제${i+1}교시 · ${x.name} 고사</button>`).join('')}
+function drawExam(){
+  const ex=EXAM.exams.find(x=>x.code===exCode);const idx=EXAM.exams.indexOf(ex)+1;const ans=EXANS[exCode];
+  const sec=exSecret&&exSecret.ex[exCode];
+  let score=0;ans.forEach((a,i)=>{if(exPick[i]===a)score+=10});
+  const qs=ex.qs.map((q,i)=>{
+    const pick=exPick[i];const ok=exGraded&&pick===ans[i];
+    const opts=q.opts?q.opts.map((o,k)=>`<button type="button" class="exo${pick===k?' on':''}" data-q="${i}" data-v="${k}" ${exGraded?'disabled':''}><span class="n">${NUMC[k]}</span>${o}</button>`).join('')
+      :['O','X'].map(v=>`<button type="button" class="exo ox${pick===v?' on':''}" data-q="${i}" data-v="${v}" ${exGraded?'disabled':''}>${v}</button>`).join('');
+    const mark=exGraded?`<span class="mark ${ok?'ok':'no'}" aria-label="${ok?'정답':'오답'}">${ok?'○':'／'}</span>`:'';
+    const exp=sec?`<div class="exexp"><b>정답 ${typeof ans[i]==='number'?NUMC[ans[i]]:ans[i]}</b>${typeof ans[i]==='number'?' '+sec[i].c:''}<br>${sec[i].e}</div>`:'';
+    return `<div class="exq"><div class="exn">${mark}${i+1}.</div><div class="exb"><div><span class="extag${q.typ==='투수 콜'?' call':''}">${q.typ}</span><span class="exp">${q.prompt}</span></div>
+      <div class="exsit">${exDiamond(q.run,q.outs)}<div><b>${q.outs}아웃 · ${RUNNAME[q.run]}</b><br>${q.sit}</div></div>
+      <div class="exopts${q.opts?'':' oxrow'}">${opts}</div>${exp}</div></div>`;
+  }).join('');
+  const answered=Object.keys(exPick).length;
+  $('exPaper').innerHTML=`<div class="exhdr"><div class="y">2026학년도 우리팀 수비 능력 평가 · 여자 사회인야구</div><div class="t">${ex.name} 고사</div><div class="s">제${idx}교시 · 10문항 · 100점 · 문항당 10점</div>${exGraded?`<div class="stamp">${score}<small>점</small></div>`:''}</div>
+    <div class="exnote">※ 주자 그림에서 칠해진 칸은 주자, 빨간 점은 아웃 카운트예요.</div>
+    <div class="excols">${qs}</div>
+    ${sec?`<div class="calls"><h3>투수 콜 정리 (투구 전에 크게!)</h3>${exSecret.calls.map(([a,b])=>`<div class="cl"><b>${a}</b><span>"${b}"</span></div>`).join('')}</div>`:''}
+    <div class="exbar">${exGraded?`<span class="exres">${score}점 · 맞힌 문제 ${score/10} / 10</span><button type="button" class="pb ghost" id="exRetry">다시 풀기</button>${sec?'':`<span class="pw"><input type="password" id="exPw" inputmode="numeric" placeholder="비밀번호" aria-label="해설 비밀번호"><button type="button" class="pb" id="exUnlock">해설 보기</button><span id="exPwMsg" class="note"></span></span>`}`
+      :`<span class="note">${answered} / 10 문항 답함</span><button type="button" class="pb" id="exGrade">채점하기</button>`}</div>`;
+}
+$('exSel').addEventListener('click',e=>{const b=e.target.closest('[data-ex]');if(!b)return;exCode=b.dataset.ex;exPick={};exGraded=false;exChips();drawExam()});
+$('exPaper').addEventListener('click',e=>{
+  const o=e.target.closest('.exo');
+  if(o&&!exGraded){const i=+o.dataset.q;const v=o.dataset.v;exPick[i]=/^\d$/.test(v)?+v:v;drawExam();return}
+  if(e.target.closest('#exGrade')){exGraded=true;drawExam();$('exPaper').scrollIntoView({behavior:'smooth',block:'start'});return}
+  if(e.target.closest('#exRetry')){exPick={};exGraded=false;drawExam();return}
+  if(e.target.closest('#exUnlock')){const pw=$('exPw').value.trim();const s=pw?decodeSecret(pw):null;if(s&&s.ex){exSecret=s;drawExam()}else{$('exPwMsg').textContent='비밀번호가 달라요.'}}
+});
+$('exPaper').addEventListener('keydown',e=>{if(e.target.id==='exPw'&&e.key==='Enter'){e.preventDefault();$('exUnlock').click()}});
+
+// ---------- 메뉴 ----------
+const SECTIONS=[['sim','수비 상황판','상황을 고르면 9명이 어디로 가야 하는지 움직여서 보여줘요'],['pos','기본 수비 위치','상황별로 어디에 서 있어야 하는지 보여줘요'],['sum','이것만 보자','포지션별 한 줄 공식과 예외만 모았어요'],['tips','수비 팁!','공이 맞기 전부터 몸이 먼저 반응하게 만드는 습관'],['run','이렇게 뛰자','수비가 어디로 던지는지 알면 주자는 언제 뛸지 보여요'],['quiz','랜덤 퀴즈!','야수를 고르면 한 문제씩 랜덤으로 나오고 바로 채점해요'],['exam','모의고사!','야수 7개 + 투수·포수·주자 고사. 채점 후 비밀번호를 넣으면 해설이 열려요']];
+let curSec=null;
+function go(id){
+  if(curSec===id)return;curSec=id;stop();
+  document.querySelectorAll('.side button').forEach(b=>b.setAttribute('aria-current',b.dataset.sec===id?'page':'false'));
+  {const cb=document.querySelector(`.side button[data-sec="${id}"]`);if(cb&&window.innerWidth<=920)try{cb.scrollIntoView({inline:'center',block:'nearest'})}catch(e){}}
+  const s=SECTIONS.find(x=>x[0]===id);$('pageTitle').textContent=s[1];$('pageSub').textContent=s[2];
+  const simLike=id==='sim'||id==='quiz';
+  $('mainBlock').hidden=!simLike;$('concepts').hidden=id!=='sim';
+  $('secPos').hidden=id!=='pos';$('secSum').hidden=id!=='sum';$('secExam').hidden=id!=='exam';$('secTips').hidden=id!=='tips';$('secRun').hidden=id!=='run';
+  if(id==='sim')setMode('study');
+  if(id==='quiz')setMode('quiz');
+  if(id==='pos'){posChips();drawPos()}
+  if(id==='exam'){exChips();drawExam()}
+  $('controls').hidden=id!=='sim';
+  try{history.replaceState(null,'','#'+id)}catch(e){}
+  window.scrollTo(0,0);
+}
+document.querySelector('.side').addEventListener('click',e=>{const b=e.target.closest('[data-sec]');if(b)go(b.dataset.sec)});
+if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)document.querySelectorAll('svg.gart').forEach(s=>{try{s.pauseAnimations()}catch(e){}});
+
 drawField();chips();load(false);
+{const h=(location.hash||'').slice(1);go(SECTIONS.some(s=>s[0]===h)?h:'sim')}
 })();
 </script>
 
