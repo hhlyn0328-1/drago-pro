@@ -574,13 +574,15 @@ const POS=['LF','CF','RF','2B','1B','SS','3B','P','C'];
 const FOCUS=['LF','CF','RF','2B','1B'];
 const NAME={P:'투수',C:'포수','1B':'1루수','2B':'2루수',SS:'유격수','3B':'3루수',LF:'좌익수',CF:'중견수',RF:'우익수'};
 const SHORT={P:'투',C:'포','1B':'1루','2B':'2루',SS:'유',' 3B':'3루','3B':'3루',LF:'좌',CF:'중',RF:'우'};
-const START={P:[0,56],C:[0,-7],'1B':[72,84],'2B':[38,138],SS:[-38,138],'3B':[-70,80],LF:[-108,194],CF:[0,228],RF:[108,194]};
+const START={P:[0,56],C:[0,-7],'1B':[60,88],'2B':[38,138],SS:[-38,138],'3B':[-70,80],LF:[-108,194],CF:[0,228],RF:[108,194]};
 const FSPD=28, RSPD=33, TSPD=85, ISPD=100;
 
 const RUNS=[['0','주자 없음'],['1','1루'],['2','2루'],['3','3루'],['12','1·2루'],['23','2·3루'],['13','1·3루'],['123','만루']];
 const OF=[['LL','좌측 선상',-41],['L','좌익수 정면',-28],['LC','좌중간',-14],['C','중견수 정면',0],['RC','우중간',14],['R','우익수 정면',28],['RL','우측 선상',41]];
 const IF=[['g3B','3루 쪽','3B'],['gSS','유격수 쪽','SS'],['gP','투수 앞','P'],['g2B','2루 쪽','2B'],['g1B','1루 쪽','1B']];
 const PK=[['p1B','1루 견제','1B'],['p2B','2루 견제','2B'],['p3B','3루 견제','3B']];
+// 2루에 주자가 있으면 1루 주자는 혼자 못 뛰어서 1루수가 붙잡지 않음 → 1루 견제 없음
+const pkOK=(run,k)=>run.includes(k[1])&&!(k==='p1B'&&run.includes('2'));
 const IFTYPES=[['ground','땅볼'],['ifly','뜬공']];
 const DEPTHS=[['short','짧게'],['mid','보통'],['deep','깊게']];
 const TYPES=[['single','앞에 떨어짐 (안타)'],['fly','잡음 (뜬공)'],['extra','키 넘김 (장타)']];
@@ -1045,7 +1047,7 @@ function miniDiamond(k){
 }
 function chips(){
   $('cRun').innerHTML=RUNS.map(([k,l])=>`<button type="button" class="chip" id="run-${k}" data-run="${k}" aria-pressed="${state.run===k}">${miniDiamond(k)}${l}</button>`).join('');
-  $('cHit').innerHTML=`<div class="grp"><span class="gl">외야</span>${OF.map(([k,l])=>`<button type="button" class="chip" id="hit-${k}" data-hit="${k}" aria-pressed="${state.hit===k}">${l}</button>`).join('')}</div><div class="grp"><span class="gl">내야</span>${IF.map(([k,l])=>`<button type="button" class="chip" id="hit-${k}" data-hit="${k}" aria-pressed="${state.hit===k}">${l}</button>`).join('')}</div><div class="grp"><span class="gl">견제</span>${PK.map(([k,l])=>`<button type="button" class="chip" id="hit-${k}" data-hit="${k}" aria-pressed="${state.hit===k}" ${state.run.includes(k[1])?'':'disabled title="그 베이스에 주자가 없어요"'}>${l}</button>`).join('')}</div>`;
+  $('cHit').innerHTML=`<div class="grp"><span class="gl">외야</span>${OF.map(([k,l])=>`<button type="button" class="chip" id="hit-${k}" data-hit="${k}" aria-pressed="${state.hit===k}">${l}</button>`).join('')}</div><div class="grp"><span class="gl">내야</span>${IF.map(([k,l])=>`<button type="button" class="chip" id="hit-${k}" data-hit="${k}" aria-pressed="${state.hit===k}">${l}</button>`).join('')}</div><div class="grp"><span class="gl">견제</span>${PK.map(([k,l])=>`<button type="button" class="chip" id="hit-${k}" data-hit="${k}" aria-pressed="${state.hit===k}" ${pkOK(state.run,k)?'':(state.run.includes(k[1])?'disabled title="2루에 주자가 있으면 1루수는 주자를 붙잡지 않아요"':'disabled title="그 베이스에 주자가 없어요"')}>${l}</button>`).join('')}</div>`;
   const isIF=state.hit[0]==='g',isPK=state.hit[0]==='p';
   $('cType').innerHTML=isPK?'<span class="note" style="align-self:center">견제는 타구가 없어요</span>':isIF?IFTYPES.map(([k,l])=>`<button type="button" class="chip" id="iftype-${k}" data-iftype="${k}" aria-pressed="${state.ifType===k}">${l}</button>`).join(''):TYPES.map(([k,l])=>`<button type="button" class="chip" id="type-${k}" data-type="${k}" aria-pressed="${state.type===k}">${l}</button>`).join('');
   const noD=isPK||isIF||state.type==='extra';
@@ -1058,7 +1060,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.type)state.type=b.dataset.type;
   if(b.dataset.iftype)state.ifType=b.dataset.iftype;
   if(b.dataset.depth)state.depth=b.dataset.depth;
-  if(state.hit[0]==='p'&&!state.run.includes(state.hit[1])){const ok=PK.find(([k])=>state.run.includes(k[1]));state.hit=ok?ok[0]:'R'}
+  if(state.hit[0]==='p'&&!pkOK(state.run,state.hit)){const ok=PK.find(([k])=>pkOK(state.run,k));state.hit=ok?ok[0]:'R'}
   chips();load(true);
 });
 
@@ -1209,7 +1211,7 @@ const QSCOPE=[['all','전체 (외야·2루·1루)',FOCUS],['of','외야수 전�
 const quiz={scope:'all',list:[],i:0,score:0,answered:false,log:[]};
 let POOL=null;
 const norm=t=>t.split(' · ')[0].replace(/\s*\(.*?\)/g,'').replace(/[!]/g,'').trim();
-function combos(){const out=[];RUNS.forEach(([r])=>{OF.forEach(([h])=>{['single','fly'].forEach(t=>DEPTHS.forEach(([d])=>out.push([r,h,t,d])));out.push([r,h,'extra','deep'])});IF.forEach(([h])=>{out.push([r,h,'ground']);out.push([r,h,'ifly'])});PK.forEach(([h])=>{if(r.includes(h[1]))out.push([r,h,'pick'])})});return out}
+function combos(){const out=[];RUNS.forEach(([r])=>{OF.forEach(([h])=>{['single','fly'].forEach(t=>DEPTHS.forEach(([d])=>out.push([r,h,t,d])));out.push([r,h,'extra','deep'])});IF.forEach(([h])=>{out.push([r,h,'ground']);out.push([r,h,'ifly'])});PK.forEach(([h])=>{if(pkOK(r,h))out.push([r,h,'pick'])})});return out}
 function buildPool(){POOL={};combos().forEach(c=>{const s=build(...c);POS.forEach(p=>{const r=s.roles[p];if(!r)return;const k=p+'|'+c[2];(POOL[k]=POOL[k]||new Set()).add(r.tag)})})}
 const ADJ={LF:['CF','SS','3B'],CF:['LF','RF','SS','2B'],RF:['CF','2B','1B'],'2B':['1B','SS','RF','P'],SS:['3B','2B','LF','P'],'3B':['SS','P','C','LF'],'1B':['2B','P','C','RF'],P:['1B','3B','C','2B','SS'],C:['P','1B','3B']};
 const FIELDTAG=/^(타구 처리|포구|펜스 처리)/;
@@ -1319,7 +1321,7 @@ $('tabQuiz').addEventListener('click',()=>setMode('quiz'));
 const BASEPOS_TXT={
   P:'투구판 위. 공을 던진 뒤에는 바로 수비수가 돼요.',
   C:'홈 플레이트 뒤. 경기장 전체가 보이는 유일한 자리라 콜 담당.',
-  '1B':'1루 베이스에서 외야 쪽으로 일곱 걸음쯤, 파울라인에서 두세 걸음 안쪽.',
+  '1B':'1루 베이스에서 2루 쪽으로 여덟 걸음, 뒤로 여섯 걸음쯤. 땅볼이 나오면 바로 1루로 뛰어 들어갈 수 있는 거리.',
   '2B':'2루 베이스에서 1루 쪽으로 열두 걸음쯤, 내야 흙과 잔디 경계 근처.',
   SS:'2루 베이스에서 3루 쪽으로 열두 걸음쯤, 내야 흙과 잔디 경계 근처.',
   '3B':'3루 베이스에서 외야 쪽으로 대여섯 걸음, 파울라인에서 두 걸음 안쪽.',
@@ -1331,7 +1333,7 @@ const inOF=(p,k)=>{const r=Math.hypot(p[0],p[1]);return[p[0]*(r-k)/r,p[1]*(r-k)/
 const VARIANTS=[
   {id:'base',label:'기본 (주자 없음)',run:'0',head:'모든 수비 위치의 출발점이에요. 여자 야구는 타구가 멀리 안 나가서 외야는 프로보다 훨씬 앞에 서요. 머리 넘는 공은 장타 줬다 생각하고 쫓아가고, 짧은 플라이를 놓치지 않는 게 먼저예요. 강한 타자면 다섯 걸음쯤 뒤로.',mv:{}},
   {id:'r1',label:'주자 1루 (병살 대비)',run:'1',head:'0~1아웃 주자 1루면 1루수는 주자를 붙잡고, 2루수·유격수는 2루 포스와 병살을 위해 2루 쪽으로 좁혀요.',
-    mv:{'1B':[[61,67],'1루 베이스에 붙어서 주자 붙잡기. 투수 쪽으로 몸을 돌리고, 투구가 되면 두세 걸음 떨어지기.'],
+    mv:{'1B':[[61,67],'1루 베이스에 붙어서 주자 붙잡기. 투수 쪽으로 몸을 돌리고, 투구가 되면 두세 걸음 떨어지기. 2루에도 주자가 있으면 붙잡지 않아요.'],
         '2B':[[26,128],'2루 쪽으로 다섯 걸음, 앞으로 두세 걸음. 2루 포스·병살 위치.'],
         SS:[[-26,128],'2루 쪽으로 다섯 걸음, 앞으로 두세 걸음. 2루 포스·병살 위치.']}},
   {id:'r2',label:'주자 2루',run:'2',head:'2루 주자가 있으면 짧은 안타 때 홈 승부를 할 수 있게 외야가 몇 걸음 앞으로. 2루 견제는 2루수가 들어가니까 2루수가 2루 쪽으로.',
@@ -1345,8 +1347,16 @@ const VARIANTS=[
         LF:[inOF(START.LF,15),'여섯 걸음 앞으로. 짧은 뜬공이면 홈 승부.'],
         CF:[inOF(START.CF,15),'여섯 걸음 앞으로. 짧은 뜬공이면 홈 승부.'],
         RF:[inOF(START.RF,15),'여섯 걸음 앞으로. 짧은 뜬공이면 홈 승부.']}},
+  {id:'r12',label:'주자 1·2루',run:'12',head:'2루에 주자가 있으면 1루 주자는 혼자 2루로 못 뛰어요. 그래서 1루수는 주자를 붙잡지 않고 기본 자리에서 수비해요. 2루수·유격수는 병살 위치, 3루수는 3루 포스를 위해 베이스 쪽, 외야는 짧은 안타 홈 승부 위치.',
+    mv:{'1B':[[60,88],'주자를 붙잡지 않고 기본 자리(1루 뒤). 1루 쪽 땅볼을 넓게 막기.'],
+        '2B':[[26,128],'2루 쪽으로 다섯 걸음, 앞으로 두세 걸음. 2루 포스·병살 위치.'],
+        SS:[[-26,128],'2루 쪽으로 다섯 걸음, 앞으로 두세 걸음. 2루 포스·병살 위치.'],
+        '3B':[[-64,72],'3루 베이스 쪽으로 서너 걸음. 내 앞 땅볼이면 3루 직접 밟기.'],
+        LF:[inOF(START.LF,15),'여섯 걸음 앞으로. 짧은 안타면 홈 승부.'],
+        CF:[inOF(START.CF,15),'여섯 걸음 앞으로. 짧은 안타면 홈 승부.'],
+        RF:[inOF(START.RF,15),'여섯 걸음 앞으로. 짧은 안타면 홈 승부.']}},
   {id:'r123',label:'만루',run:'123',head:'만루는 모든 베이스가 포스예요. 1·3루수는 홈 포스를 위해 몇 걸음 앞으로, 2루수·유격수는 병살 위치, 외야는 짧은 안타 홈 승부 위치.',
-    mv:{'1B':[[66,76],'앞으로 서너 걸음. 1루 땅볼이면 홈 포스.'],
+    mv:{'1B':[[55,80],'앞으로 서너 걸음. 1루 땅볼이면 홈 포스.'],
         '3B':[[-66,73],'앞으로 서너 걸음. 3루 땅볼이면 홈 포스.'],
         '2B':[[26,128],'2루 쪽으로 다섯 걸음, 앞으로 두세 걸음. 병살 위치.'],
         SS:[[-26,128],'2루 쪽으로 다섯 걸음, 앞으로 두세 걸음. 병살 위치.'],
@@ -1355,20 +1365,20 @@ const VARIANTS=[
     mv:{SS:[[-58,128],'3루 쪽으로 여덟아홉 걸음. 3루수와 함께 왼쪽 땅볼 길목 막기.'],
         '2B':[[16,130],'2루 쪽으로 아홉 걸음, 2루 베이스 바로 옆. 가운데 땅볼 + 2루 견제 커버.'],
         '3B':[[-76,74],'3루 라인 쪽으로 세 걸음. 선상 빠지는 땅볼 막기.'],
-        '1B':[[68,92],'2루 쪽으로 서너 걸음. 1루 선상 타구가 적어서 안쪽으로.'],
+        '1B':[[50,94],'2루 쪽으로 너덧 걸음. 1루 선상 타구가 적어서 안쪽으로.'],
         LF:[[-116,218],'뒤로 열 걸음(선상 쪽으로 조금). 당겨 친 강한 타구가 머리를 넘지 않게.'],
         CF:[[-22,230],'좌중간 쪽으로 살짝, 아홉 걸음.'],
         RF:[[100,174],'앞으로 아홉 걸음. 밀려서 빗맞은 짧은 플라이·안타 대비.']}},
   {id:'lhb',label:'좌타자일 때 (파울이 오른쪽으로 많이 날 때)',run:'0',head:'좌타자는 타구가 오른쪽(1루·2루수 쪽)으로 많이 와요. 파울이 1루 쪽으로 자주 나면 이쪽이에요. 내야는 오른쪽으로 크게 옮기고, 외야는 우익수 뒤로·좌익수 앞으로·중견수 살짝 오른쪽. 2루수가 1·2루 사이를 지키니까 이때 2루 커버는 유격수가 들어가는 게 자연스러워요.',
     mv:{'2B':[[58,128],'1루 쪽으로 여덟아홉 걸음. 1루수와 함께 오른쪽 땅볼 길목 막기.'],
         SS:[[-16,130],'2루 쪽으로 아홉 걸음, 2루 베이스 바로 옆. 가운데 땅볼 + 2루 커버.'],
-        '1B':[[76,78],'1루 라인 쪽으로 세 걸음. 선상 빠지는 땅볼 막기.'],
+        '1B':[[69,83],'1루 라인 쪽으로 네 걸음. 선상 빠지는 땅볼 막기.'],
         '3B':[[-68,92],'유격수 쪽으로 다섯 걸음. 3루 선상 타구가 적어서 안쪽으로.'],
         RF:[[116,218],'뒤로 열 걸음(선상 쪽으로 조금). 당겨 친 강한 타구가 머리를 넘지 않게.'],
         CF:[[22,230],'우중간 쪽으로 살짝, 아홉 걸음.'],
         LF:[[-100,174],'앞으로 아홉 걸음. 밀려서 빗맞은 짧은 플라이·안타 대비.']}},
   {id:'o2',label:'2아웃 주자 1·2루',run:'12',head:'2아웃이면 병살이 필요 없어서 2루수·유격수는 기본 깊이로. 주자가 맞는 순간 뛰니까 외야는 홈 승부 위치로 몇 걸음 앞으로. 투수 콜: "투아웃! 내야 가까운 베이스, 외야는 홈!"',
-    mv:{'1B':[[61,67],'1루 주자 붙잡기. 투구가 되면 두세 걸음 떨어지기.'],
+    mv:{'1B':[[60,88],'주자를 붙잡지 않고 기본 자리. 2루에 주자가 있어서 1루 주자는 혼자 못 뛰어요. 2아웃이니 1루 아웃 하나면 끝.'],
         LF:[inOF(START.LF,15),'여섯 걸음 앞으로. 외야는 홈.'],CF:[inOF(START.CF,15),'여섯 걸음 앞으로. 외야는 홈.'],RF:[inOF(START.RF,15),'여섯 걸음 앞으로. 외야는 홈.']}},
 ];
 let posVar='base',posSel=null,posZoom='in';
@@ -1393,7 +1403,7 @@ function drawPos(){
   });
   $('posHead').textContent=v.head;$('posSit').textContent=v.label;
   const card=p=>{const m=v.mv[p];const f=FOCUS.includes(p);
-    return `<div class="card${f?' focus':''}${m?' main-actor':''}${posSel===p?' sel':''}" data-pp="${p}" tabindex="0" role="button"><div class="badge">${SHORT[p]}</div><div class="nm">${NAME[p]} <span class="tag">${m?'이동':'기본 위치'}</span></div><div class="tx">${m?m[1]:BASEPOS_TXT[p]}</div>${m?`<div class="tx" style="color:var(--muted);font-size:13px">기본: ${BASEPOS_TXT[p]}</div>`:''}</div>`};
+    return `<div class="card${f?' focus':''}${m?' main-actor':''}${posSel===p?' sel':''}" data-pp="${p}" tabindex="0" role="button"><div class="badge">${SHORT[p]}</div><div class="nm">${NAME[p]} <span class="tag">${m?(m[0][0]===START[p][0]&&m[0][1]===START[p][1]?'기본 자리 그대로':'이동'):'기본 위치'}</span></div><div class="tx">${m?m[1]:BASEPOS_TXT[p]}</div>${m?`<div class="tx" style="color:var(--muted);font-size:13px">기본: ${BASEPOS_TXT[p]}</div>`:''}</div>`};
   $('posCards').innerHTML=['LF','CF','RF','2B','1B','SS','3B','P','C'].map(card).join('');
 }
 $('posZoom').addEventListener('click',e=>{const b=e.target.closest('[data-pz]');if(!b)return;posZoom=b.dataset.pz;drawPos()});
